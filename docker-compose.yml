@@ -1,0 +1,38 @@
+services:
+  # 1. Сервис Базы Данных (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Сохраняем данные при перезагрузке
+    env_file:
+      - .env # Берет логин/пароль из файла .env
+    ports:
+      - "5432:5432" # Чтобы вы могли подключиться к базе через DBeaver/pgAdmin с компа
+
+  # 2. Сервис Бэкенда (FastAPI)
+  backend:
+    build:
+      context: ./backend # Где искать Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app # "Зеркало": меняете код на компе -> меняется в контейнере
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db # Запускать только после того, как запустится база
+
+  # 3. Сервис Фронтенда (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend # Где искать Dockerfile
+    ports:
+      - "80:80" # Сайт будет доступен по адресу http://localhost (без порта)
+    depends_on:
+      - backend
+
+# Том для хранения данных базы (чтобы не исчезли после удаления контейнера)
+volumes:
+  postgres_data:
