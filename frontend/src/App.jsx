@@ -18,7 +18,12 @@ function App() {
 
         {/* Здесь меняются страницы */}
         <Routes>
-          <Route path="/" element={<h1>Главная страница (Dashboard)</h1>} />
+          <Route path="/" element={
+            <div>
+            <h1>Главная страница (Dashboard)</h1>
+            <h2>Тестовий рядочок</h2>
+          </div>
+          }/>
           <Route
             path="/about"
             element={<h1>О проекте (Сделано 2 разработчиками)</h1>}
