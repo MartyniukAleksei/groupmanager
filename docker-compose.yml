@@ -24,12 +24,16 @@ services:
     depends_on:
       - db # Запускать только после того, как запустится база
 
-  # 3. Сервис Фронтенда (React + Nginx)
+  # 3. Сервис Фронтенда (Режим Разработчика Node.js)
   frontend:
-    build:
-      context: ./frontend # Где искать Dockerfile
+    image: node:20-alpine # Игнорируем ваш Dockerfile, берем чистый образ с npm
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      # Оставляем node_modules внутри контейнера
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     ports:
-      - "80:80" # Сайт будет доступен по адресу http://localhost (без порта)
+      - "5173:5173"
     depends_on:
       - backend
 
