@@ -1,29 +1,44 @@
 /* =========================================
-   ГОЛОВНИЙ КОНТЕЙНЕР
+   ГОЛОВНИЙ КОНТЕЙНЕР ТА ХЕДЕР
 ========================================= */
-
-/* .schedule-wrapper: Головна обгортка всієї сторінки розкладу. 
-   Вона не дає контенту розтягуватися на гігантські монітори (max-width: 1400px) 
-   і центрує його по середині екрану (margin: 0 auto). */
 .schedule-wrapper {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-
-/* =========================================
-   ПЕРЕМИКАЧ ТИЖНІВ (1-й / 2-й тиждень)
-========================================= */
-
-/* .week-toggle-container: Вирівнює весь блок з кнопками по центру сторінки. */
-.week-toggle-container {
+.schedule-header {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-bottom: 30px;
+  position: relative;
 }
 
-/* .week-toggle-bg: Сіре "тло" у формі пігулки, всередині якого лежать кнопки. */
+/* Кнопка "Олівець" (Режим редагування) */
+.edit-mode-btn {
+  position: absolute;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  padding: 10px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  transition: 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.edit-mode-btn.active {
+  background: #e0efff;
+  border-color: #007bff;
+  color: #007bff;
+}
+
 .week-toggle-bg {
   display: flex;
   background: #f1f3f5;
@@ -31,7 +46,6 @@
   padding: 4px;
 }
 
-/* .week-btn: Базовий вигляд кнопки тижня (сірий текст, прозоре тло). */
 .week-btn {
   padding: 10px 24px;
   border-radius: 26px;
@@ -40,225 +54,133 @@
   font-weight: bold;
   background: transparent;
   color: #666;
-  transition: all 0.2s ease; /* Плавна анімація при перемиканні */
+  transition: all 0.2s ease;
 }
 
-/* .week-btn.active: Вигляд АКТИВНОЇ кнопки (біле тло, чорний текст, легка тінь). */
 .week-btn.active {
   background: white;
   color: #111;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-
 /* =========================================
-   СІТКА РОЗКЛАДУ ТА АДАПТИВНІСТЬ (МОБІЛЬНІ)
+   СІТКА РОЗКЛАДУ (Тепер 6 днів!)
 ========================================= */
-
-/* .schedule-scroll-area: Це НАЙГОЛОВНІШИЙ клас для мобільних телефонів.
-   Він дозволяє таблиці скролитися вліво-вправо, якщо вона не влазить в екран,
-   замість того, щоб ламати дизайн або стискати текст. */
 .schedule-scroll-area {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Робить скрол на телефоні плавним (як у додатках) */
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 20px;
 }
 
-/* .schedule-grid: Сама таблиця. Ми кажемо їй: "Зроби 5 однакових колонок" (repeat(5, 1fr)).
-   min-width: 900px забороняє таблиці ставати вужчою за 900px, 
-   саме тому на телефонах з'являється скрол. */
 .schedule-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr); /* Було 5, стало 6 */
   gap: 15px;
-  min-width: 900px; 
+  min-width: 1100px; /* Трохи розширили, щоб влізла Субота */
 }
 
-/* .day-column: Це вертикальна колонка одного дня (наприклад, тільки Понеділок). */
-.day-column {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* .day-header: Заголовок дня (ПОНЕДІЛОК, ВІВТОРОК) над колонкою. */
-.day-header {
-  text-align: center;
-  font-weight: bold;
-  font-size: 13px;
-  color: #636e72;
-  letter-spacing: 1px;
-}
-
+.day-column { display: flex; flex-direction: column; gap: 15px; }
+.day-header { text-align: center; font-weight: bold; font-size: 13px; color: #636e72; letter-spacing: 1px; }
+.time-slot-wrapper { min-height: 120px; position: relative; }
+.time-label { font-size: 10px; font-weight: bold; color: #a0a0a0; margin-bottom: 5px; }
 
 /* =========================================
-   СЛОТИ ЧАСУ ТА КАРТКИ ПРЕДМЕТІВ
+   КАРТКИ ПАР ТА ПІДГРУПИ
 ========================================= */
-
-/* .time-slot-wrapper: Блок, який тримає час (08:30) і саму картку предмета під ним.
-   min-height гарантує, що всі слоти будуть однакової висоти, навіть якщо вони порожні. */
-.time-slot-wrapper {
-  min-height: 120px;
-}
-
-/* .time-label: Маленький сірий текст часу (наприклад, "08:30") над карткою. */
-.time-label {
-  font-size: 10px;
-  font-weight: bold;
-  color: #a0a0a0;
-  margin-bottom: 5px;
-}
-
-/* .class-card: Біла картка реальної пари. З рамкою, заокругленими кутами та реакцією на мишку. */
 .class-card {
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 12px;
   padding: 12px;
-  height: 100px;
   cursor: pointer;
   box-sizing: border-box;
-  transition: 0.2s; /* Плавність для ефекту наведення */
+  transition: 0.2s;
   box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* .class-card:hover: Що відбувається, коли ми наводимо мишку на картку пари 
-   (вона трохи підіймається вгору і відкидає тінь). */
-.class-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
+.class-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 
-/* .class-type-badge: Маленька кольорова бірка типу пари (ЛЕКЦІЯ, ПРАКТИКА, ЛАБ). */
 .class-type-badge {
   font-size: 9px;
   font-weight: 800;
   padding: 3px 6px;
   border-radius: 4px;
   display: inline-block;
-  margin-bottom: 8px;
+  align-self: flex-start;
 }
 
-/* .class-name: Назва предмету (жирним шрифтом). */
-.class-name {
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #111;
-}
+.class-name { font-size: 13px; font-weight: 700; line-height: 1.2; color: #111; }
+.class-details { font-size: 11px; color: #666; display: flex; align-items: center; gap: 4px; }
+.class-room { font-weight: bold; color: #007bff; }
 
-/* .class-teacher: ПІБ викладача під назвою предмета (сірим кольором). */
-.class-teacher {
+/* Складні картки (Більше інформації) */
+.complex-card-toggle {
+  background: #f8f9fa;
+  border: none;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
   font-size: 11px;
-  color: #666;
-  margin-top: 6px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: 0.2s;
 }
 
-/* .empty-slot: Квадратик з пунктирною лінією і плюсиком "+", куди можна додати нову пару. */
+.complex-card-toggle:hover { background: #e9ecef; }
+.sub-class-item {
+  padding: 10px 0;
+  border-bottom: 1px dashed #e9ecef;
+}
+.sub-class-item:last-child { border-bottom: none; padding-bottom: 0; }
+
 .empty-slot {
-  background: transparent;
-  border: 1px dashed #ced4da;
+  background: rgba(0, 123, 255, 0.05);
+  border: 1px dashed #007bff;
   border-radius: 12px;
   height: 100px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ced4da;
+  color: #007bff;
   font-size: 24px;
   transition: 0.2s;
 }
 
-/* .empty-slot:hover: Злегка сіріє при наведенні мишки на порожній слот. */
-.empty-slot:hover {
-  background: #f8f9fa;
-  color: #adb5bd;
-}
-
+.empty-slot:hover { background: rgba(0, 123, 255, 0.1); }
 
 /* =========================================
-   МОДАЛЬНІ ВІКНА (ПОПАПИ)
+   МОДАЛКИ ТА ФОРМИ
 ========================================= */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+.modal-form { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; text-align: left; }
+.modal-input { padding: 12px; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+.form-row { display: flex; gap: 10px; }
 
-/* .modal-overlay: Темне напівпрозоре тло, яке перекриває весь сайт, коли відкрито попап. */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center; /* Центрує попап по вертикалі */
-  justify-content: center; /* Центрує попап по горизонталі */
-  z-index: 1000;
-  padding: 20px;
-}
-
-/* .modal-content: Сама біла коробочка модального вікна, де лежить текст або форма. */
-.modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  text-align: center;
-}
-
-/* .modal-form: Розміщує інпути (поля вводу) у формі додавання пари вертикально один під одним. */
-.modal-form {
+.sub-item-box {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-  text-align: left;
+  gap: 10px;
+  position: relative;
 }
 
-/* .modal-input: Стиль для текстових полів вводу (Назва, Викладач, Посилання). */
-.modal-input {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
+.remove-sub-btn {
+  position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: bold;
 }
 
-
-/* =========================================
-   КНОПКИ В МОДАЛКАХ
-========================================= */
-
-/* .btn-primary: Головна синя кнопка (наприклад, "Увійти" або "Додати"). */
-.btn-primary {
-  background: #007bff;
-  color: white;
-  padding: 14px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  display: block;
-  text-align: center;
-}
-
-/* .btn-danger: Червона кнопка для небезпечних дій ("Видалити назавжди"). */
-.btn-danger {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-/* .btn-outline-danger: Червона кнопка, але з прозорим тлом і рамкою ("Видалити тільки на цей тиждень"). */
-.btn-outline-danger {
-  background: transparent;
-  border: 1px solid #e74c3c;
-  color: #e74c3c;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-}
+.btn-primary { background: #007bff; color: white; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; display: block; text-align: center; }
+.btn-secondary { background: #e9ecef; color: #333; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+.btn-danger { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+.btn-outline-danger { background: transparent; border: 1px solid #e74c3c; color: #e74c3c; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }

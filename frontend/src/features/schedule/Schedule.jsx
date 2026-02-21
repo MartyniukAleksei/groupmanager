@@ -1,95 +1,106 @@
 import React, { useState } from 'react';
-
-// =========================================
-// 1. ПІДКЛЮЧЕННЯ (СТИЛІВ)
-// =========================================
-// Рядок нижче каже: "Візьми всі класи з файлу schedule.css і застосуй їх тут".
 import '../../styles/schedule.css';
 
-// =========================================
-// 2. СТАТИЧНІ ДАНІ (КОНСТАНТИ)
-// =========================================
-// Це дані, які ніколи не змінюються в процесі роботи. 
-// Вони потрібні, щоб намалювати сітку таблиці (5 колонок та 5 рядків часу).
-
+// 1. ОНОВЛЕНІ ДАНІ: Додали Суботу
 const DAYS = [
   { id: 'monday', label: 'ПОНЕДІЛОК' },
   { id: 'tuesday', label: 'ВІВТОРОК' },
   { id: 'wednesday', label: 'СЕРЕДА' },
   { id: 'thursday', label: 'ЧЕТВЕР' },
   { id: 'friday', label: "П'ЯТНИЦЯ" },
+  { id: 'saturday', label: 'СУБОТА' },
 ];
 
-const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10'];
+// ОНОВЛЕНІ ДАНІ: 7 пар
+const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10', '18:05', '19:50'];
 
-// Початкові фейкові дані розкладу (щоб таблиця не була порожньою).
-// Пізніше ми видалимо це і будемо тягнути реальні дані з бекенда (FastAPI).
+// Універсальна структура даних. items - це масив предметів у слоті (для груп)
 const INITIAL_SCHEDULE = [
-  { id: 1, day: 'monday', time: '08:30', week: 'both', type: 'lecture', name: 'Теорія графів', teacher: 'Спекторський І.Я.', link: 'https://zoom.us/test' },
-  { id: 2, day: 'tuesday', time: '08:30', week: 1, type: 'practice', name: 'Алгебра і геометрія', teacher: 'Подколзін Г.Б.', link: '' },
-  { id: 3, day: 'wednesday', time: '12:20', week: 'both', type: 'lab', name: 'Програмування', teacher: 'Назарчук І.В.', link: '' },
+  {
+    id: 1, day: 'monday', time: '08:30', week: 'both', isComplex: false,
+    items: [{ type: 'lecture', name: 'Теорія графів', teacher: 'Спекторський І.Я.', room: '1-201', link: 'https://zoom.us/test' }]
+  },
+  {
+    id: 2, day: 'thursday', time: '12:20', week: 'both', isComplex: true, complexTitle: 'Програмування (Групи)',
+    items: [
+      { type: 'lab', name: 'Програмування. Група 1', teacher: 'Назарчук І.В.', room: '35-306', link: '' },
+      { type: 'lab', name: 'Програмування. Група 2', teacher: 'Канцедал Г.О.', room: '35-306', link: '' }
+    ]
+  }
 ];
 
-
-// =========================================
-// 3. ГОЛОВНИЙ КОМПОНЕНТ
-// =========================================
 const Schedule = () => {
-  // --- ПАМ'ЯТЬ КОМПОНЕНТА (State) ---
-  // useState дозволяє React запам'ятовувати дані і миттєво оновлювати екран, коли вони змінюються.
-
-  const [activeWeek, setActiveWeek] = useState(1); // Пам'ятає, який зараз обрано тиждень (1 або 2)
-  const [scheduleData, setScheduleData] = useState(INITIAL_SCHEDULE); // Пам'ятає весь список пар
+  const [activeWeek, setActiveWeek] = useState(1);
+  const [isEditMode, setIsEditMode] = useState(false); // РЕЖИМ РЕДАГУВАННЯ
+  const [scheduleData, setScheduleData] = useState(INITIAL_SCHEDULE);
   
-  // Ці два стани відповідають за те, чи відкриті зараз модальні вікна (попапи)
-  const [viewClassModal, setViewClassModal] = useState(null); // Якщо тут об'єкт пари — відкриється вікно перегляду
-  const [addClassModal, setAddClassModal] = useState(null); // Якщо тут є {day, time} — відкриється вікно додавання
+  const [viewClassModal, setViewClassModal] = useState(null); 
+  const [addClassModal, setAddClassModal] = useState(null); 
+  const [expandedCards, setExpandedCards] = useState({}); // Які картки розгорнуті
 
-  // Цей стан пам'ятає все, що ти вводиш у форму додавання нової пари
+  // Стан для нової складної форми
   const [formData, setFormData] = useState({
-    name: '', teacher: '', type: 'lecture', link: '', week: 'both'
+    week: 'both',
+    isComplex: false,
+    complexTitle: '', // Назва для блоку (напр. "Іноземна мова (На вибір)")
+    items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] // Масив підгруп
   });
 
+  const toggleExpand = (e, id) => {
+    e.stopPropagation(); // Щоб не відкривалась модалка перегляду
+    setExpandedCards(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
-  // --- ФУНКЦІЇ (ЛОГІКА) ---
+  // --- ЛОГІКА ДОДАВАННЯ ПАРИ ---
+  const handleAddSubItem = () => {
+    setFormData(prev => ({
+      ...prev, items: [...prev.items, { name: '', teacher: '', room: '', type: 'lecture', link: '' }]
+    }));
+  };
 
-  // Функція, яка спрацьовує, коли ти натискаєш кнопку "Додати" у формі
+  const handleUpdateSubItem = (index, field, value) => {
+    const newItems = [...formData.items];
+    newItems[index][field] = value;
+    setFormData({ ...formData, items: newItems });
+  };
+
+  const handleRemoveSubItem = (index) => {
+    const newItems = formData.items.filter((_, i) => i !== index);
+    setFormData({ ...formData, items: newItems });
+  };
+
   const handleAddSubmit = (e) => {
-    e.preventDefault(); // Забороняє сторінці перезавантажуватись (стандартна поведінка форм)
-    
-    // Створюємо нову пару з унікальним ID (поточний час у мілісекундах)
+    e.preventDefault();
     const newClass = {
       id: Date.now(),
       day: addClassModal.day,
       time: addClassModal.time,
-      ...formData // Беремо всі дані з форми (назву, викладача, тип)
+      week: formData.week,
+      isComplex: formData.isComplex,
+      complexTitle: formData.complexTitle,
+      items: formData.items
     };
-    
-    setScheduleData([...scheduleData, newClass]); // Додаємо нову пару до старого списку
-    setAddClassModal(null); // Закриваємо модалку
-    setFormData({ name: '', teacher: '', type: 'lecture', link: '', week: 'both' }); // Очищуємо форму
+    setScheduleData([...scheduleData, newClass]);
+    setAddClassModal(null);
+    setFormData({ week: 'both', isComplex: false, complexTitle: '', items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] }); 
   };
 
-  // Функція для видалення пари "Тільки на цей тиждень"
+  // --- ЛОГІКА ВИДАЛЕННЯ ---
   const handleDeleteOnce = (classItem) => {
     if (classItem.week === 'both') {
-      // Якщо пара була на обидва тижні, ми залишаємо її тільки на іншому тижні
       const otherWeek = activeWeek === 1 ? 2 : 1;
       setScheduleData(prev => prev.map(c => c.id === classItem.id ? { ...c, week: otherWeek } : c));
     } else {
-      // Якщо вона і так була тільки на цей тиждень, видаляємо повністю
       setScheduleData(prev => prev.filter(c => c.id !== classItem.id));
     }
-    setViewClassModal(null); // Закриваємо модалку
+    setViewClassModal(null);
   };
 
-  // Функція для повного видалення пари назавжди
   const handleDeleteForever = (id) => {
-    setScheduleData(prev => prev.filter(c => c.id !== id)); // Фільтруємо список: залишаємо всі пари, крім цієї
-    setViewClassModal(null); // Закриваємо модалку
+    setScheduleData(prev => prev.filter(c => c.id !== id));
+    setViewClassModal(null);
   };
 
-  // Функція-помічник: підбирає правильні кольори та текст залежно від типу пари
   const getTypeStyles = (type) => {
     switch (type) {
       case 'lecture': return { bg: '#e8f5e9', text: '#2e7d32', label: 'ЛЕКЦІЯ' };
@@ -99,71 +110,88 @@ const Schedule = () => {
     }
   };
 
-
-  // =========================================
-  // 4. ВІЗУАЛЬНА ЧАСТИНА (Що малюється на екрані)
-  // =========================================
   return (
     <div className="schedule-wrapper">
       
-      {/* --- БЛОК 1: Кнопки перемикання тижнів --- */}
-      <div className="week-toggle-container">
+      {/* ХЕДЕР З КНОПКОЮ РЕДАГУВАННЯ */}
+      <div className="schedule-header">
         <div className="week-toggle-bg">
-          <button 
-            className={`week-btn ${activeWeek === 1 ? 'active' : ''}`}
-            onClick={() => setActiveWeek(1)} // При кліку міняємо активний тиждень на 1
-          >
-            1-й Тиждень
-          </button>
-          <button 
-            className={`week-btn ${activeWeek === 2 ? 'active' : ''}`}
-            onClick={() => setActiveWeek(2)} // При кліку міняємо активний тиждень на 2
-          >
-            2-й Тиждень
-          </button>
+          <button className={`week-btn ${activeWeek === 1 ? 'active' : ''}`} onClick={() => setActiveWeek(1)}>1-й Тиждень</button>
+          <button className={`week-btn ${activeWeek === 2 ? 'active' : ''}`} onClick={() => setActiveWeek(2)}>2-й Тиждень</button>
         </div>
+        
+        <button 
+          className={`edit-mode-btn ${isEditMode ? 'active' : ''}`} 
+          onClick={() => setIsEditMode(!isEditMode)}
+        >
+          ✏️ {isEditMode ? 'Готово' : 'Редагувати'}
+        </button>
       </div>
 
-      {/* --- БЛОК 2: Сітка розкладу (Зі скролом для мобілок) --- */}
+      {/* СІТКА РОЗКЛАДУ */}
       <div className="schedule-scroll-area">
         <div className="schedule-grid">
-          
-          {/* Ми беремо масив DAYS і для кожного дня створюємо колонку */}
           {DAYS.map(dayObj => (
             <div key={dayObj.id} className="day-column">
-              <div className="day-header">{dayObj.label}</div> {/* Виводимо "ПОНЕДІЛОК" */}
+              <div className="day-header">{dayObj.label}</div>
 
-              {/* Далі всередині дня беремо масив TIMES і малюємо слоти часу */}
               {TIMES.map(time => {
-                
-                // Шукаємо, чи є в нашій пам'яті (scheduleData) пара на ЦЕЙ день, на ЦЕЙ час і на ЦЕЙ тиждень
                 const classObj = scheduleData.find(c => 
-                  c.day === dayObj.id && 
-                  c.time === time && 
-                  (c.week === 'both' || c.week === activeWeek)
+                  c.day === dayObj.id && c.time === time && (c.week === 'both' || c.week === activeWeek)
                 );
 
                 return (
                   <div key={`${dayObj.id}-${time}`} className="time-slot-wrapper">
-                    <div className="time-label">{time}</div> {/* Виводимо час, напр. "08:30" */}
+                    <div className="time-label">{time}</div>
                     
                     {classObj ? (
-                      /* ЯКЩО ПАРА Є: Малюємо її картку */
+                      /* КАРТКА ПАРИ */
                       <div className="class-card" onClick={() => setViewClassModal(classObj)}>
-                        <span 
-                          className="class-type-badge"
-                          style={{ background: getTypeStyles(classObj.type).bg, color: getTypeStyles(classObj.type).text, border: `1px solid ${getTypeStyles(classObj.type).bg}` }}
-                        >
-                          {getTypeStyles(classObj.type).label}
-                        </span>
-                        <div className="class-name">{classObj.name}</div>
-                        <div className="class-teacher">{classObj.teacher}</div>
+                        
+                        {/* Якщо це проста пара (1 предмет) */}
+                        {!classObj.isComplex && classObj.items.map((item, idx) => (
+                          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).bg}` }}>
+                              {getTypeStyles(item.type).label}
+                            </span>
+                            <div className="class-name">{item.name}</div>
+                            <div className="class-details">
+                              <span>🎓 {item.teacher}</span>
+                              {item.room && <span className="class-room">📍 {item.room}</span>}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Якщо це складна пара (Групи / Вибіркові) */}
+                        {classObj.isComplex && (
+                          <div>
+                            <div className="class-name" style={{ color: '#007bff', marginBottom: '8px' }}>{classObj.complexTitle}</div>
+                            
+                            {/* Показуємо тільки перший елемент, якщо картка не розгорнута */}
+                            {(expandedCards[classObj.id] ? classObj.items : classObj.items.slice(0, 1)).map((item, idx) => (
+                              <div key={idx} className="sub-class-item">
+                                <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text }}>{getTypeStyles(item.type).label}</span>
+                                <div className="class-name" style={{ fontSize: '12px' }}>{item.name}</div>
+                                <div className="class-details" style={{ fontSize: '10px' }}>
+                                  <span>🎓 {item.teacher}</span>
+                                  {item.room && <span className="class-room">📍 {item.room}</span>}
+                                </div>
+                              </div>
+                            ))}
+                            
+                            <button className="complex-card-toggle" onClick={(e) => toggleExpand(e, classObj.id)}>
+                              {expandedCards[classObj.id] ? 'Меньше інформації ∧' : 'Більше інформації ∨'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      /* ЯКЩО ПАРИ НЕМАЄ: Малюємо порожній слот з плюсиком */
-                      <div className="empty-slot" onClick={() => setAddClassModal({ day: dayObj.id, time })} title="Додати пару">
-                        +
-                      </div>
+                      /* ПОРОЖНІЙ СЛОТ (ПОКАЗУЄМО ТІЛЬКИ В РЕЖИМІ РЕДАГУВАННЯ) */
+                      isEditMode && (
+                        <div className="empty-slot" onClick={() => setAddClassModal({ day: dayObj.id, time })} title="Додати пару">
+                          +
+                        </div>
+                      )
                     )}
                   </div>
                 );
@@ -173,81 +201,95 @@ const Schedule = () => {
         </div>
       </div>
 
-
-      {/* --- БЛОК 3: МОДАЛКА ПЕРЕГЛЯДУ ПАРИ --- */}
-      {/* Цей шматок коду з'являється тільки тоді, коли viewClassModal не дорівнює null */}
-      {viewClassModal && (
-        <div className="modal-overlay" onClick={() => setViewClassModal(null)}> {/* Клік по темному фону закриває вікно */}
-          <div className="modal-content" onClick={e => e.stopPropagation()}> {/* Забороняємо закриття при кліку на саму білу модалку */}
-            
-            <div style={{ fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '15px', color: '#333' }}>
-              {getTypeStyles(viewClassModal.type).label}
-            </div>
-            <h2 style={{ margin: '0 0 10px 0', fontSize: '22px' }}>{viewClassModal.name}</h2>
-            <p style={{ color: '#666', margin: '0 0 25px 0', fontSize: '14px' }}>{viewClassModal.teacher}</p>
-
-            {/* Якщо є лінк на Зум — показуємо кнопку, якщо ні — просто текст */}
-            {viewClassModal.link ? (
-               <a href={viewClassModal.link} target="_blank" rel="noreferrer" className="btn-primary" style={{marginBottom: '20px'}}>
-                 Увійти 🔗
-               </a>
-            ) : (
-               <div style={{ padding: '14px', background: '#f8f9fa', color: '#666', borderRadius: '12px', marginBottom: '20px', fontSize: '14px' }}>
-                 Посилання не додано
-               </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
-               <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger">
-                 Видалити (Тільки цей тиждень)
-               </button>
-               <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger">
-                 Видалити назавжди
-               </button>
-            </div>
-
-            <button onClick={() => setViewClassModal(null)} style={{ background: 'none', border: 'none', color: '#666', cursor: 'pointer', fontWeight: 'bold' }}>
-              Закрити
-            </button>
-          </div>
-        </div>
-      )}
-
-
-      {/* --- БЛОК 4: МОДАЛКА ДОДАВАННЯ ПАРИ --- */}
-      {/* З'являється, коли ми клікнули на порожній слот і в addClassModal записався день і час */}
+      {/* МОДАЛКА ДОДАВАННЯ ПАРИ */}
       {addClassModal && (
         <div className="modal-overlay" onClick={() => setAddClassModal(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3 style={{ marginTop: 0 }}>Додати пару</h3>
-            <p style={{ color: '#666', fontSize: '12px' }}>
-              {DAYS.find(d => d.id === addClassModal.day)?.label}, {addClassModal.time}
-            </p>
+            <p style={{ color: '#666', fontSize: '12px' }}>{DAYS.find(d => d.id === addClassModal.day)?.label}, {addClassModal.time}</p>
 
-            {/* Форма: коли натискаємо "Додати", спрацьовує handleAddSubmit */}
             <form onSubmit={handleAddSubmit} className="modal-form">
-              {/* onChange записує кожну введену літеру в пам'ять formData */}
-              <input className="modal-input" type="text" placeholder="Назва предмета" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-              <input className="modal-input" type="text" placeholder="ПІБ Викладача" required value={formData.teacher} onChange={e => setFormData({...formData, teacher: e.target.value})} />
-              <input className="modal-input" type="url" placeholder="Посилання (Zoom/Meet)" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} />
-              
-              <select className="modal-input" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                <option value="lecture">Лекція</option>
-                <option value="practice">Практика</option>
-                <option value="lab">Лабораторна</option>
-              </select>
-
               <select className="modal-input" value={formData.week} onChange={e => setFormData({...formData, week: e.target.value === 'both' ? 'both' : Number(e.target.value)})}>
                 <option value="both">Кожен тиждень</option>
                 <option value={1}>Тільки 1-й тиждень</option>
                 <option value={2}>Тільки 2-й тиждень</option>
               </select>
 
+              {/* Галочка "Пара групами / На вибір" */}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', cursor: 'pointer', background: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
+                <input type="checkbox" checked={formData.isComplex} onChange={e => setFormData({...formData, isComplex: e.target.checked})} style={{ width: '18px', height: '18px' }} />
+                Складна пара (Розділення на групи / Предмети на вибір)
+              </label>
+
+              {formData.isComplex && (
+                <input className="modal-input" type="text" placeholder="Спільна назва (напр. 'Іноземна мова')" required value={formData.complexTitle} onChange={e => setFormData({...formData, complexTitle: e.target.value})} />
+              )}
+
+              {/* Рендеримо підгрупи */}
+              <div style={{ maxHeight: '40vh', overflowY: 'auto', paddingRight: '5px' }}>
+                {formData.items.map((item, index) => (
+                  <div key={index} className="sub-item-box">
+                    {formData.isComplex && formData.items.length > 1 && (
+                      <button type="button" className="remove-sub-btn" onClick={() => handleRemoveSubItem(index)}>✕</button>
+                    )}
+                    <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#007bff' }}>{formData.isComplex ? `Підгрупа / Предмет ${index + 1}` : 'Деталі пари'}</div>
+                    
+                    <input className="modal-input" type="text" placeholder="Назва предмета/групи" required value={item.name} onChange={e => handleUpdateSubItem(index, 'name', e.target.value)} />
+                    
+                    <div className="form-row">
+                      <input className="modal-input" type="text" placeholder="Викладач" required value={item.teacher} onChange={e => handleUpdateSubItem(index, 'teacher', e.target.value)} />
+                      <input className="modal-input" type="text" placeholder="Аудиторія (напр. 35-10)" value={item.room} onChange={e => handleUpdateSubItem(index, 'room', e.target.value)} style={{ width: '120px' }} />
+                    </div>
+                    
+                    <div className="form-row">
+                      <select className="modal-input" value={item.type} onChange={e => handleUpdateSubItem(index, 'type', e.target.value)}>
+                        <option value="lecture">Лекція</option>
+                        <option value="practice">Практика</option>
+                        <option value="lab">Лабораторна</option>
+                      </select>
+                      <input className="modal-input" type="url" placeholder="Zoom/Meet" value={item.link} onChange={e => handleUpdateSubItem(index, 'link', e.target.value)} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {formData.isComplex && (
+                <button type="button" className="btn-secondary" onClick={handleAddSubItem}>+ Додати ще групу/предмет</button>
+              )}
+
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setAddClassModal(null)} style={{ flex: 1, padding: '12px', background: '#eee', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Скасувати</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Додати</button>
+                <button type="button" onClick={() => setAddClassModal(null)} className="btn-secondary" style={{ flex: 1 }}>Скасувати</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Зберегти</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* МОДАЛКА ПЕРЕГЛЯДУ ПАРИ */}
+      {viewClassModal && (
+        <div className="modal-overlay" onClick={() => setViewClassModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
+            {viewClassModal.isComplex && <h2 style={{ color: '#007bff' }}>{viewClassModal.complexTitle}</h2>}
+            
+            {viewClassModal.items.map((item, idx) => (
+              <div key={idx} style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', marginBottom: '15px', textAlign: 'left' }}>
+                <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text }}>{getTypeStyles(item.type).label}</span>
+                <h3 style={{ margin: '5px 0' }}>{item.name}</h3>
+                <p style={{ margin: '0 0 5px 0', fontSize: '13px', color: '#555' }}>🎓 {item.teacher}</p>
+                {item.room && <p style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 'bold', color: '#007bff' }}>📍 Аудиторія: {item.room}</p>}
+                
+                {item.link && (
+                  <a href={item.link} target="_blank" rel="noreferrer" className="btn-primary" style={{ padding: '8px', fontSize: '14px' }}>Увійти 🔗</a>
+                )}
+              </div>
+            ))}
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', margin: '20px 0' }}>
+               <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger">Видалити (Тільки цей тиждень)</button>
+               <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger">Видалити назавжди</button>
+            </div>
+            <button onClick={() => setViewClassModal(null)} className="btn-secondary" style={{ width: '100%' }}>Закрити</button>
           </div>
         </div>
       )}
