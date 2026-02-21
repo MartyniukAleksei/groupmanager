@@ -1,23 +1,26 @@
 /* =========================================
-   ГОЛОВНИЙ КОНТЕЙНЕР ТА ХЕДЕР
+   1. ГОЛОВНИЙ КОНТЕЙНЕР ТА ШАПКА
 ========================================= */
+
+/* Обмежуємо максимальну ширину всього розкладу і центруємо його */
 .schedule-wrapper {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
+/* Шапка, де лежать перемикач тижнів і кнопка редагування */
 .schedule-header {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 30px;
-  position: relative;
+  position: relative; /* Щоб кнопку "Олівець" можна було притиснути до правого краю */
 }
 
-/* Кнопка "Олівець" (Режим редагування) */
+/* --- Кнопка "Олівець" (Режим редагування) --- */
 .edit-mode-btn {
-  position: absolute;
+  position: absolute; /* Притискаємо до правого краю шапки */
   right: 0;
   background: white;
   border: 1px solid #e9ecef;
@@ -33,12 +36,14 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
+/* Коли натиснули "Редагувати", кнопка стає синьою */
 .edit-mode-btn.active {
   background: #e0efff;
   border-color: #007bff;
   color: #007bff;
 }
 
+/* --- Перемикач тижнів --- */
 .week-toggle-bg {
   display: flex;
   background: #f1f3f5;
@@ -64,8 +69,10 @@
 }
 
 /* =========================================
-   СІТКА РОЗКЛАДУ (Тепер 6 днів!)
+   2. НОВА 2D СІТКА РОЗКЛАДУ (Рівні рядки)
 ========================================= */
+
+/* Цей блок дозволяє скролити таблицю на мобільних телефонах */
 .schedule-scroll-area {
   width: 100%;
   overflow-x: auto;
@@ -73,77 +80,115 @@
   padding-bottom: 20px;
 }
 
+/* НАЙГОЛОВНІША ЗМІНА: CSS Grid. 
+  Ми кажемо: "Зроби рівно 6 колонок однакової ширини (repeat(6, 1fr))".
+  Оскільки це Grid (Сітка), а не Flexbox, усі елементи в одному рядку
+  АВТОМАТИЧНО матимуть однакову висоту! Субота більше не падатиме вниз.
+*/
 .schedule-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* Було 5, стало 6 */
-  gap: 15px;
-  min-width: 1100px; /* Трохи розширили, щоб влізла Субота */
+  grid-template-columns: repeat(6, 1fr); 
+  gap: 20px;
+  min-width: 1200px; /* Мінімальна ширина, щоб 6 колонок не злиплися на телефоні */
 }
 
-.day-column { display: flex; flex-direction: column; gap: 15px; }
-.day-header { text-align: center; font-weight: bold; font-size: 13px; color: #636e72; letter-spacing: 1px; }
-.time-slot-wrapper { min-height: 120px; position: relative; }
-.time-label { font-size: 10px; font-weight: bold; color: #a0a0a0; margin-bottom: 5px; }
+/* Заголовки днів (ПОНЕДІЛОК, ВІВТОРОК...) */
+.day-header { 
+  text-align: center; 
+  font-weight: 700; 
+  font-size: 14px; 
+  color: #2c3e50; 
+  padding-bottom: 10px;
+}
+
+/* Клітинка-обгортка для одного слота (Сюди входить час + сама біла картка) */
+.time-slot-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Текст часу (08:30) над карткою */
+.time-label { 
+  font-size: 12px; 
+  font-weight: 700; 
+  color: #95a5a6; 
+  margin-bottom: 8px; 
+}
 
 /* =========================================
-   КАРТКИ ПАР ТА ПІДГРУПИ
+   3. ДИЗАЙН КАРТОК ПАР (Зі скріншоту)
 ========================================= */
+
+/* Біла картка предмета */
 .class-card {
   background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 16px; /* Заокруглені кути, як на фото */
+  padding: 16px;
   cursor: pointer;
   box-sizing: border-box;
   transition: 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03); /* Дуже легка тінь */
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  /* МАГІЯ ВИРІВНЮВАННЯ: flex-grow: 1 змушує картку розтягуватися на всю доступну висоту рядка! */
+  flex-grow: 1; 
 }
 
-.class-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+/* Ефект підняття картки при наведенні мишки */
+.class-card:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
+}
 
+/* Кольорові бірки (ЛЕКЦІЯ, ПРАКТИКА) - Кольори додамо в React */
 .class-type-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
-  padding: 3px 6px;
-  border-radius: 4px;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
   display: inline-block;
   align-self: flex-start;
 }
 
-.class-name { font-size: 13px; font-weight: 700; line-height: 1.2; color: #111; }
-.class-details { font-size: 11px; color: #666; display: flex; align-items: center; gap: 4px; }
-.class-room { font-weight: bold; color: #007bff; }
-
-/* Складні картки (Більше інформації) */
-.complex-card-toggle {
-  background: #f8f9fa;
-  border: none;
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: bold;
-  color: #555;
-  cursor: pointer;
-  margin-top: 5px;
-  transition: 0.2s;
+/* Назва предмета */
+.class-name { 
+  font-size: 14px; 
+  font-weight: 700; 
+  line-height: 1.3; 
+  color: #2c3e50; 
 }
 
-.complex-card-toggle:hover { background: #e9ecef; }
+/* Блок викладача і аудиторії */
+.class-details { 
+  font-size: 12px; 
+  color: #7f8c8d; 
+  display: flex; 
+  flex-direction: column; /* Розміщуємо одне під одним */
+  gap: 4px; 
+}
+
+/* --- Складні картки (Розділення на підгрупи) --- */
+/* Кожен окремий предмет всередині складної картки відділяється пунктиром */
 .sub-class-item {
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px dashed #e9ecef;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.sub-class-item:last-child { border-bottom: none; padding-bottom: 0; }
+/* Прибираємо пунктир у останнього предмета в списку */
+.sub-class-item:last-child { 
+  border-bottom: none; 
+  padding-bottom: 0; 
+}
 
+/* --- Порожній слот (З плюсиком) --- */
 .empty-slot {
-  background: rgba(0, 123, 255, 0.05);
+  background: rgba(0, 123, 255, 0.03);
   border: 1px dashed #007bff;
-  border-radius: 12px;
-  height: 100px;
+  border-radius: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -151,12 +196,14 @@
   color: #007bff;
   font-size: 24px;
   transition: 0.2s;
+  flex-grow: 1; /* Розтягуємо порожній слот так само, як і картки */
+  min-height: 100px;
 }
 
-.empty-slot:hover { background: rgba(0, 123, 255, 0.1); }
+.empty-slot:hover { background: rgba(0, 123, 255, 0.08); }
 
 /* =========================================
-   МОДАЛКИ ТА ФОРМИ
+   4. МОДАЛКИ ТА ФОРМИ (Без змін)
 ========================================= */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
 .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -164,22 +211,11 @@
 .modal-input { padding: 12px; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
 .form-row { display: flex; gap: 10px; }
 
-.sub-item-box {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-}
+/* Сірий блок для кожної підгрупи у формі додавання */
+.sub-item-box { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.remove-sub-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: bold; }
 
-.remove-sub-btn {
-  position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: bold;
-}
-
+/* Кнопки */
 .btn-primary { background: #007bff; color: white; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; display: block; text-align: center; }
 .btn-secondary { background: #e9ecef; color: #333; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
 .btn-danger { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
