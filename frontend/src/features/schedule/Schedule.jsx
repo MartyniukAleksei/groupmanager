@@ -1,663 +1,314 @@
-import React, { useState } from "react";
-import "../../styles/schedule.css";
+import React, { useState } from 'react';
+import '../../styles/schedule.css';
 
 const DAYS = [
-  { id: "monday", label: "Понеділок" },
-  { id: "tuesday", label: "Вівторок" },
-  { id: "wednesday", label: "Середа" },
-  { id: "thursday", label: "Четвер" },
-  { id: "friday", label: "П'ятниця" },
-  { id: "saturday", label: "Субота" },
+  { id: 'monday', label: 'Понеділок' },
+  { id: 'tuesday', label: 'Вівторок' },
+  { id: 'wednesday', label: 'Середа' },
+  { id: 'thursday', label: 'Четвер' },
+  { id: 'friday', label: "П'ятниця" },
+  { id: 'saturday', label: 'Субота' },
 ];
 
-const TIMES = ["08:30", "10:25", "12:20", "14:15", "16:10"];
+const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10', '18:30', '20:20'];
 
 const INITIAL_SCHEDULE = [
   {
-    id: 1,
-    day: "monday",
-    time: "08:30",
-    week: "both",
-    classFormat: "standard",
-    items: [
-      {
-        type: "lecture",
-        name: "Дизайн систем машинного навчання",
-        teacher: "Андросов Дмитро Васильович",
-        room: "",
-        link: "",
-      },
-    ],
+    id: 1, day: 'monday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
+    items: [{ type: 'lecture', name: 'Дизайн систем машинного навчання', teacher: 'Андросов Дмитро Васильович', room: '', link: '' }]
   },
   {
-    id: 2,
-    day: "tuesday",
-    time: "08:30",
-    week: "both",
-    classFormat: "standard",
-    items: [
-      {
-        type: "practice",
-        name: "Математичний аналіз",
-        teacher: "Чаповський Ю.А.",
-        room: "",
-        link: "",
-      },
-    ],
+    id: 2, day: 'tuesday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
+    items: [{ type: 'practice', name: 'Математичний аналіз', teacher: 'Чаповський Ю.А.', room: '', link: '' }]
   },
   {
-    id: 3,
-    day: "wednesday",
-    time: "10:25",
-    week: "both",
-    classFormat: "groups",
+    id: 3, day: 'wednesday', time: '10:25', week: 'both', isOneTime: false, classFormat: 'groups',
     items: [
-      {
-        type: "practice",
-        name: "Дизайн систем (Група 1)",
-        teacher: "Андросов Д.В.",
-        room: "",
-        link: "",
-      },
-      {
-        type: "practice",
-        name: "Дизайн систем (Група 2)",
-        teacher: "Петров І.І.",
-        room: "",
-        link: "",
-      },
-    ],
+      { type: 'practice', name: 'Дизайн систем (Група 1)', teacher: 'Андросов Д.В.', room: '', link: '' },
+      { type: 'practice', name: 'Дизайн систем (Група 2)', teacher: 'Петров І.І.', room: '', link: '' }
+    ]
   },
   {
-    id: 4,
-    day: "thursday",
-    time: "12:20",
-    week: "both",
-    classFormat: "standard",
-    items: [
-      {
-        type: "lab",
-        name: "Програмування",
-        teacher: "Назарчук І.В.",
-        room: "",
-        link: "",
-      },
-    ],
-  },
+    id: 4, day: 'thursday', time: '12:20', week: 'both', isOneTime: false, classFormat: 'standard',
+    items: [{ type: 'lab', name: 'Програмування', teacher: 'Назарчук І.В.', room: '', link: '' }]
+  }
 ];
 
-const EMPTY_FORM = {
-  id: null,
-  week: "both",
-  classFormat: "standard",
-  items: [{ name: "", teacher: "", room: "", type: "lecture", link: "" }],
-};
+// ДОДАНО: isOneTime за замовчуванням false
+const EMPTY_FORM = { id: null, week: 'both', isOneTime: false, classFormat: 'standard', items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] };
 
 const Schedule = () => {
-  // --- ПАМ'ЯТЬ КОМПОНЕНТА (State) ---
-  const [activeWeek, setActiveWeek] = useState(1); // 1-й чи 2-й тиждень
-  const [isEditMode, setIsEditMode] = useState(false); // Чи увімкнений режим "Олівця"
-  const [scheduleData, setScheduleData] = useState(INITIAL_SCHEDULE); // Зберігає всі створені пари
+  const [activeWeek, setActiveWeek] = useState(1);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [scheduleData, setScheduleData] = useState(INITIAL_SCHEDULE);
+  
+  const [viewClassModal, setViewClassModal] = useState(null); 
+  const [addClassModal, setAddClassModal] = useState(null); 
 
-  // Керування модальними вікнами (попапами)
-  const [viewClassModal, setViewClassModal] = useState(null);
-  const [addClassModal, setAddClassModal] = useState(null);
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
-  // Стан для форми додавання нової пари
-  const [formData, setFormData] = useState({
-    week: "both",
-    isComplex: false,
-    complexTitle: "",
-    items: [{ name: "", teacher: "", room: "", type: "lecture", link: "" }], // Підгрупи
-  });
+  const handleAddSubItem = () => setFormData(prev => ({ ...prev, items: [...prev.items, { name: '', teacher: '', room: '', type: 'lecture', link: '' }] }));
+  const handleUpdateSubItem = (index, field, value) => { const newItems = [...formData.items]; newItems[index][field] = value; setFormData({ ...formData, items: newItems }); };
+  const handleRemoveSubItem = (index) => setFormData({ ...formData, items: formData.items.filter((_, i) => i !== index) });
 
-  // --- ЛОГІКА ДЛЯ ФОРМИ ---
-  // Додати ще одну підгрупу в форму
-  const handleAddSubItem = () =>
-    setFormData((prev) => ({
-      ...prev,
-      items: [
-        ...prev.items,
-        { name: "", teacher: "", room: "", type: "lecture", link: "" },
-      ],
-    }));
-
-  // Оновити текст в конкретному полі конкретної підгрупи
-  const handleUpdateSubItem = (index, field, value) => {
-    const newItems = [...formData.items];
-    newItems[index][field] = value;
-    setFormData({ ...formData, items: newItems });
+  const handleFormatChange = (e) => {
+    const format = e.target.value;
+    setFormData(prev => ({ ...prev, classFormat: format, items: format === 'standard' ? [prev.items[0]] : prev.items }));
   };
 
-  // Видалити підгрупу з форми (кнопка Хрестик)
-  const handleRemoveSubItem = (index) =>
-    setFormData({
-      ...formData,
-      items: formData.items.filter((_, i) => i !== index),
-    });
-
-  // Збереження нової пари
   const handleAddSubmit = (e) => {
     e.preventDefault();
-    const newClass = {
-      id: Date.now(),
+    
+    // ЛОГІКА ОДНОРАЗОВОЇ ПАРИ: якщо вибрано "once", прив'язуємо до поточного тижня і ставимо маркер
+    let finalWeek = formData.week;
+    let finalIsOneTime = false;
+
+    if (formData.week === 'once') {
+      finalWeek = activeWeek;
+      finalIsOneTime = true;
+    }
+
+    const classDataToSave = {
+      ...formData,
       day: addClassModal.day,
       time: addClassModal.time,
-      ...formData,
+      week: finalWeek,
+      isOneTime: finalIsOneTime
     };
-    setScheduleData([...scheduleData, newClass]); // Зберігаємо пару в таблицю
-    setAddClassModal(null); // Закриваємо модалку
-    // Очищаємо форму для наступного разу
-    setFormData({
-      week: "both",
-      isComplex: false,
-      complexTitle: "",
-      items: [{ name: "", teacher: "", room: "", type: "lecture", link: "" }],
-    });
+
+    if (formData.id) {
+      setScheduleData(prev => prev.map(c => c.id === formData.id ? classDataToSave : c));
+    } else {
+      setScheduleData([...scheduleData, { ...classDataToSave, id: Date.now() }]);
+    }
+    setAddClassModal(null);
+    setFormData(EMPTY_FORM); 
   };
 
-  // Видалити тільки для поточного тижня
+  const handleEditClick = (classObj) => {
+    setViewClassModal(null); 
+    setFormData({ 
+      ...classObj, 
+      // Якщо пара була одноразовою, повертаємо значення "once" для селекта
+      week: classObj.isOneTime ? 'once' : classObj.week 
+    }); 
+    setAddClassModal({ day: classObj.day, time: classObj.time }); 
+  };
+
   const handleDeleteOnce = (classItem) => {
-    if (classItem.week === "both") {
+    if (classItem.week === 'both') {
       const otherWeek = activeWeek === 1 ? 2 : 1;
-      setScheduleData((prev) =>
-        prev.map((c) =>
-          c.id === classItem.id ? { ...c, week: otherWeek } : c,
-        ),
-      );
+      setScheduleData(prev => prev.map(c => c.id === classItem.id ? { ...c, week: otherWeek } : c));
     } else {
-      setScheduleData((prev) => prev.filter((c) => c.id !== classItem.id));
+      setScheduleData(prev => prev.filter(c => c.id !== classItem.id));
     }
     setViewClassModal(null);
   };
+  const handleDeleteForever = (id) => { setScheduleData(prev => prev.filter(c => c.id !== id)); setViewClassModal(null); };
 
-  // Видалити назавжди
-  const handleDeleteForever = (id) => {
-    setScheduleData((prev) => prev.filter((c) => c.id !== id));
-    setViewClassModal(null);
-  };
-
-  // Функція для підбору кольорів бірок (Зроблено точно по твоєму скріншоту!)
   const getTypeStyles = (type) => {
     switch (type) {
-      case "lecture":
-        return {
-          bg: "#eafaf1",
-          text: "#2ecc71",
-          border: "#2ecc71",
-          label: "ЛЕКЦІЯ",
-        };
-      case "practice":
-        return {
-          bg: "#ffeaea",
-          text: "#ff7675",
-          border: "#ff7675",
-          label: "ПРАКТИКА",
-        };
-      case "lab":
-        return {
-          bg: "#fef5e7",
-          text: "#f39c12",
-          border: "#f39c12",
-          label: "ЛАБОРАТОРНА",
-        };
-      default:
-        return {
-          bg: "#f1f3f5",
-          text: "#95a5a6",
-          border: "#95a5a6",
-          label: "ІНШЕ",
-        };
+      case 'lecture': return { text: '#2ecc71', border: '#2ecc71', label: 'ЛЕКЦІЯ' };
+      case 'practice': return { text: '#ff7675', border: '#ff7675', label: 'ПРАКТИКА' };
+      case 'lab': return { text: '#f39c12', border: '#f39c12', label: 'ЛАБОРАТОРНА' };
+      default: return { text: '#95a5a6', border: '#95a5a6', label: 'ІНШЕ' };
     }
   };
 
-  // =========================================
-  // 3. ВІЗУАЛЬНА ЧАСТИНА (Рендер)
-  // =========================================
   return (
     <div className="schedule-wrapper">
-      {/* --- ШАПКА --- */}
       <div className="schedule-header">
         <div className="week-toggle-bg">
-          <button
-            className={`week-btn ${activeWeek === 1 ? "active" : ""}`}
-            onClick={() => setActiveWeek(1)}
-          >
-            1-й Тиждень
-          </button>
-          <button
-            className={`week-btn ${activeWeek === 2 ? "active" : ""}`}
-            onClick={() => setActiveWeek(2)}
-          >
-            2-й Тиждень
-          </button>
+          <button className={`week-btn ${activeWeek === 1 ? 'active' : ''}`} onClick={() => setActiveWeek(1)}>1-й Тиждень</button>
+          <button className={`week-btn ${activeWeek === 2 ? 'active' : ''}`} onClick={() => setActiveWeek(2)}>2-й Тиждень</button>
         </div>
-        {/* Кнопка активації режиму "Олівець" */}
-        <button
-          className={`edit-mode-btn ${isEditMode ? "active" : ""}`}
-          onClick={() => setIsEditMode(!isEditMode)}
-        >
-          ✏️ {isEditMode ? "Готово" : "Редагувати"}
+        
+        <button className={`edit-mode-btn ${isEditMode ? 'active' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
+          ✏️ <span className="btn-text" style={{ marginLeft: '6px' }}>{isEditMode ? 'Готово' : 'Редагувати'}</span>
         </button>
       </div>
 
-      {/* --- СІТКА РОЗКЛАДУ --- */}
       <div className="schedule-scroll-area">
-        <div className="schedule-grid">
-          {/* 1-й РЯДОК: Малюємо заголовки колонок (ПОНЕДІЛОК... СУБОТА) */}
-          {DAYS.map((day) => (
-            <div className="day-header" key={`header-${day.id}`}>
-              {day.label}
-            </div>
-          ))}
+        <div className="schedule-table">
+          <div className="schedule-header-row">
+            <div className="time-column-header"></div>
+            {DAYS.map(day => (
+              <div className="day-header" key={`header-${day.id}`}>{day.label}</div>
+            ))}
+          </div>
 
-          {/* НАСТУПНІ РЯДКИ: Йдемо по часу (08:30, потім 10:25 і т.д.) */}
-          {/* Це і є головна магія, яка робить рядки рівними по висоті! */}
-          {TIMES.map((time) => (
-            <React.Fragment key={time}>
-              {/* Всередині кожного часу проходимось по всіх 6 днях */}
-              {DAYS.map((dayObj) => {
-                // Шукаємо, чи є в базі пара на цей день, цей час і цей тиждень
-                const classObj = scheduleData.find(
-                  (c) =>
-                    c.day === dayObj.id &&
-                    c.time === time &&
-                    (c.week === "both" || c.week === activeWeek),
-                );
+          {TIMES.map(time => (
+            <div className="schedule-row" key={time}>
+              <div className="row-dotted-line"></div>
+              <div className="time-column">
+                <span className="time-pill">{time}</span>
+              </div>
+
+              {DAYS.map(dayObj => {
+                const classObj = scheduleData.find(c => c.day === dayObj.id && c.time === time && (c.week === 'both' || c.week === activeWeek));
 
                 return (
-                  <div className="time-slot-cell" key={`${dayObj.id}-${time}`}>
-                    <div className="time-label">{time}</div>
-
+                  <div className="day-cell" key={`${dayObj.id}-${time}`}>
                     {classObj ? (
-                      /* КАРТКА ПАРИ Є */
-                      <div
-                        className="class-card"
-                        onClick={() => setViewClassModal(classObj)}
-                      >
-                        {/* Варіант А: Звичайна пара (1 предмет) */}
-                        {!classObj.isComplex &&
-                          classObj.items.map((item, idx) => (
-                            <div
-                              key={idx}
-                              style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "6px",
-                              }}
-                            >
-                              <span
-                                className="class-type-badge"
-                                style={{
-                                  background: getTypeStyles(item.type).bg,
-                                  color: getTypeStyles(item.type).text,
-                                  border: `1px solid ${getTypeStyles(item.type).border}`,
-                                }}
-                              >
-                                {getTypeStyles(item.type).label}
-                              </span>
+                      <div className="class-card" onClick={() => setViewClassModal(classObj)}>
+                        
+                        <div className={classObj.classFormat !== 'standard' ? "complex-card-body" : "simple-card-body"}>
+                          {classObj.items.map((item, idx) => (
+                            <div key={idx} className={classObj.classFormat !== 'standard' ? "sub-class-item" : ""}>
+                              
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                <span className="class-type-badge" style={{ color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
+                                  {getTypeStyles(item.type).label}
+                                </span>
+                                {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В КАРТЦІ */}
+                                {classObj.isOneTime && (
+                                  <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
+                                    ОДНОРАЗОВО
+                                  </span>
+                                )}
+                              </div>
+                              
                               <div className="class-name">{item.name}</div>
+                              
                               <div className="class-details">
-                                <span>{item.teacher}</span>
-                                {item.room && <span>Ауд. {item.room}</span>}
+                                {item.teacher && <div className="teacher-row">{item.teacher}</div>}
+                                {item.room && <div>Ауд. {item.room}</div>}
                               </div>
                             </div>
                           ))}
-
-                        {/* Варіант Б: Складна пара (Підгрупи / На вибір) */}
-                        {classObj.isComplex && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              height: "100%",
-                            }}
-                          >
-                            <div
-                              className="class-name"
-                              style={{ color: "#007bff", marginBottom: "8px" }}
-                            >
-                              {classObj.complexTitle}
-                            </div>
-
-                            <div
-                              style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                flexGrow: 1,
-                              }}
-                            >
-                              {classObj.items.map((item, idx) => (
-                                <div key={idx} className="sub-class-item">
-                                  <span
-                                    className="class-type-badge"
-                                    style={{
-                                      background: getTypeStyles(item.type).bg,
-                                      color: getTypeStyles(item.type).text,
-                                      border: `1px solid ${getTypeStyles(item.type).border}`,
-                                    }}
-                                  >
-                                    {getTypeStyles(item.type).label}
-                                  </span>
-                                  <div
-                                    className="class-name"
-                                    style={{ fontSize: "13px" }}
-                                  >
-                                    {item.name}
-                                  </div>
-                                  <div className="class-details">
-                                    <span>{item.teacher}</span>
-                                    {item.room && <span>Ауд. {item.room}</span>}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        </div>
+                        
                       </div>
                     ) : (
-                      /* ПАРИ НЕМАЄ: Показуємо плюсик ТІЛЬКИ якщо натиснуто "Редагувати" */
-                      isEditMode && (
-                        <div
-                          className="empty-slot"
-                          onClick={() =>
-                            setAddClassModal({ day: dayObj.id, time })
-                          }
-                          title="Додати пару"
-                        >
-                          +
-                        </div>
+                      isEditMode ? (
+                        <div className="empty-slot active" onClick={() => { setFormData(EMPTY_FORM); setAddClassModal({ day: dayObj.id, time }); }} title="Додати пару">+</div>
+                      ) : (
+                        <div className="empty-slot inactive"></div>
                       )
                     )}
                   </div>
                 );
               })}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* --- МОДАЛКИ (Додавання та Перегляд) --- */}
-      {/* Модалка додавання (залишилася без змін, код форми) */}
+      {/* МОДАЛКА: ДОДАВАННЯ ТА РЕДАГУВАННЯ */}
       {addClassModal && (
         <div className="modal-overlay" onClick={() => setAddClassModal(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0 }}>Додати пару</h3>
-            <p style={{ color: "#666", fontSize: "12px" }}>
-              {DAYS.find((d) => d.id === addClassModal.day)?.label},{" "}
-              {addClassModal.time}
-            </p>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>{formData.id ? 'Редагувати пару' : 'Додати пару'}</h3>
+            <p style={{ color: '#666', fontSize: '12px' }}>{DAYS.find(d => d.id === addClassModal.day)?.label}, {addClassModal.time}</p>
 
             <form onSubmit={handleAddSubmit} className="modal-form">
-              <select
-                className="modal-input"
-                value={formData.week}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    week:
-                      e.target.value === "both"
-                        ? "both"
-                        : Number(e.target.value),
-                  })
-                }
-              >
+              {/* ДОДАНО ОПЦІЮ "ОДНОРАЗОВО" У СЕЛЕКТ */}
+              <select className="modal-input" value={formData.week} onChange={e => {
+                  const val = e.target.value;
+                  setFormData({...formData, week: (val === 'both' || val === 'once') ? val : Number(val)});
+                }}>
                 <option value="both">Кожен тиждень</option>
                 <option value={1}>Тільки 1-й тиждень</option>
                 <option value={2}>Тільки 2-й тиждень</option>
+                <option value="once">Одноразово (на поточний тиждень)</option>
               </select>
 
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  background: "#f8f9fa",
-                  padding: "10px",
-                  borderRadius: "8px",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={formData.isComplex}
-                  onChange={(e) =>
-                    setFormData({ ...formData, isComplex: e.target.checked })
-                  }
-                  style={{ width: "18px", height: "18px" }}
-                />
-                Складна пара (Розділення на групи / Предмети на вибір)
-              </label>
+              <div style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
+                <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#333', display: 'block', marginBottom: '8px' }}>Тип заняття:</label>
+                <select className="modal-input" value={formData.classFormat} onChange={handleFormatChange}>
+                  <option value="standard">Звичайна пара (Вся група)</option>
+                  <option value="groups">Поділ на підгрупи</option>
+                  <option value="electives">Вибіркові предмети</option>
+                </select>
+              </div>
 
-              {formData.isComplex && (
-                <input
-                  className="modal-input"
-                  type="text"
-                  placeholder="Спільна назва (напр. 'Іноземна мова')"
-                  required
-                  value={formData.complexTitle}
-                  onChange={(e) =>
-                    setFormData({ ...formData, complexTitle: e.target.value })
-                  }
-                />
-              )}
-
-              <div
-                style={{
-                  maxHeight: "40vh",
-                  overflowY: "auto",
-                  paddingRight: "5px",
-                }}
-              >
+              <div style={{ maxHeight: '40vh', overflowY: 'auto', paddingRight: '5px', marginTop: '10px' }}>
                 {formData.items.map((item, index) => (
                   <div key={index} className="sub-item-box">
-                    {formData.isComplex && formData.items.length > 1 && (
-                      <button
-                        type="button"
-                        className="remove-sub-btn"
-                        onClick={() => handleRemoveSubItem(index)}
-                      >
-                        ✕
-                      </button>
-                    )}
-                    <div
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "12px",
-                        color: "#007bff",
-                      }}
-                    >
-                      {formData.isComplex
-                        ? `Підгрупа / Предмет ${index + 1}`
-                        : "Деталі пари"}
+                    {formData.classFormat !== 'standard' && formData.items.length > 1 && <button type="button" className="remove-sub-btn" onClick={() => handleRemoveSubItem(index)}>✕</button>}
+                    
+                    <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
+                      {formData.classFormat === 'groups' ? `Підгрупа ${index + 1}` : formData.classFormat === 'electives' ? `Вибірковий предмет ${index + 1}` : 'Деталі пари'}
                     </div>
-                    <input
-                      className="modal-input"
-                      type="text"
-                      placeholder="Назва предмета/групи"
-                      required
-                      value={item.name}
-                      onChange={(e) =>
-                        handleUpdateSubItem(index, "name", e.target.value)
-                      }
-                    />
+                    
+                    <input className="modal-input" type="text" placeholder="Назва предмета" required value={item.name} onChange={e => handleUpdateSubItem(index, 'name', e.target.value)} />
+                    
                     <div className="form-row">
-                      <input
-                        className="modal-input"
-                        type="text"
-                        placeholder="Викладач"
-                        required
-                        value={item.teacher}
-                        onChange={(e) =>
-                          handleUpdateSubItem(index, "teacher", e.target.value)
-                        }
-                      />
-                      <input
-                        className="modal-input"
-                        type="text"
-                        placeholder="Аудиторія (напр. 35-10)"
-                        value={item.room}
-                        onChange={(e) =>
-                          handleUpdateSubItem(index, "room", e.target.value)
-                        }
-                        style={{ width: "120px" }}
-                      />
+                      <input className="modal-input" type="text" placeholder="Викладач (необов'язково)" value={item.teacher} onChange={e => handleUpdateSubItem(index, 'teacher', e.target.value)} />
+                      <input className="modal-input" type="text" placeholder="Аудиторія" value={item.room} onChange={e => handleUpdateSubItem(index, 'room', e.target.value)} style={{ width: '120px' }} />
                     </div>
+                    
                     <div className="form-row">
-                      <select
-                        className="modal-input"
-                        value={item.type}
-                        onChange={(e) =>
-                          handleUpdateSubItem(index, "type", e.target.value)
-                        }
-                      >
-                        <option value="lecture">Лекція</option>
-                        <option value="practice">Практика</option>
-                        <option value="lab">Лабораторна</option>
+                      <select className="modal-input" value={item.type} onChange={e => handleUpdateSubItem(index, 'type', e.target.value)}>
+                        <option value="lecture">Лекція</option><option value="practice">Практика</option><option value="lab">Лабораторна</option>
                       </select>
-                      <input
-                        className="modal-input"
-                        type="url"
-                        placeholder="Zoom/Meet"
-                        value={item.link}
-                        onChange={(e) =>
-                          handleUpdateSubItem(index, "link", e.target.value)
-                        }
-                      />
+                      <input className="modal-input" type="url" placeholder="Zoom/Meet" value={item.link} onChange={e => handleUpdateSubItem(index, 'link', e.target.value)} />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {formData.isComplex && (
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={handleAddSubItem}
-                >
-                  + Додати ще групу/предмет
+              {formData.classFormat !== 'standard' && (
+                <button type="button" className="btn-secondary" onClick={handleAddSubItem}>
+                  + Додати ще {formData.classFormat === 'groups' ? 'підгрупу' : 'предмет'}
                 </button>
               )}
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                <button
-                  type="button"
-                  onClick={() => setAddClassModal(null)}
-                  className="btn-secondary"
-                  style={{ flex: 1 }}
-                >
-                  Скасувати
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  Зберегти
-                </button>
+              
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => { setAddClassModal(null); setFormData(EMPTY_FORM); }} className="btn-secondary" style={{ flex: 1 }}>Скасувати</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Зберегти</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Модалка перегляду (залишилася без змін) */}
+      {/* МОДАЛКА: ПЕРЕГЛЯД ТА ДІЇ (Видалення/Редагування) */}
       {viewClassModal && (
         <div className="modal-overlay" onClick={() => setViewClassModal(null)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-            style={{ textAlign: "center" }}
-          >
-            {viewClassModal.isComplex && (
-              <h2 style={{ color: "#007bff" }}>
-                {viewClassModal.complexTitle}
-              </h2>
-            )}
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', padding: '30px 20px' }}>
+            
             {viewClassModal.items.map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: "#f8f9fa",
-                  padding: "15px",
-                  borderRadius: "12px",
-                  marginBottom: "15px",
-                  textAlign: "left",
-                }}
-              >
-                <span
-                  className="class-type-badge"
-                  style={{
-                    background: getTypeStyles(item.type).bg,
-                    color: getTypeStyles(item.type).text,
-                    border: `1px solid ${getTypeStyles(item.type).border}`,
-                  }}
-                >
-                  {getTypeStyles(item.type).label}
-                </span>
-                <h3 style={{ margin: "5px 0" }}>{item.name}</h3>
-                <p
-                  style={{
-                    margin: "0 0 5px 0",
-                    fontSize: "13px",
-                    color: "#555",
-                  }}
-                >
-                  Викладач: {item.teacher}
-                </p>
-                {item.room && (
-                  <p
-                    style={{
-                      margin: "0 0 10px 0",
-                      fontSize: "13px",
-                      fontWeight: "bold",
-                      color: "#007bff",
-                    }}
-                  >
-                    Аудиторія: {item.room}
-                  </p>
-                )}
-                {item.link && (
-                  <a
-                    href={item.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-primary"
-                    style={{ padding: "8px", fontSize: "14px" }}
-                  >
-                    Увійти 🔗
-                  </a>
-                )}
+              <div key={idx} style={{ marginBottom: '20px' }}>
+                
+                <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
+                    {getTypeStyles(item.type).label}
+                  </span>
+                  {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В МОДАЛЦІ ПЕРЕГЛЯДУ */}
+                  {viewClassModal.isOneTime && (
+                    <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
+                      ОДНОРАЗОВО
+                    </span>
+                  )}
+                </div>
+
+                <h2 style={{ margin: '0 0 10px 0', fontSize: '22px', color: '#111' }}>{item.name}</h2>
+                
+                {item.teacher && <p style={{ margin: '0 0 5px 0', fontSize: '15px', color: '#666' }}>{item.teacher}</p>}
+                
+                {item.room && <p style={{ margin: '0 0 20px 0', fontSize: '15px', fontWeight: 'bold', color: '#333' }}>Аудиторія: {item.room}</p>}
+                
+                {item.link && <a href={item.link} target="_blank" rel="noreferrer" className="btn-primary" style={{ boxSizing: 'border-box', width: '100%', marginBottom: '15px', padding: '14px', fontSize: '16px' }}>Увійти 🔗</a>}
               </div>
             ))}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "15px",
-                margin: "20px 0",
-              }}
-            >
-              <button
-                onClick={() => handleDeleteOnce(viewClassModal)}
-                className="btn-outline-danger"
-              >
-                Видалити (Тільки цей тиждень)
-              </button>
-              <button
-                onClick={() => handleDeleteForever(viewClassModal.id)}
-                className="btn-danger"
-              >
-                Видалити назавжди
-              </button>
-            </div>
-            <button
-              onClick={() => setViewClassModal(null)}
-              className="btn-secondary"
-              style={{ width: "100%" }}
-            >
-              Закрити
-            </button>
+            
+            {isEditMode && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', marginBottom: '15px' }}>
+                 <button onClick={() => handleEditClick(viewClassModal)} className="btn-primary" style={{ boxSizing: 'border-box', width: '100%' }}>✏️ Редагувати пару</button>
+                 
+                 <div style={{ display: 'flex', gap: '10px' }}>
+                   <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger" style={{ flex: 1 }}>
+                     {viewClassModal.isOneTime ? 'Видалити' : 'Видалити (Тільки цей тиждень)'}
+                   </button>
+                   {!viewClassModal.isOneTime && (
+                     <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger" style={{ flex: 1 }}>Видалити назавжди</button>
+                   )}
+                 </div>
+              </div>
+            )}
+            
+            <button onClick={() => setViewClassModal(null)} className="btn-secondary" style={{ boxSizing: 'border-box', width: '100%', background: isEditMode ? '#e2e8f0' : 'transparent', color: isEditMode ? '#333' : '#64748b', marginTop: isEditMode ? '0' : '10px' }}>Закрити</button>
           </div>
         </div>
       )}

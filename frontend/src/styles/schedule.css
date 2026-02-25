@@ -1,0 +1,100 @@
+/* =========================================
+   1. ГОЛОВНИЙ КОНТЕЙНЕР ТА ШАПКА
+========================================= */
+.schedule-wrapper { padding: 20px; max-width: 1450px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.schedule-header { display: flex; justify-content: center; align-items: center; margin-bottom: 30px; position: relative; }
+.edit-mode-btn { position: absolute; right: 0; background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #475569; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+.edit-mode-btn.active { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
+
+/* Адаптив для кнопки: робимо круглою, текст ховаємо */
+@media (max-width: 768px) {
+  .edit-mode-btn .btn-text { display: none; }
+  .edit-mode-btn { 
+    padding: 0; 
+    width: 44px; 
+    height: 44px; 
+    border-radius: 50%; 
+  }
+}
+
+.week-toggle-bg { display: flex; background: #f1f5f9; border-radius: 30px; padding: 4px; }
+.week-btn { padding: 10px 24px; border-radius: 26px; border: none; cursor: pointer; font-weight: bold; background: transparent; color: #64748b; transition: all 0.2s ease; }
+.week-btn.active { background: white; color: #0f172a; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+/* =========================================
+   2. ІДЕАЛЬНА СІТКА (Дашборд)
+========================================= */
+.schedule-scroll-area { width: 100%; overflow-x: auto; padding-bottom: 20px; }
+
+/* Твоя оригінальна таблиця: */
+.schedule-table { width: 100%; min-width: 1150px; display: flex; flex-direction: column; }
+
+.schedule-header-row {
+  display: grid;
+  grid-template-columns: 70px repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ЗАХИСТ ВІД НАКЛАДАННЯ: Прикріплює текст до комірки і змушує скролитись вліво */
+.day-header { 
+  text-align: center; 
+  font-weight: 700; 
+  font-size: 13px; 
+  color: #7f8c8d; 
+  text-transform: uppercase; 
+  position: relative !important; 
+  display: block;
+}
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: 70px repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 5px; 
+  position: relative;
+}
+
+.row-dotted-line { position: absolute; top: 15px; left: 70px; right: 0; border-top: 1px dashed #cbd5e1; z-index: 0; }
+.time-column { position: relative; z-index: 1; display: flex; justify-content: flex-start; align-items: flex-start; }
+
+.time-pill { background: transparent; color: #95a5a6; padding: 0; font-size: 13px; font-weight: 700; height: fit-content; margin-top: 6px; }
+.day-cell { position: relative; z-index: 1; display: flex; flex-direction: column; padding-top: 35px; }
+
+/* =========================================
+   3. ДИЗАЙН КАРТОК 
+========================================= */
+.class-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; flex-grow: 1; min-height: 110px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+.class-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); border-color: #cbd5e1; }
+
+.complex-card-body, .simple-card-body { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; gap: 8px; }
+
+.class-type-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; display: inline-block; align-self: flex-start; background: white !important; }
+
+.class-name { font-size: 14px; font-weight: 700; line-height: 1.3; color: #111; margin-top: 2px; margin-bottom: 2px; }
+.class-details { font-size: 13px; color: #666; display: flex; flex-direction: column; gap: 4px; }
+.teacher-row { display: flex; align-items: center; }
+
+.sub-class-item { padding: 10px 0; border-bottom: 1px dashed #e2e8f0; display: flex; flex-direction: column; gap: 6px; }
+.sub-class-item:first-child { padding-top: 0; }
+.sub-class-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* =========================================
+   4. ПОРОЖНІ СЛОТИ ТА МОДАЛКИ
+========================================= */
+.empty-slot { border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-grow: 1; min-height: 110px; }
+.empty-slot.active { background: rgba(14, 165, 233, 0.03); border: 1px dashed #0ea5e9; cursor: pointer; color: #0ea5e9; font-size: 24px; }
+.empty-slot.active:hover { background: rgba(14, 165, 233, 0.08); }
+.empty-slot.inactive { background: transparent; border: 1px solid transparent; pointer-events: none; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
+.modal-form { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; text-align: left; }
+.modal-input { padding: 12px; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+.form-row { display: flex; gap: 10px; }
+.sub-item-box { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; box-sizing: border-box; }
+.remove-sub-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: bold; }
+.btn-primary { background: #007bff; color: white; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; display: block; text-align: center; box-sizing: border-box; }
+.btn-secondary { background: #e2e8f0; color: #333; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; box-sizing: border-box; }
+.btn-danger { background: #e11d48; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; box-sizing: border-box; }
+.btn-outline-danger { background: transparent; border: 1px solid #e11d48; color: #e11d48; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; box-sizing: border-box; }
