@@ -10,31 +10,32 @@ const DAYS = [
   { id: 'saturday', label: 'Субота' },
 ];
 
-const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10'];
+const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10', '18:30', '20:20'];
 
 const INITIAL_SCHEDULE = [
   {
-    id: 1, day: 'monday', time: '08:30', week: 'both', classFormat: 'standard',
+    id: 1, day: 'monday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
     items: [{ type: 'lecture', name: 'Дизайн систем машинного навчання', teacher: 'Андросов Дмитро Васильович', room: '', link: '' }]
   },
   {
-    id: 2, day: 'tuesday', time: '08:30', week: 'both', classFormat: 'standard',
+    id: 2, day: 'tuesday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
     items: [{ type: 'practice', name: 'Математичний аналіз', teacher: 'Чаповський Ю.А.', room: '', link: '' }]
   },
   {
-    id: 3, day: 'wednesday', time: '10:25', week: 'both', classFormat: 'groups',
+    id: 3, day: 'wednesday', time: '10:25', week: 'both', isOneTime: false, classFormat: 'groups',
     items: [
       { type: 'practice', name: 'Дизайн систем (Група 1)', teacher: 'Андросов Д.В.', room: '', link: '' },
       { type: 'practice', name: 'Дизайн систем (Група 2)', teacher: 'Петров І.І.', room: '', link: '' }
     ]
   },
   {
-    id: 4, day: 'thursday', time: '12:20', week: 'both', classFormat: 'standard',
+    id: 4, day: 'thursday', time: '12:20', week: 'both', isOneTime: false, classFormat: 'standard',
     items: [{ type: 'lab', name: 'Програмування', teacher: 'Назарчук І.В.', room: '', link: '' }]
   }
 ];
 
-const EMPTY_FORM = { id: null, week: 'both', classFormat: 'standard', items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] };
+// ДОДАНО: isOneTime за замовчуванням false
+const EMPTY_FORM = { id: null, week: 'both', isOneTime: false, classFormat: 'standard', items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] };
 
 const Schedule = () => {
   const [activeWeek, setActiveWeek] = useState(1);
@@ -57,11 +58,28 @@ const Schedule = () => {
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
+    
+    // ЛОГІКА ОДНОРАЗОВОЇ ПАРИ: якщо вибрано "once", прив'язуємо до поточного тижня і ставимо маркер
+    let finalWeek = formData.week;
+    let finalIsOneTime = false;
+
+    if (formData.week === 'once') {
+      finalWeek = activeWeek;
+      finalIsOneTime = true;
+    }
+
+    const classDataToSave = {
+      ...formData,
+      day: addClassModal.day,
+      time: addClassModal.time,
+      week: finalWeek,
+      isOneTime: finalIsOneTime
+    };
+
     if (formData.id) {
-      setScheduleData(prev => prev.map(c => c.id === formData.id ? { ...formData, day: addClassModal.day, time: addClassModal.time } : c));
+      setScheduleData(prev => prev.map(c => c.id === formData.id ? classDataToSave : c));
     } else {
-      const newClass = { id: Date.now(), day: addClassModal.day, time: addClassModal.time, ...formData };
-      setScheduleData([...scheduleData, newClass]);
+      setScheduleData([...scheduleData, { ...classDataToSave, id: Date.now() }]);
     }
     setAddClassModal(null);
     setFormData(EMPTY_FORM); 
@@ -69,7 +87,11 @@ const Schedule = () => {
 
   const handleEditClick = (classObj) => {
     setViewClassModal(null); 
-    setFormData({ ...classObj }); 
+    setFormData({ 
+      ...classObj, 
+      // Якщо пара була одноразовою, повертаємо значення "once" для селекта
+      week: classObj.isOneTime ? 'once' : classObj.week 
+    }); 
     setAddClassModal({ day: classObj.day, time: classObj.time }); 
   };
 
@@ -100,8 +122,9 @@ const Schedule = () => {
           <button className={`week-btn ${activeWeek === 1 ? 'active' : ''}`} onClick={() => setActiveWeek(1)}>1-й Тиждень</button>
           <button className={`week-btn ${activeWeek === 2 ? 'active' : ''}`} onClick={() => setActiveWeek(2)}>2-й Тиждень</button>
         </div>
+        
         <button className={`edit-mode-btn ${isEditMode ? 'active' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
-          ✏️ {isEditMode ? 'Готово' : 'Редагувати'}
+          ✏️ <span className="btn-text" style={{ marginLeft: '6px' }}>{isEditMode ? 'Готово' : 'Редагувати'}</span>
         </button>
       </div>
 
@@ -132,15 +155,23 @@ const Schedule = () => {
                         <div className={classObj.classFormat !== 'standard' ? "complex-card-body" : "simple-card-body"}>
                           {classObj.items.map((item, idx) => (
                             <div key={idx} className={classObj.classFormat !== 'standard' ? "sub-class-item" : ""}>
-                              <span className="class-type-badge" style={{ color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
-                                {getTypeStyles(item.type).label}
-                              </span>
+                              
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                <span className="class-type-badge" style={{ color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
+                                  {getTypeStyles(item.type).label}
+                                </span>
+                                {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В КАРТЦІ */}
+                                {classObj.isOneTime && (
+                                  <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
+                                    ОДНОРАЗОВО
+                                  </span>
+                                )}
+                              </div>
                               
                               <div className="class-name">{item.name}</div>
                               
                               <div className="class-details">
                                 {item.teacher && <div className="teacher-row">{item.teacher}</div>}
-                                {/* ФІКС: Прибрано синій колір (style={{color: '#0ea5e9'}}). Тепер колір як у викладача */}
                                 {item.room && <div>Ауд. {item.room}</div>}
                               </div>
                             </div>
@@ -171,8 +202,15 @@ const Schedule = () => {
             <p style={{ color: '#666', fontSize: '12px' }}>{DAYS.find(d => d.id === addClassModal.day)?.label}, {addClassModal.time}</p>
 
             <form onSubmit={handleAddSubmit} className="modal-form">
-              <select className="modal-input" value={formData.week} onChange={e => setFormData({...formData, week: e.target.value === 'both' ? 'both' : Number(e.target.value)})}>
-                <option value="both">Кожен тиждень</option><option value={1}>Тільки 1-й тиждень</option><option value={2}>Тільки 2-й тиждень</option>
+              {/* ДОДАНО ОПЦІЮ "ОДНОРАЗОВО" У СЕЛЕКТ */}
+              <select className="modal-input" value={formData.week} onChange={e => {
+                  const val = e.target.value;
+                  setFormData({...formData, week: (val === 'both' || val === 'once') ? val : Number(val)});
+                }}>
+                <option value="both">Кожен тиждень</option>
+                <option value={1}>Тільки 1-й тиждень</option>
+                <option value={2}>Тільки 2-й тиждень</option>
+                <option value="once">Одноразово (на поточний тиждень)</option>
               </select>
 
               <div style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
@@ -189,7 +227,6 @@ const Schedule = () => {
                   <div key={index} className="sub-item-box">
                     {formData.classFormat !== 'standard' && formData.items.length > 1 && <button type="button" className="remove-sub-btn" onClick={() => handleRemoveSubItem(index)}>✕</button>}
                     
-                    {/* ФІКС: Змінено синій колір заголовку на нейтральний */}
                     <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>
                       {formData.classFormat === 'groups' ? `Підгрупа ${index + 1}` : formData.classFormat === 'electives' ? `Вибірковий предмет ${index + 1}` : 'Деталі пари'}
                     </div>
@@ -233,16 +270,23 @@ const Schedule = () => {
             
             {viewClassModal.items.map((item, idx) => (
               <div key={idx} style={{ marginBottom: '20px' }}>
-                <div style={{ marginBottom: '15px' }}>
+                
+                <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
                   <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
                     {getTypeStyles(item.type).label}
                   </span>
+                  {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В МОДАЛЦІ ПЕРЕГЛЯДУ */}
+                  {viewClassModal.isOneTime && (
+                    <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
+                      ОДНОРАЗОВО
+                    </span>
+                  )}
                 </div>
+
                 <h2 style={{ margin: '0 0 10px 0', fontSize: '22px', color: '#111' }}>{item.name}</h2>
                 
                 {item.teacher && <p style={{ margin: '0 0 5px 0', fontSize: '15px', color: '#666' }}>{item.teacher}</p>}
                 
-                {/* ФІКС: Прибрано синій колір, зроблено класичним темним кольором (#333) */}
                 {item.room && <p style={{ margin: '0 0 20px 0', fontSize: '15px', fontWeight: 'bold', color: '#333' }}>Аудиторія: {item.room}</p>}
                 
                 {item.link && <a href={item.link} target="_blank" rel="noreferrer" className="btn-primary" style={{ boxSizing: 'border-box', width: '100%', marginBottom: '15px', padding: '14px', fontSize: '16px' }}>Увійти 🔗</a>}
@@ -254,8 +298,12 @@ const Schedule = () => {
                  <button onClick={() => handleEditClick(viewClassModal)} className="btn-primary" style={{ boxSizing: 'border-box', width: '100%' }}>✏️ Редагувати пару</button>
                  
                  <div style={{ display: 'flex', gap: '10px' }}>
-                   <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger" style={{ flex: 1 }}>Видалити (Тільки цей тиждень)</button>
-                   <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger" style={{ flex: 1 }}>Видалити назавжди</button>
+                   <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger" style={{ flex: 1 }}>
+                     {viewClassModal.isOneTime ? 'Видалити' : 'Видалити (Тільки цей тиждень)'}
+                   </button>
+                   {!viewClassModal.isOneTime && (
+                     <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger" style={{ flex: 1 }}>Видалити назавжди</button>
+                   )}
                  </div>
               </div>
             )}
