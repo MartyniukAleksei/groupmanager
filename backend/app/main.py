@@ -1,12 +1,14 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.routers import example
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Тут ми можемо додати логіку при старті (наприклад, підключення до Redis), 
+    # але створення таблиць тепер повністю на Alembic!
+    yield 
 
-# Подключаем роутер (маршруты) из другого файла
-app.include_router(example.router)
+app = FastAPI(title="Projects Hub API", lifespan=lifespan)
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello from Dockerized FastAPI!"}
-  
+async def root():
+    return {"message": "API працює! База даних керується через Alembic."}
