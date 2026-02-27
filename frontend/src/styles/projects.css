@@ -1,0 +1,159 @@
+/* ГОЛОВНИЙ КОНТЕЙНЕР */
+.proj-wrapper {
+  padding: 12px 15px;
+  max-width: 1200px; 
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* =========================================
+   КАРТКИ
+========================================= */
+.proj-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid #e2e8f0;
+}
+
+.top-card {
+  padding: 20px;
+}
+
+/* Спеціальна картка для таблиці (без відступів, щоб сіра шапка була від краю до краю) */
+.proj-table-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  overflow: hidden; /* Обрізає кути сірої шапки по формі картки */
+}
+
+/* =========================================
+   ФОРМА БРОНЮВАННЯ
+========================================= */
+.proj-form { display: flex; flex-direction: column; gap: 15px; }
+
+.proj-input {
+  width: 100%; padding: 14px 16px; border-radius: 10px; border: 1px solid #cbd5e1;
+  font-size: 15px; font-family: inherit; color: #1e293b; background: white;
+  outline: none; box-sizing: border-box; transition: 0.2s;
+}
+.proj-input::placeholder { color: #94a3b8; }
+.proj-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+
+.proj-btn-book {
+  width: 100%; background: #0f172a; color: white; border: none;
+  padding: 16px; border-radius: 10px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+}
+.proj-btn-book:hover { background: #1e293b; transform: translateY(-1px); }
+.proj-btn-book:active { transform: scale(0.99); }
+
+/* =========================================
+   ТАБЛИЦЯ ТА СІТКА (GRID)
+========================================= */
+.proj-table-header, .proj-list-item {
+  display: grid;
+  grid-template-columns: 2fr 3fr 4fr 40px; 
+  align-items: center;
+  gap: 15px;
+}
+
+/* ШАПКА ТАБЛИЦІ (СІРИЙ ФОН ЯК НА СКРІНШОТІ) */
+.proj-table-header {
+  background: #f8fafc; /* Світло-сірий фон */
+  padding: 16px 20px; /* Відступи всередині сірого блоку */
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Блок ПРЕДМЕТ разом із випадаючим списком */
+.proj-col-subject-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* БІЛИЙ ФІЛЬТР-СЕЛЕКТ */
+.proj-filter-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  color: #1e293b;
+  background: white;
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  text-transform: none; /* Відміняємо капслок для тексту всередині кнопки */
+  letter-spacing: normal;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.proj-filter-select:focus {
+  border-color: #0ea5e9;
+}
+
+/* =========================================
+   РЯДКИ СПИСКУ
+========================================= */
+.proj-list { display: flex; flex-direction: column; }
+
+.proj-list-item {
+  padding: 16px 20px; /* Має збігатися з відступами шапки */
+  border-bottom: 1px solid #f1f5f9;
+  transition: 0.2s;
+}
+.proj-list-item:hover { background: #f8fafc; }
+.proj-list-item:last-child { border-bottom: none; }
+
+.proj-col-student { display: flex; align-items: center; gap: 12px; }
+
+.proj-avatar {
+  width: 32px; height: 32px; background: #ede9fe; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #5b21b6; flex-shrink: 0;
+}
+
+.proj-student-name { font-size: 14px; font-weight: 500; color: #1e293b; }
+.proj-student-name.my-project { font-weight: 800; color: #2563eb; }
+
+.item-text { font-size: 14px; color: #333; line-height: 1.4; }
+
+.proj-col-action { display: flex; justify-content: flex-end; }
+
+.proj-btn-delete {
+  background: transparent; border: none; color: #ef4444; font-size: 16px;
+  font-weight: bold; cursor: pointer; padding: 8px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.proj-btn-delete:hover { background: #fef2f2; color: #b91c1c; }
+
+.proj-empty { text-align: center; padding: 40px; color: #94a3b8; font-weight: 500; }
+
+/* =========================================
+   АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ
+========================================= */
+@media (max-width: 768px) {
+  .proj-table-header { display: none; } 
+  
+  .proj-list-item {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 10px; padding: 20px 16px; position: relative;
+  }
+
+  .proj-col-student { width: 100%; margin-bottom: 5px; }
+  
+  .proj-col-subject::before { content: 'Предмет: '; color: #94a3b8; font-weight: bold; font-size: 12px; }
+  .proj-col-topic::before { content: 'Тема: '; color: #94a3b8; font-weight: bold; font-size: 12px; }
+  
+  .proj-col-action { position: absolute; top: 16px; right: 16px; }
+}

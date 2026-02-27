@@ -23,6 +23,8 @@ import Homework from "./features/homework/Homework";
 import Materials from "./features/materials/Materials";
 import Attendance from "./features/attendance/Attendance";
 import Queue from "./features/queue/Queue";
+// ДОДАНО: Імпорт нової сторінки Проектів
+import Projects from "./features/projects/Projects"; 
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
               <Route path="materials" element={<Materials />} />
               <Route path="attendance" element={<Attendance />} />
               <Route path="queue" element={<Queue />} />
+              {/* ДОДАНО: Маршрут для Проектів */}
+              <Route path="projects" element={<Projects />} /> 
             </Route>
 
             {/* Обработка несуществующих ссылок */}

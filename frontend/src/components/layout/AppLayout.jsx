@@ -43,6 +43,10 @@ const AppLayout = () => {
         <NavLink to={`/g/${groupId}/queue`} className="tab-btn">
           🚶‍♂️ Черга
         </NavLink>
+        {/* ДОДАНА ВКЛАДКА "ПРОЕКТИ" */}
+        <NavLink to={`/g/${groupId}/projects`} className="tab-btn">
+          🚀 Проекти
+        </NavLink>
       </nav>
 
       <main>
