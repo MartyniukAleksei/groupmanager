@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import '../../styles/schedule.css';
 
 const DAYS = [
-  { id: 'monday', label: 'Понеділок' },
-  { id: 'tuesday', label: 'Вівторок' },
-  { id: 'wednesday', label: 'Середа' },
-  { id: 'thursday', label: 'Четвер' },
-  { id: 'friday', label: "П'ятниця" },
-  { id: 'saturday', label: 'Субота' },
+  { id: 'monday', label: 'Понеділок', short: 'ПОН' },
+  { id: 'tuesday', label: 'Вівторок', short: 'ВІВ' },
+  { id: 'wednesday', label: 'Середа', short: 'СЕР' },
+  { id: 'thursday', label: 'Четвер', short: 'ЧЕТ' },
+  { id: 'friday', label: "П'ятниця", short: 'ПТ' },
+  { id: 'saturday', label: 'Субота', short: 'СУБ' },
 ];
 
 const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10', '18:30', '20:20'];
@@ -15,26 +15,25 @@ const TIMES = ['08:30', '10:25', '12:20', '14:15', '16:10', '18:30', '20:20'];
 const INITIAL_SCHEDULE = [
   {
     id: 1, day: 'monday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
-    items: [{ type: 'lecture', name: 'Дизайн систем машинного навчання', teacher: 'Андросов Дмитро Васильович', room: '', link: '' }]
+    items: [{ type: 'lecture', name: 'Дизайн систем машинного навчання', teacher: 'Андросов Дмитро Васильович', room: '101', link: '' }]
   },
   {
     id: 2, day: 'tuesday', time: '08:30', week: 'both', isOneTime: false, classFormat: 'standard',
-    items: [{ type: 'practice', name: 'Математичний аналіз', teacher: 'Чаповський Ю.А.', room: '', link: '' }]
+    items: [{ type: 'practice', name: 'Математичний аналіз', teacher: 'Чаповський Ю.А.', room: '205-А', link: '' }]
   },
   {
     id: 3, day: 'wednesday', time: '10:25', week: 'both', isOneTime: false, classFormat: 'groups',
     items: [
-      { type: 'practice', name: 'Дизайн систем (Група 1)', teacher: 'Андросов Д.В.', room: '', link: '' },
-      { type: 'practice', name: 'Дизайн систем (Група 2)', teacher: 'Петров І.І.', room: '', link: '' }
+      { type: 'practice', name: 'Дизайн систем (Група 1)', teacher: 'Андросов Д.В.', room: '302', link: '' },
+      { type: 'practice', name: 'Дизайн систем (Група 2)', teacher: 'Петров І.І.', room: '303', link: '' }
     ]
   },
   {
     id: 4, day: 'thursday', time: '12:20', week: 'both', isOneTime: false, classFormat: 'standard',
-    items: [{ type: 'lab', name: 'Програмування', teacher: 'Назарчук І.В.', room: '', link: '' }]
+    items: [{ type: 'lab', name: 'Програмування', teacher: 'Назарчук І.В.', room: 'Комп. клас 1', link: '' }]
   }
 ];
 
-// ДОДАНО: isOneTime за замовчуванням false
 const EMPTY_FORM = { id: null, week: 'both', isOneTime: false, classFormat: 'standard', items: [{ name: '', teacher: '', room: '', type: 'lecture', link: '' }] };
 
 const Schedule = () => {
@@ -44,8 +43,14 @@ const Schedule = () => {
   
   const [viewClassModal, setViewClassModal] = useState(null); 
   const [addClassModal, setAddClassModal] = useState(null); 
-
   const [formData, setFormData] = useState(EMPTY_FORM);
+
+  const [currentDay, setCurrentDay] = useState(() => {
+    const dayIndex = new Date().getDay(); 
+    const dayMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = dayMap[dayIndex];
+    return today === 'sunday' ? 'monday' : today; 
+  });
 
   const handleAddSubItem = () => setFormData(prev => ({ ...prev, items: [...prev.items, { name: '', teacher: '', room: '', type: 'lecture', link: '' }] }));
   const handleUpdateSubItem = (index, field, value) => { const newItems = [...formData.items]; newItems[index][field] = value; setFormData({ ...formData, items: newItems }); };
@@ -58,8 +63,6 @@ const Schedule = () => {
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
-    
-    // ЛОГІКА ОДНОРАЗОВОЇ ПАРИ: якщо вибрано "once", прив'язуємо до поточного тижня і ставимо маркер
     let finalWeek = formData.week;
     let finalIsOneTime = false;
 
@@ -89,7 +92,6 @@ const Schedule = () => {
     setViewClassModal(null); 
     setFormData({ 
       ...classObj, 
-      // Якщо пара була одноразовою, повертаємо значення "once" для селекта
       week: classObj.isOneTime ? 'once' : classObj.week 
     }); 
     setAddClassModal({ day: classObj.day, time: classObj.time }); 
@@ -108,90 +110,93 @@ const Schedule = () => {
 
   const getTypeStyles = (type) => {
     switch (type) {
-      case 'lecture': return { text: '#2ecc71', border: '#2ecc71', label: 'ЛЕКЦІЯ' };
-      case 'practice': return { text: '#ff7675', border: '#ff7675', label: 'ПРАКТИКА' };
-      case 'lab': return { text: '#f39c12', border: '#f39c12', label: 'ЛАБОРАТОРНА' };
-      default: return { text: '#95a5a6', border: '#95a5a6', label: 'ІНШЕ' };
+      case 'lecture': return { text: '#047857', border: '#047857', label: 'ЛЕКЦІЯ', className: 'lecture' };
+      case 'practice': return { text: '#dc2626', border: '#dc2626', label: 'ПРАКТИКА', className: 'practice' };
+      case 'lab': return { text: '#a16207', border: '#a16207', label: 'ЛАБ', className: 'lab' };
+      default: return { text: '#475569', border: '#475569', label: 'ІНШЕ', className: '' };
     }
   };
 
   return (
-    <div className="schedule-wrapper">
-      <div className="schedule-header">
-        <div className="week-toggle-bg">
-          <button className={`week-btn ${activeWeek === 1 ? 'active' : ''}`} onClick={() => setActiveWeek(1)}>1-й Тиждень</button>
-          <button className={`week-btn ${activeWeek === 2 ? 'active' : ''}`} onClick={() => setActiveWeek(2)}>2-й Тиждень</button>
+    <div className="sch-wrapper">
+      
+      {/* ВЕРХНЯ ПАНЕЛЬ: Перемикач тижнів + Кнопка редагування */}
+      <div className="sch-top-header">
+        
+        {/* НОВИЙ ПЕРЕМИКАЧ ТИЖНІВ */}
+        <div className="sch-week-toggle">
+          <button 
+            className={`sch-week-btn ${activeWeek === 1 ? 'active' : ''}`} 
+            onClick={() => setActiveWeek(1)}
+          >
+            1-й Тиждень
+          </button>
+          <button 
+            className={`sch-week-btn ${activeWeek === 2 ? 'active' : ''}`} 
+            onClick={() => setActiveWeek(2)}
+          >
+            2-й Тиждень
+          </button>
         </div>
         
-        <button className={`edit-mode-btn ${isEditMode ? 'active' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
+        <button className={`hw-edit-btn ${isEditMode ? 'active' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
           ✏️ <span className="btn-text" style={{ marginLeft: '6px' }}>{isEditMode ? 'Готово' : 'Редагувати'}</span>
         </button>
       </div>
 
-      <div className="schedule-scroll-area">
-        <div className="schedule-table">
-          <div className="schedule-header-row">
-            <div className="time-column-header"></div>
-            {DAYS.map(day => (
-              <div className="day-header" key={`header-${day.id}`}>{day.label}</div>
-            ))}
-          </div>
+      {/* ПАНЕЛЬ ВИБОРУ ДНЯ */}
+      <div className="sch-day-picker">
+        {DAYS.map(day => (
+          <button 
+            key={day.id} 
+            className={`sch-day-btn ${currentDay === day.id ? 'active' : ''}`}
+            onClick={() => setCurrentDay(day.id)}
+          >
+            <span className="sch-day-full">{day.label.toUpperCase()}</span>
+            <span className="sch-day-short">{day.short}</span>
+          </button>
+        ))}
+      </div>
 
-          {TIMES.map(time => (
-            <div className="schedule-row" key={time}>
-              <div className="row-dotted-line"></div>
-              <div className="time-column">
-                <span className="time-pill">{time}</span>
-              </div>
+      {/* СІТКА РОЗКЛАДУ */}
+      <div className="sch-grid">
+        {TIMES.map(time => (
+          DAYS.map(dayObj => {
+            const classObj = scheduleData.find(c => c.day === dayObj.id && c.time === time && (c.week === 'both' || c.week === activeWeek));
+            const isActiveCol = currentDay === dayObj.id;
 
-              {DAYS.map(dayObj => {
-                const classObj = scheduleData.find(c => c.day === dayObj.id && c.time === time && (c.week === 'both' || c.week === activeWeek));
-
-                return (
-                  <div className="day-cell" key={`${dayObj.id}-${time}`}>
-                    {classObj ? (
-                      <div className="class-card" onClick={() => setViewClassModal(classObj)}>
-                        
-                        <div className={classObj.classFormat !== 'standard' ? "complex-card-body" : "simple-card-body"}>
-                          {classObj.items.map((item, idx) => (
-                            <div key={idx} className={classObj.classFormat !== 'standard' ? "sub-class-item" : ""}>
-                              
-                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                                <span className="class-type-badge" style={{ color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
-                                  {getTypeStyles(item.type).label}
-                                </span>
-                                {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В КАРТЦІ */}
-                                {classObj.isOneTime && (
-                                  <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
-                                    ОДНОРАЗОВО
-                                  </span>
-                                )}
-                              </div>
-                              
-                              <div className="class-name">{item.name}</div>
-                              
-                              <div className="class-details">
-                                {item.teacher && <div className="teacher-row">{item.teacher}</div>}
-                                {item.room && <div>Ауд. {item.room}</div>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        
+            return (
+              <div key={`${dayObj.id}-${time}`} className={`sch-cell ${isActiveCol ? 'active-col' : 'hidden-col'}`}>
+                <div className="sch-time">{time}</div>
+                
+                {classObj ? (
+                  <div className="sch-card" onClick={() => setViewClassModal(classObj)}>
+                    {classObj.isOneTime && <div className="sch-now-badge" style={{ color: '#e11d48' }}>Одноразово</div>}
+                    
+                    {classObj.items.map((item, idx) => (
+                      <div key={idx} className={classObj.items.length > 1 ? "sch-sub-item" : ""}>
+                        <span className={`sch-tag ${getTypeStyles(item.type).className}`}>
+                          {getTypeStyles(item.type).label}
+                        </span>
+                        <div className="sch-subject">{item.name}</div>
+                        <div className="sch-teacher">{item.teacher}</div>
+                        {item.room && <div className="sch-room">Ауд. {item.room}</div>}
                       </div>
-                    ) : (
-                      isEditMode ? (
-                        <div className="empty-slot active" onClick={() => { setFormData(EMPTY_FORM); setAddClassModal({ day: dayObj.id, time }); }} title="Додати пару">+</div>
-                      ) : (
-                        <div className="empty-slot inactive"></div>
-                      )
-                    )}
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+                ) : (
+                  isEditMode ? (
+                    <div className="sch-card-empty edit-active" onClick={() => { setFormData(EMPTY_FORM); setAddClassModal({ day: dayObj.id, time }); }} title="Додати пару">
+                      +
+                    </div>
+                  ) : (
+                    <div className="sch-card-empty"></div>
+                  )
+                )}
+              </div>
+            );
+          })
+        ))}
       </div>
 
       {/* МОДАЛКА: ДОДАВАННЯ ТА РЕДАГУВАННЯ */}
@@ -202,7 +207,6 @@ const Schedule = () => {
             <p style={{ color: '#666', fontSize: '12px' }}>{DAYS.find(d => d.id === addClassModal.day)?.label}, {addClassModal.time}</p>
 
             <form onSubmit={handleAddSubmit} className="modal-form">
-              {/* ДОДАНО ОПЦІЮ "ОДНОРАЗОВО" У СЕЛЕКТ */}
               <select className="modal-input" value={formData.week} onChange={e => {
                   const val = e.target.value;
                   setFormData({...formData, week: (val === 'both' || val === 'once') ? val : Number(val)});
@@ -263,32 +267,25 @@ const Schedule = () => {
         </div>
       )}
 
-      {/* МОДАЛКА: ПЕРЕГЛЯД ТА ДІЇ (Видалення/Редагування) */}
+      {/* МОДАЛКА: ПЕРЕГЛЯД ТА ДІЇ */}
       {viewClassModal && (
         <div className="modal-overlay" onClick={() => setViewClassModal(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', padding: '30px 20px' }}>
             
             {viewClassModal.items.map((item, idx) => (
               <div key={idx} style={{ marginBottom: '20px' }}>
-                
                 <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                  <span className="class-type-badge" style={{ background: getTypeStyles(item.type).bg, color: getTypeStyles(item.type).text, border: `1px solid ${getTypeStyles(item.type).border}` }}>
+                  <span className={`sch-tag ${getTypeStyles(item.type).className}`}>
                     {getTypeStyles(item.type).label}
                   </span>
-                  {/* БІРКА ОДНОРАЗОВОЇ ПАРИ В МОДАЛЦІ ПЕРЕГЛЯДУ */}
                   {viewClassModal.isOneTime && (
-                    <span className="class-type-badge" style={{ color: '#e11d48', border: '1px solid #e11d48' }}>
-                      ОДНОРАЗОВО
-                    </span>
+                    <span className="sch-tag" style={{ background: '#ffe4e6', color: '#e11d48' }}>ОДНОРАЗОВО</span>
                   )}
                 </div>
 
                 <h2 style={{ margin: '0 0 10px 0', fontSize: '22px', color: '#111' }}>{item.name}</h2>
-                
                 {item.teacher && <p style={{ margin: '0 0 5px 0', fontSize: '15px', color: '#666' }}>{item.teacher}</p>}
-                
                 {item.room && <p style={{ margin: '0 0 20px 0', fontSize: '15px', fontWeight: 'bold', color: '#333' }}>Аудиторія: {item.room}</p>}
-                
                 {item.link && <a href={item.link} target="_blank" rel="noreferrer" className="btn-primary" style={{ boxSizing: 'border-box', width: '100%', marginBottom: '15px', padding: '14px', fontSize: '16px' }}>Увійти 🔗</a>}
               </div>
             ))}
@@ -296,10 +293,9 @@ const Schedule = () => {
             {isEditMode && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', marginBottom: '15px' }}>
                  <button onClick={() => handleEditClick(viewClassModal)} className="btn-primary" style={{ boxSizing: 'border-box', width: '100%' }}>✏️ Редагувати пару</button>
-                 
                  <div style={{ display: 'flex', gap: '10px' }}>
                    <button onClick={() => handleDeleteOnce(viewClassModal)} className="btn-outline-danger" style={{ flex: 1 }}>
-                     {viewClassModal.isOneTime ? 'Видалити' : 'Видалити (Тільки цей тиждень)'}
+                     {viewClassModal.isOneTime ? 'Видалити' : 'Видалити (Цей тиждень)'}
                    </button>
                    {!viewClassModal.isOneTime && (
                      <button onClick={() => handleDeleteForever(viewClassModal.id)} className="btn-danger" style={{ flex: 1 }}>Видалити назавжди</button>
