@@ -1,0 +1,150 @@
+/* ГОЛОВНИЙ КОНТЕЙНЕР */
+.q-wrapper {
+  padding: 12px 15px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* =========================================
+   ПЕРЕМИКАЧ (ПОВНА / ГРУПОВА)
+========================================= */
+.q-top-header {
+  display: flex; justify-content: center; margin-bottom: 20px; width: 100%;
+}
+
+.q-toggle-container { display: flex; justify-content: center; width: 100%; }
+
+.q-toggle {
+  position: relative; display: flex; background: #f1f5f9; border-radius: 30px;
+  padding: 4px; width: 100%; max-width: 400px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.q-toggle-btn {
+  flex: 1; padding: 10px 0; border: none; background: transparent;
+  font-weight: 700; font-size: 14px; color: #64748b; cursor: pointer;
+  position: relative; z-index: 2; transition: color 0.3s; text-align: center;
+}
+.q-toggle-btn.active { color: #0f172a; }
+
+.q-slider {
+  position: absolute; top: 4px; bottom: 4px; left: 4px;
+  width: calc(50% - 4px); background: white; border-radius: 26px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+.q-toggle[data-active="full"] .q-slider { transform: translateX(0); }
+.q-toggle[data-active="group"] .q-slider { transform: translateX(100%); }
+
+/* =========================================
+   ГОЛОВНА КАРТКА ТА СЕЛЕКТ
+========================================= */
+.q-card {
+  background: white; border-radius: 20px; padding: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;
+}
+
+.q-card-title {
+  margin: 0 0 20px 0; font-size: 18px; font-weight: 800; color: #0f172a; text-align: center;
+}
+
+.q-select {
+  width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0;
+  font-size: 15px; font-family: inherit; color: #1e293b; background: #f8fafc;
+  margin-bottom: 20px; outline: none; box-sizing: border-box; font-weight: 500;
+  cursor: pointer; transition: 0.2s;
+}
+.q-select:focus { border-color: #0ea5e9; background: white; }
+
+.q-placeholder { color: #94a3b8; font-size: 15px; padding: 40px 0 20px 0; text-align: center; }
+
+/* =========================================
+   СПИСКИ (ТАБЛИЦІ ЧЕРГ)
+========================================= */
+.q-active-zone {
+  display: flex; flex-direction: column; gap: 20px; text-align: left;
+}
+
+/* ВАЖЛИВО: Групові черги йдуть ПОРУЧ (одна біля одної) */
+.q-group-container {
+  display: flex; 
+  flex-direction: row; 
+  gap: 20px; /* Відстань між двома таблицями */
+}
+
+/* Кожна секція займає рівно половину місця */
+.q-list-section {
+  flex: 1; 
+  width: 100%;
+}
+
+.q-list-title {
+  margin: 0 0 12px 0; font-size: 16px; font-weight: 800; color: #1e293b; text-align: center;
+}
+.q-list-title {
+  margin: 0 0 12px 0; font-size: 16px; font-weight: 800; color: #1e293b; text-align: center;
+}
+
+/* ДОДАЙ ОСЬ ЦЕЙ БЛОК ДЛЯ ВИКЛАДАЧА */
+.q-teacher {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+/* Дизайн таблиці списку */
+.q-table {
+  border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; 
+  margin-bottom: 15px; background: white;
+}
+
+.q-table-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
+}
+.q-table-row:last-child { border-bottom: none; } 
+
+.q-table-row.my-turn { background: #eff6ff; } 
+
+.q-row-left { display: flex; align-items: center; gap: 16px; }
+
+.q-row-number { font-weight: 800; color: #94a3b8; font-size: 14px; width: 20px; }
+.q-row-name { font-weight: 600; color: #1e293b; font-size: 15px; }
+
+.my-turn .q-row-number { color: #3b82f6; }
+.my-turn .q-row-name { color: #2563eb; font-weight: 700; }
+
+.q-empty-text {
+  text-align: center; color: #94a3b8; font-size: 14px; padding: 20px 0;
+  border: 1px dashed #cbd5e1; border-radius: 12px; margin-bottom: 15px;
+}
+
+/* =========================================
+   КНОПКИ
+========================================= */
+.q-btn-join {
+  width: 100%; background: #0f172a; color: white; border: none;
+  padding: 15px; border-radius: 12px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+}
+.q-btn-join:hover { background: #1e293b; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(15, 23, 42, 0.2); }
+.q-btn-join:active { transform: scale(0.98); }
+
+.q-btn-leave {
+  background: transparent; border: 1px solid #fca5a5; color: #ef4444;
+  font-weight: 700; cursor: pointer; font-size: 12px; padding: 6px 12px;
+  border-radius: 8px; transition: 0.2s;
+}
+.q-btn-leave:hover { background: #fef2f2; border-color: #ef4444; }
+
+/* =========================================
+   АДАПТИВНІСТЬ ДЛЯ ТЕЛЕФОНІВ
+========================================= */
+@media (max-width: 768px) {
+  /* На мобільних екранах місця мало, тому ставимо їх одна ПІД одною */
+  .q-group-container {
+    flex-direction: column;
+    gap: 30px;
+  }
+}
