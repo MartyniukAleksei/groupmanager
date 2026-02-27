@@ -1,0 +1,242 @@
+/* ГОЛОВНИЙ КОНТЕЙНЕР */
+.hw-wrapper {
+  padding: 12px 15px; /* Задаємо рівно 12px зверху (як і знизу під тижнем) */
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* =========================================
+   ВЕРХНЯ ПАНЕЛЬ ДІЙ (Кнопка Редагувати)
+========================================= */
+.hw-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  height: 0; 
+  overflow: visible;
+  position: relative;
+  z-index: 10;
+  margin-top: 0; /* Прибрали негативний відступ, щоб олівець не ліз нагору */
+}
+
+/* =========================================
+   НАВІГАЦІЯ ПО ТИЖНЯХ (Замість архіву)
+========================================= */
+.hw-week-nav-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0; /* Зверху відступ забезпечує padding: 12px у hw-wrapper */
+  margin-bottom: 12px; /* Знизу відступ теж 12px = ідеальна симетрія! */
+}
+
+.hw-week-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.hw-nav-arrow {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  width: 30px; 
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  color: #475569;
+  transition: 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.hw-nav-arrow:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.hw-nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+.hw-week-title {
+  font-size: 14px; 
+  font-weight: 700;
+  color: #1e293b;
+  min-width: 170px; 
+  text-align: center;
+}
+
+.hw-return-btn {
+  background: transparent;
+  border: 1px solid #e11d48;
+  color: #e11d48;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.hw-return-btn:hover {
+  background: #fff1f2;
+}
+
+/* =========================================
+   ПАНЕЛЬ ВИБОРУ ДНЯ
+========================================= */
+.hw-day-picker {
+  display: flex;
+  background: white;
+  padding: 6px;
+  border-radius: 14px;
+  margin-bottom: 12px; 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  border: 1px solid #e2e8f0;
+}
+
+.hw-day-btn {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 13px;
+}
+
+.hw-day-btn.active {
+  background: #0ea5e9;
+  color: white;
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+}
+
+.hw-day-short {
+  display: none;
+}
+
+/* Адаптив для днів тижня на мобільному */
+@media (max-width: 600px) {
+  .hw-day-full { display: none; }
+  .hw-day-short { display: inline; }
+  .hw-day-btn { font-size: 12px; padding: 12px 0; }
+}
+
+/* =========================================
+   КАРТКА КОЖНОГО ДНЯ
+========================================= */
+.hw-day-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid #f1f5f9;
+}
+
+.hw-day-title {
+  margin: 0 0 15px 0;
+  color: #0ea5e9;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  font-weight: 800;
+}
+
+/* СПИСОК ПРЕДМЕТІВ */
+.hw-subjects-list { display: flex; flex-direction: column; gap: 15px; } 
+.hw-subject-item { display: flex; flex-direction: column; gap: 8px; }
+.hw-subject-name { font-weight: 700; color: #1e293b; font-size: 14px; }
+
+/* ПОЛЕ ВВОДУ ДЗ */
+.hw-textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.hw-textarea:focus {
+  outline: none;
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.hw-textarea::placeholder { color: #94a3b8; }
+
+/* =========================================
+   КНОПКА РЕДАГУВАННЯ ТА СТАН READONLY
+========================================= */
+.hw-edit-btn { 
+  background: white; 
+  border: 1px solid #e2e8f0; 
+  padding: 6px 12px; 
+  border-radius: 10px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: #475569; 
+  transition: 0.2s; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+  font-size: 13px;
+}
+
+.hw-edit-btn.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Адаптив для олівця на мобільних екранах */
+@media (max-width: 600px) {
+  .hw-header-actions {
+    margin-top: 0; /* Прибрали негативний відступ і тут */
+    margin-right: -10px; 
+  }
+  .hw-edit-btn .btn-text {
+    display: none; 
+  }
+  .hw-edit-btn { 
+    padding: 0; 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
+    font-size: 14px;
+  }
+}
+
+/* Стиль тексту, коли редагування вимкнено */
+.hw-textarea[readonly] {
+  background: transparent;
+  border-color: transparent;
+  resize: none;
+  padding: 0;
+  color: #475569;
+}
+
+.hw-textarea[readonly]:focus {
+  box-shadow: none;
+}
+
+.hw-textarea[readonly]::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
