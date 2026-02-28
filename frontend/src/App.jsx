@@ -1,58 +1,40 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-
-// Контексты (создадим их позже)
-import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
-
-// Лейаут
-import AppLayout from "./components/layout/AppLayout";
-
-// Страницы
-import HomePage from "./pages/HomePage"; // Страница выбора/создания группы
-
-// Фичи (заглушки для функционала из твоего HTML)
-import Board from "./features/board/Board";
-import Schedule from "./features/schedule/Schedule";
-import Homework from "./features/homework/Homework";
-import Materials from "./features/materials/Materials";
-import Attendance from "./features/attendance/Attendance";
-import Queue from "./features/queue/Queue";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 function App() {
+  // Функція, яка спрацює після успішного входу в Google
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      // Відправляємо токен від Google на наш бекенд
+      const response = await axios.post("http://localhost:8000/auth/google", {
+        token: credentialResponse.credential,
+      });
+
+      console.log("Бекенд відповів:", response.data);
+      // Тут ми отримаємо наш access_token і дані юзера!
+      // Зберігаємо їх (наприклад, в localStorage)
+      localStorage.setItem("token", response.data.access_token);
+      alert(`Вітаємо, ${response.data.user.name}!`);
+    } catch (error) {
+      console.error("Помилка авторизації:", error);
+    }
+  };
+
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <Router>
-          <Routes>
-            {/* Глобальная страница: юзер видит свои группы или может присоединиться к новой */}
-            <Route path="/" element={<HomePage />} />
+    <div style={{ padding: "50px", textAlign: "center" }}>
+      <h1>Projects Hub</h1>
+      <p>Увійдіть, щоб керувати групами</p>
 
-            {/* Роуты конкретной группы. AppLayout содержит Header, Drawer и навигацию (табы) */}
-            <Route path="/g/:groupId" element={<AppLayout />}>
-              {/* Если юзер зашел просто по ссылке группы, кидаем его на доску */}
-              <Route index element={<Navigate to="board" replace />} />
-
-              {/* Вложенные роуты фичей */}
-              <Route path="board" element={<Board />} />
-              <Route path="schedule" element={<Schedule />} />
-              <Route path="homework" element={<Homework />} />
-              <Route path="materials" element={<Materials />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="queue" element={<Queue />} />
-            </Route>
-
-            {/* Обработка несуществующих ссылок */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
+      {/* Чарівна кнопка Google */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => {
+            console.log("Помилка при вході через Google");
+          }}
+        />
+      </div>
+    </div>
   );
 }
 
