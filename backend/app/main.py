@@ -29,11 +29,15 @@ app = FastAPI(title="Projects Hub API", lifespan=lifespan)
 # Дозволяємо React стукатися до нашого API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"], 
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://localhost:3000",
+        "https://groupmanager-rho.vercel.app" # <-- Твій продакшен фронтенд!
+    ], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)    
+)
 
 # Ініціалізуємо FastAPI
 app = FastAPI(title="Projects Hub API", lifespan=lifespan)
