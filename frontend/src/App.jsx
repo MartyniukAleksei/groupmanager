@@ -6,9 +6,12 @@ function App() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       // Відправляємо токен від Google на наш бекенд
-      const response = await axios.post("http://localhost:8000/auth/google", {
-        token: credentialResponse.credential,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/google`,
+        {
+          token: credentialResponse.credential,
+        },
+      );
 
       console.log("Бекенд відповів:", response.data);
       // Тут ми отримаємо наш access_token і дані юзера!

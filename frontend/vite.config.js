@@ -10,5 +10,9 @@ export default defineConfig({
     watch: {
       usePolling: true, // ВАЖНО: заставляет Vite принудительно сканировать изменения
     },
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
+    },
   },
 });
