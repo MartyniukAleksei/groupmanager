@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Ця команда змусить Python прочитати твій локальний .env файл
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
