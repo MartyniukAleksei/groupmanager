@@ -11,7 +11,7 @@
 ========================================= */
 .att-top-header {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
   min-height: 48px;
@@ -38,9 +38,23 @@
   flex: 1.4; background: white; color: #0f172a; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
+.att-current-week-btn {
+  margin-top: 10px;
+  border: none;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.att-current-week-btn:hover { background: #bae6fd; }
+
 @media (max-width: 650px) {
   .att-week-btn { font-size: 12px; }
-  .att-hide-mobile { display: none; } 
+  .att-hide-mobile { display: none; }
 }
 
 /* =========================================
