@@ -138,6 +138,19 @@
 }
 .q-btn-leave:hover { background: #fef2f2; border-color: #ef4444; }
 
+.q-list-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.q-list-header .q-list-title { margin: 0; }
+
+.q-btn-clear {
+  background: transparent; border: 1px solid #fca5a5; color: #ef4444;
+  font-weight: 600; cursor: pointer; font-size: 12px; padding: 5px 10px;
+  border-radius: 8px; transition: 0.2s; white-space: nowrap;
+}
+.q-btn-clear:hover { background: #fef2f2; border-color: #ef4444; }
+
 /* =========================================
    АДАПТИВНІСТЬ ДЛЯ ТЕЛЕФОНІВ
 ========================================= */

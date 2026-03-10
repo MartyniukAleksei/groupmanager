@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv()
 
 # 3. Імпортуємо Base та всі моделі
-from app.database.models import Base, User, Group, UserGroup
+from app.database.models import Base, User, Group, UserGroup, ScheduleEntry, GroupWeekSettings, AttendanceSession, AttendanceVote, HomeworkEntry, MaterialFolder, MaterialLink, QueueEntry
 
 # Детектор для перевірки (покаже в консолі, чи побачив Python таблиці)
 print("\n--- ДІАГНОСТИКА ALEMBIC ---")
