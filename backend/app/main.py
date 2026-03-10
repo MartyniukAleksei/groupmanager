@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Наші імпорти бази та роутерів
 from app.database.database import engine
 from app.database.models import Base
-from app.routers import auth
+from app.routers import auth, groups
 
 # Цей контекстний менеджер виконається один раз при старті сервера
 @asynccontextmanager
@@ -40,6 +40,7 @@ app.add_middleware(
 
 # Підключаємо роутери
 app.include_router(auth.router)
+app.include_router(groups.router)
 
 @app.get("/")
 async def root():

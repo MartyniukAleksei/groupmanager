@@ -1,29 +1,32 @@
 import React from "react";
-import { Outlet, NavLink, useParams } from "react-router-dom";
+import { Outlet, NavLink, Link, useParams } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 
 const AppLayout = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
-  const { groupId } = useParams(); // Дістаємо ID групи з URL
+  const { user, logout } = useAuth();
+  const { groupId } = useParams();
 
   return (
     <div className="app-container">
       <header>
         <div className="logo-box">
-          <div className="logo-square"></div>
-          <span>Projects Hub | {groupId.toUpperCase()}</span>
+          <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="logo-square"></div>
+            <span>Projects Hub | {groupId.toUpperCase()}</span>
+          </Link>
         </div>
         <div className="header-controls">
           <button className="theme-btn" onClick={toggleTheme}>
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
-          <button className="account-trigger">{user ? "👤" : "Увійти"}</button>
+          <button className="account-trigger" onClick={logout}>
+            {user ? "Вийти" : "Увійти"}
+          </button>
         </div>
       </header>
 
-      {/* Використовуємо NavLink, він автоматично додає клас 'active' для поточного URL */}
       <nav className="tabs-nav">
         <NavLink to={`/g/${groupId}/board`} className="tab-btn">
           📝 Дошка
@@ -46,7 +49,6 @@ const AppLayout = () => {
       </nav>
 
       <main>
-        {/* Сюди рендеряться компоненти фічей (Board, Schedule і т.д.) */}
         <Outlet />
       </main>
     </div>
