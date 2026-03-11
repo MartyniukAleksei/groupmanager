@@ -10,6 +10,8 @@ import Homework from "./features/homework/Homework";
 import Materials from "./features/materials/Materials";
 import Attendance from "./features/attendance/Attendance";
 import Queue from "./features/queue/Queue";
+import Links from "./features/links/Links";
+import Students from "./features/students/Students";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -56,6 +58,8 @@ function App() {
         <Route path="materials" element={<Materials />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="queue" element={<Queue />} />
+        <Route path="links" element={<Links />} />
+        <Route path="students" element={<Students />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

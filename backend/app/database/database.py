@@ -12,7 +12,10 @@ if not DATABASE_URL:
 
 # Створюємо асинхронний двигун. 
 # echo=True корисно для розробки, щоб бачити SQL-запити в консолі. Для проду краще вимкнути.
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, connect_args={
+        "statement_cache_size": 0, 
+        "prepared_statement_cache_size": 0
+    } ,echo=True)
 
 # Фабрика для створення асинхронних сесій
 AsyncSessionLocal = async_sessionmaker(

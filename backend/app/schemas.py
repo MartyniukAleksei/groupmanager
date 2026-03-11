@@ -174,3 +174,49 @@ class JoinQueueRequest(BaseModel):
 class ClearQueueRequest(BaseModel):
     subject_name: str
     queue_type: str
+
+
+class UsefulLinkCreate(BaseModel):
+    title: str
+    url: str
+    emoji: str
+
+
+class UsefulLinkOut(BaseModel):
+    id: int
+    title: str
+    url: str
+    emoji: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserProfileOut(BaseModel):
+    id: int
+    email: str
+    name: str
+    avatar_url: str | None
+    telegram: str | None
+    birthday: str | None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserProfileUpdate(BaseModel):
+    name: str | None = None
+    telegram: str | None = None
+    birthday: str | None = None
+
+
+class MemberOut(BaseModel):
+    user_id: int
+    name: str
+    email: str
+    avatar_url: str | None
+    telegram: str | None
+    birthday: str | None
+    role: str
+    joined_at: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UpdateRoleRequest(BaseModel):
+    role: str
