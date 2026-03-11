@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, NavLink, Link, useParams } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import UserDrawer from "../UserDrawer";
 
 const AppLayout = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { groupId } = useParams();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <div className="app-container">
@@ -21,8 +23,10 @@ const AppLayout = () => {
           <button className="theme-btn" onClick={toggleTheme}>
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
-          <button className="account-trigger" onClick={logout}>
-            {user ? "Вийти" : "Увійти"}
+          <button className="avatar-btn" onClick={() => setDrawerOpen(true)}>
+            {user?.avatar_url
+              ? <img src={user.avatar_url} alt="avatar" referrerPolicy="no-referrer" />
+              : <span>{user?.name?.[0] ?? "?"}</span>}
           </button>
         </div>
       </header>
@@ -46,11 +50,19 @@ const AppLayout = () => {
         <NavLink to={`/g/${groupId}/queue`} className="tab-btn">
           🚶‍♂️ Черга
         </NavLink>
+        <NavLink to={`/g/${groupId}/links`} className="tab-btn">
+          🔗 Посилання
+        </NavLink>
+        <NavLink to={`/g/${groupId}/students`} className="tab-btn">
+          👥 Студенти
+        </NavLink>
       </nav>
 
       <main>
         <Outlet />
       </main>
+
+      <UserDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 };

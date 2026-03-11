@@ -12,10 +12,8 @@ class Base(DeclarativeBase):
 
 # 1. Визначаємо ролі користувачів
 class RoleEnum(str, enum.Enum):
-    admin = "admin"       # Творець групи або головний админ
-    starosta = "starosta" # Може керувати розкладом, підтверджувати запити
-    editor = "editor"     # Наприклад, відповідальний за ДЗ (dz)
-    user = "user"         # Звичайний учасник
+    admin = "admin"  # Творець групи або головний адмін
+    user = "user"    # Звичайний учасник
 
 # 2. Асоціативна таблиця (Зв'язок Багато-до-Багатьох)
 # Ми використовуємо повноцінну модель замість простої Table, 
@@ -44,6 +42,8 @@ class User(Base):
     name: Mapped[str] = mapped_column(String)
     avatar_url: Mapped[Optional[str]] = mapped_column(String)
     bio: Mapped[Optional[str]] = mapped_column(String) # Короткий опис "про себе"
+    telegram: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    birthday: Mapped[Optional[date_type]] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
     # Зв'язок з групами. cascade="all, delete-orphan" означає, 
@@ -162,3 +162,14 @@ class QueueEntry(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     __table_args__ = (UniqueConstraint("group_id", "subject_name", "queue_type", "user_id"),)
+
+
+class UsefulLink(Base):
+    __tablename__ = "useful_links"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(100))
+    url: Mapped[str] = mapped_column(String(500))
+    emoji: Mapped[str] = mapped_column(String(10))
+    created_by_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

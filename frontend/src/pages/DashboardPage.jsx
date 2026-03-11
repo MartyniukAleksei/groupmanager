@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { fetchMyGroups, createGroup, joinGroup } from "../api/groups";
+import UserDrawer from "../components/UserDrawer";
 
 function CreateGroupModal({ token, onClose, onCreated }) {
   const [name, setName] = useState("");
@@ -57,13 +58,14 @@ function CreateGroupModal({ token, onClose, onCreated }) {
 }
 
 const DashboardPage = () => {
-  const { user, token, logout } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [joinInput, setJoinInput] = useState("");
   const [joining, setJoining] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchMyGroups(token)
@@ -102,7 +104,7 @@ const DashboardPage = () => {
 
   const roleBadgeStyle = (role) => ({
     ...styles.badge,
-    background: role === "admin" ? "#ff4d4f" : role === "starosta" ? "#fa8c16" : role === "editor" ? "#1890ff" : "#52c41a",
+    background: role === "admin" ? "#ff4d4f" : "#52c41a",
   });
 
   return (
@@ -111,8 +113,10 @@ const DashboardPage = () => {
         <h1 style={styles.title}>Group Manager</h1>
         <div style={styles.headerRight}>
           <span style={styles.greeting}>Привіт, {user?.name}</span>
-          <button style={styles.logoutBtn} onClick={logout}>
-            Вийти
+          <button style={styles.avatarBtn} onClick={() => setDrawerOpen(true)}>
+            {user?.avatar_url
+              ? <img src={user.avatar_url} alt="avatar" referrerPolicy="no-referrer" style={styles.avatarImg} />
+              : <span>{user?.name?.[0] ?? "?"}</span>}
           </button>
         </div>
       </header>
@@ -182,6 +186,8 @@ const DashboardPage = () => {
           onCreated={(newGroup) => setGroups((prev) => [...prev, { ...newGroup, role: "admin", member_count: 1 }])}
         />
       )}
+
+      <UserDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 };
@@ -195,10 +201,13 @@ const styles = {
   title: { margin: 0, fontSize: "22px" },
   headerRight: { display: "flex", alignItems: "center", gap: "16px" },
   greeting: { fontSize: "16px" },
-  logoutBtn: {
-    padding: "6px 14px", cursor: "pointer", background: "#ff4d4f",
-    color: "#fff", border: "none", borderRadius: "5px",
+  avatarBtn: {
+    width: "36px", height: "36px", borderRadius: "50%", cursor: "pointer",
+    background: "#1890ff", color: "#fff", border: "none", fontWeight: 700,
+    fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center",
+    overflow: "hidden", padding: 0,
   },
+  avatarImg: { width: "100%", height: "100%", objectFit: "cover" },
   main: { maxWidth: "900px", margin: "0 auto", padding: "32px 16px" },
   sectionTitle: { marginBottom: "16px" },
   empty: { color: "#999" },
