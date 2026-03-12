@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Projects Hub | Architecture</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --- STANDARD CLEAN VARIABLES --- */
+        :root {
+            --bg-color: #eef2f6; 
+            --bg-gradient: linear-gradient(135deg, #eef2f6 0%, #e0eaf5 100%);
+            --card-bg: #ffffff;
+            --panel-bg: #f4f6f9;
+            
+            --text-main: #111418;
+            --text-secondary: #8a929a;
+            
+            --primary: #2d82fe; 
+            --danger: #ff5a5f;
+            --success: #20c997;
+            --orange: #ffab00;
+            
+            --border: #e2e8f0;
+            --shadow-soft: 0 12px 36px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-pill: 0 2px 10px rgba(0, 0, 0, 0.06);
+            --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.08);
+            
+            --transition: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #141517;
+            --bg-gradient: linear-gradient(135deg, #141517 0%, #1a1c20 100%);
+            --card-bg: #1e1f22;
+            --panel-bg: #18191b;
+            --text-main: #f0f2f5;
+            --text-secondary: #8a929a;
+            --border: #333333;
+            --shadow-soft: 0 12px 36px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --shadow-pill: 0 2px 10px rgba(0, 0, 0, 0.4);
+            --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            transition: background 0.3s; 
+            touch-action: pan-y; 
+            padding-bottom: 120px; 
+            overflow-x: hidden;
+        }
+
+        /* --- GLOBAL EDIT MODE --- */
+        .admin-edit-only, .admin-edit-only-block { display: none !important; }
+        body.edit-mode-active .admin-edit-only { display: flex !important; }
+        body.edit-mode-active .admin-edit-only-block { display: block !important; }
+        body.edit-mode-active .hw-view-only { display: none !important; }
+
+        /* --- ALERTS & TOASTS --- */
+        .alert-floating { position: fixed; top: 100px; right: 20px; z-index: 5000; width: 50px; height: 50px; border-radius: 50%; background: var(--danger); color: white; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 15px rgba(255, 90, 95, 0.6); animation: pulse 1.5s infinite; }
+        .alert-floating.active { display: flex; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: var(--text-main); color: var(--card-bg); padding: 14px 24px; border-radius: 50px; font-size: 14px; text-align: center; box-shadow: var(--shadow-float); font-weight: 600; animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* --- PC vs MOBILE LAYOUT CORE --- */
+        .mobile-only-header { 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            padding: 0 25px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 2000; /* ЗБІЛЬШЕНО ЩОБ БЛЮР НЕ НАЛАЗИВ */
+            height: 70px; width: 100%; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            box-sizing: border-box;
+        }
+        [data-theme="dark"] .mobile-only-header { background: rgba(30,30,30,0.8); }
+        .pc-only { display: none !important; }
+
+        .floating-ui-container {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; align-items: center; z-index: 1000;
+            width: 95%; max-width: 600px; justify-content: center;
+        }
+
+        @media (min-width: 950px) {
+            .mobile-only-header { display: none !important; }
+            .pc-only { display: flex !important; }
+            body { padding-top: 100px; padding-bottom: 30px; }
+            
+            .floating-ui-container {
+                position: fixed; top: 20px; bottom: auto; max-width: 1000px;
+                justify-content: space-between;
+            }
+            .nav-scroll-wrapper { max-width: 100% !important; flex: 0 1 auto !important;}
+            .schedule-grid { grid-template-columns: repeat(5, 1fr) !important; overflow-x: visible !important; gap: 10px; padding-left: 0; padding-right: 0;}
+        }
+
+        .logo-box { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px;}
+        .logo-square { width: 28px; height: 28px; background: linear-gradient(135deg, var(--primary), var(--success)); border-radius: 8px; display:flex; align-items:center; justify-content:center; color:white; font-size:14px;}
+        
+        .theme-btn-mobile { background: var(--bg-color); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: 0.2s; color: var(--text-main); }
+        
+        .live-timer { text-align: center; padding: 10px; background: var(--success); color: white; font-size: 13px; font-weight: 600; display: none; width: 100%; flex-shrink: 0; position: sticky; top: 0; z-index: 1990;}
+        .live-timer.active { display: block; }
+
+        /* --- GLASSMORPHISM ПИЛЮЛІ --- */
+        .desktop-logo-pill {
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 60px; padding: 10px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); align-items: center; gap: 12px; font-weight: 700; font-size: 16px; flex-shrink: 0;
+            color: var(--text-main);
+        }
+        [data-theme="dark"] .desktop-logo-pill { background: rgba(30, 30, 30, 0.6); border-color: rgba(255,255,255,0.08); }
+
+        .nav-scroll-wrapper {
+            overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+            border-radius: 60px;
+            max-width: calc(100% - 140px);
+            flex: 1; display: flex;
+        }
+        .nav-scroll-wrapper::-webkit-scrollbar { display: none; }
+        
+        .nav-bar {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8); padding: 6px; border-radius: 60px; gap: 4px;
+            z-index: 1; margin: auto; width: max-content;
+            box-shadow: var(--shadow-soft);
+        }
+        [data-theme="dark"] .nav-bar { background: rgba(30, 30, 30, 0.6); border-color: rgba(255,255,255,0.08); }
+
+        .nav-indicator {
+            position: absolute; top: 6px; bottom: 6px; left: 0; width: 48px; 
+            background: var(--card-bg); border-radius: 50px; box-shadow: var(--shadow-pill);
+            z-index: 0; pointer-events: none;
+            will-change: transform, width;
+            transition: background-color 0.3s; /* Вимкнено CSS transition для position, керує JS */
+        }
+
+        .nav-item {
+            position: relative; z-index: 1; display: flex; align-items: center; justify-content: center;
+            height: 48px; padding: 0 14px;
+            box-sizing: border-box; border-radius: 50px;
+            color: #90959a; text-decoration: none; 
+            cursor: pointer; overflow: hidden; 
+            transition: padding 0.4s var(--transition), color 0.3s ease;
+        }
+        .nav-item:hover { color: #5a5f64; }
+        .nav-item.active { color: var(--text-main); padding: 0 20px;}
+        [data-theme="dark"] .nav-item.active { color: #ffffff; }
+
+        .nav-item i { font-size: 24px; flex-shrink: 0; }
+        .nav-item .text {
+            font-weight: 600; font-size: 14px;
+            max-width: 0; opacity: 0; margin-left: 0; white-space: nowrap;
+            transition: max-width 0.4s var(--transition), opacity 0.3s ease, margin-left 0.4s var(--transition);
+        }
+        .nav-item.active .text { max-width: 150px; opacity: 1; margin-left: 8px; }
+
+        .action-pill {
+            display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 60px; padding: 6px;
+            box-shadow: var(--shadow-soft); height: 48px; box-sizing: content-box;
+        }
+        [data-theme="dark"] .action-pill { background: rgba(30, 30, 30, 0.6); border-color: rgba(255,255,255,0.08); }
+
+        .action-btn {
+            display: flex; align-items: center; justify-content: center;
+            height: 48px; width: 48px; border-radius: 50px;
+            background: transparent; border: none; cursor: pointer;
+            color: var(--text-secondary); transition: 0.3s; font-size: 22px;
+        }
+        .action-btn:hover { color: var(--text-main); background: rgba(0,0,0,0.05); }
+        [data-theme="dark"] .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn.active-edit { color: white; background: var(--danger); box-shadow: 0 4px 10px rgba(255,90,95,0.3); }
+        .action-btn.primary { color: white; background: var(--primary); box-shadow: 0 4px 10px rgba(45,130,254,0.3); }
+        .hidden-animate { display: none !important; }
+
+        /* --- GENERAL CARDS & INPUTS --- */
+        main { flex: 1; padding: 20px; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .section-title { font-weight: 700; letter-spacing: -0.5px; margin: 0 0 20px 0; font-size: 20px; }
+        .hidden { display: none !important; }
+        
+        .clean-card { background: var(--card-bg); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+
+        input[type="text"], input[type="date"], input[type="password"], select, textarea { 
+            background: var(--bg-color); border: 1px solid transparent; border-radius: 12px; padding: 16px 20px; font-size: 15px; color: var(--text-main); width: 100%; box-sizing: border-box; transition: 0.3s; font-family: inherit; outline: none; margin-bottom: 15px; font-weight: 500;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(45, 130, 254, 0.1); background: var(--card-bg); }
+
+        .btn-main { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; padding: 16px; border-radius: 12px; width: 100%; transition: 0.2s var(--transition); font-size: 15px; box-shadow: 0 4px 12px rgba(45,130,254,0.2);}
+        .btn-main:active { transform: scale(0.97); box-shadow: 0 2px 5px rgba(45,130,254,0.1); }
+        .btn-main.danger { background: var(--danger); box-shadow: 0 4px 12px rgba(255,90,95,0.2);}
+        .btn-main.success { background: var(--success); box-shadow: 0 4px 12px rgba(32,201,151,0.2);}
+        .btn-main.secondary { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border); box-shadow:none;}
+
+        .glass-toggle-wrapper { display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 20px; }
+        .glass-toggle { appearance: none; -webkit-appearance: none; width: 44px; height: 24px; background: var(--bg-color); border: 1px solid var(--border); border-radius: 20px; position: relative; cursor: pointer; outline: none; transition: 0.3s; flex-shrink: 0;}
+        .glass-toggle::before { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--text-secondary); transition: 0.3s; }
+        .glass-toggle:checked { background: var(--success); border-color: var(--success);}
+        .glass-toggle:checked::before { transform: translateX(20px); background: white; }
+
+        /* =========================================================
+           ОНОВЛЕНИЙ ДИЗАЙН: ІНФО ДОШКА + ДЕДЛАЙНИ 
+           ========================================================= */
+        .home-wrapper { display: flex; flex-direction: column; gap: 20px; height: 100%; min-height: calc(100vh - 160px); }
+        
+        @media (min-width: 950px) {
+            .home-wrapper { flex-direction: row; align-items: stretch; }
+            .board-panel { flex: 2; min-width: 0; }
+            .deadlines-panel { flex: 1; min-width: 400px; max-width: 450px; display: flex; flex-direction: column;}
+        }
+
+        /* ЛІВА ПАНЕЛЬ: ДОШКА */
+        .board-panel {
+            background: var(--card-bg); border-radius: 24px; padding: 20px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            display: flex; flex-direction: column; position: relative; height: 75vh;
+            min-height: 450px; /* Важливо для телефонів, щоб блюр не плющило */
+        }
+        
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .panel-title { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; margin: 0; }
+        .panel-title i { font-size: 22px; }
+        .icon-btn { background: transparent; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .icon-btn:hover { color: var(--text-main); }
+
+        .info-board-container {
+            flex: 1; position: relative; border-radius: 16px; overflow: hidden;
+            background-color: var(--card-bg);
+            /* СІТКА В КЛІТИНКУ */
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            border: 1px solid var(--border);
+            min-height: 350px; /* Важливо для телефонів */
+            z-index: 1; /* Обмежуємо шар, щоб блюр не накладався на шапку */
+        }
+        [data-theme="dark"] .info-board-container {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+        }
+
+        /* ЗАХИСТ ДОШКИ (БЛЮР) - СИЛЬНІШИЙ ЕФЕКТ */
+        .board-blur-overlay {
+            position: absolute; inset: 0; z-index: 105; 
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            border-radius: 16px;
+        }
+        [data-theme="dark"] .board-blur-overlay { background: rgba(0, 0, 0, 0.7); }
+
+        .board-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: 0 0; cursor: grab; }
+        .board-canvas.panning { cursor: grabbing; }
+        .board-canvas.selecting { cursor: crosshair; }
+        .board-canvas.drawing { cursor: crosshair !important; }
+        .board-canvas.drawing * { cursor: crosshair !important; }
+
+        /* ПАНЕЛЬ ІНСТРУМЕНТІВ (Біла плаваюча зліва знизу) */
+        .board-main-toolbar {
+            position: absolute; bottom: 20px; left: 20px;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 16px; padding: 10px 15px;
+            display: flex; gap: 15px; box-shadow: var(--shadow-float); z-index: 101;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        [data-theme="dark"] .board-main-toolbar { background: rgba(30, 30, 30, 0.85); border-color: rgba(255,255,255,0.05); }
+        .board-tool-btn {
+            background: transparent; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s; padding: 6px 12px; border-radius: 12px;
+        }
+        .board-tool-btn i { font-size: 22px; transition: 0.2s; }
+        .board-tool-btn:hover { background: var(--bg-color); }
+        .board-tool-btn.active { color: var(--primary); background: rgba(45,130,254,0.1); }
+
+        #selection-box { position: absolute; border: 2px dashed var(--danger); background: rgba(255, 90, 95, 0.1); pointer-events: none; display: none; z-index: 9999; border-radius: 8px;}
+        
+        /* СТІКЕРИ ТА ФОТО */
+        .sticky-note {
+            position: absolute; width: 140px; min-height: 140px; padding: 25px 15px 15px;
+            font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: #111;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            border-radius: 8px; cursor: grab; user-select: none; transition: box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .sticky-note:active { cursor: grabbing; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 1000 !important; }
+        
+        /* Темна смужка зверху (імітація скотчу) */
+        .sticky-note::before {
+            content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 10px; background: rgba(0,0,0,0.06); border-radius: 4px;
+        }
+
+        /* Пастельні кольори стікерів */
+        .sticky-note.yellow { background: #fef3c7; } 
+        .sticky-note.pink { background: #fce7f3; } 
+        .sticky-note.blue { background: #e0f2fe; } 
+        .sticky-note.green { background: #dcfce7; } 
+        .sticky-note.purple { background: #f3e8ff; } 
+
+        /* Фото стилю Полароїд */
+        .sticky-note.photo-type {
+            background: #ffffff; padding: 8px; padding-bottom: 30px;
+            border: 1px solid var(--border); border-radius: 8px; width: 120px; min-height: auto;
+        }
+        .sticky-note.photo-type::before { display: none; } /* Прибираємо скотч з фото */
+        .sticky-note.photo-type img { width: 100%; height: auto; max-height: 120px; object-fit: cover; border-radius: 4px; pointer-events: none; }
+        
+        /* Аватарка на стікері (маленька в кутку) */
+        .note-avatar { position: absolute; bottom: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-color); border: 2px solid white; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-main); font-weight: 600; overflow: hidden; box-shadow: var(--shadow-sm); pointer-events: none;}
+
+        .pin-head { width: 14px; height: 14px; border-radius: 50%; background: var(--danger); box-shadow: 1px 2px 4px rgba(0,0,0,0.3); border: 1px solid #c0392b; }
+        .sticky-pin { position: absolute; top: -7px; left: 50%; transform: translateX(-50%); z-index: 2; }
+        .board-pin { position: absolute; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: grab; z-index: 5; }
+        .board-pin:active { cursor: grabbing; transform: scale(1.2); z-index: 1000 !important; }
+        
+        /* Лінії малювання */
+        .board-draw { stroke: var(--text-main); stroke-width: 4px; fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: auto; cursor: pointer; transition: stroke-width 0.2s; }
+        .board-draw:hover { stroke-width: 6px; }
+
+        .note-delete { position: absolute; top: -10px; right: -10px; font-size: 14px; color: var(--text-secondary); background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; z-index: 5; transition:0.2s; box-shadow: var(--shadow-sm);}
+        .note-delete:hover { color: white; background: var(--danger); }
+        .pin-delete { position: absolute; top: -15px; right: -15px; background: var(--card-bg); border-radius: 50%; width: 20px; height: 20px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); color: var(--danger); border: 1px solid var(--border);}
+        
+        /* ПРАВА ПАНЕЛЬ: ДЕДЛАЙНИ */
+        .deadlines-panel {
+            background: var(--panel-bg); border-radius: 24px; padding: 20px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            display: flex; flex-direction: column;
+        }
+
+        /* Сітка дедлайнів (ДВІ КОЛОНКИ) */
+        .deadlines-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+            overflow-y: auto; padding-right: 5px; margin-bottom: 15px;
+            max-height: calc(75vh - 120px);
+        }
+        @media (max-width: 600px) { .deadlines-grid { grid-template-columns: 1fr; } }
+
+        /* Картка дедлайну */
+        .dl-card {
+            background: var(--card-bg); border-radius: 12px; padding: 12px 14px;
+            display: flex; flex-direction: column; gap: 10px; position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .dl-card::before { content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 0 4px 4px 0; }
+        .dl-card.urgent::before { background: var(--danger); }
+        .dl-card.normal::before { background: var(--primary); }
+        .dl-card.bday::before { background: var(--orange); } /* ЗОЛОТИЙ ДЛЯ ДН */
+
+        .dl-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;}
+        .dl-title { font-weight: 600; font-size: 13px; line-height: 1.3; color: var(--text-main); flex: 1; }
+        .dl-avatar { width:24px; height:24px; border-radius:50%; background:var(--bg-color); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;}
+        
+        .dl-bot { display: flex; justify-content: space-between; align-items: center; margin-top: auto;}
+        .dl-date { font-size: 12px; color: var(--text-main); font-weight: 500;}
+        
+        .dl-badge { font-size: 10px; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
+        .dl-badge.urgent { background: #ffe4e6; color: #e11d48; } 
+        .dl-badge.normal { background: #dbeafe; color: #1d4ed8; } 
+        .dl-badge.bday { background: rgba(255, 171, 0, 0.15); color: var(--orange); }
+
+        /* Блок додавання (пунктир) */
+        .add-dl-box {
+            border: 1px dashed #cbd5e1; border-radius: 16px; padding: 15px;
+            display: flex; flex-direction: column; gap: 8px; background: transparent;
+            margin-top: auto;
+        }
+        [data-theme="dark"] .add-dl-box { border-color: #475569; }
+        .add-dl-box span { font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: -4px;}
+        .add-dl-box input { padding: 10px 14px; font-size: 13px; margin-bottom: 0; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.05); background: var(--card-bg);}
+        .add-dl-box .btn-add { background: #e2e8f0; color: #334155; border: none; box-shadow: none; font-weight: 600; border-radius: 12px; padding: 12px; margin-top: 5px; transition: 0.2s; width: 100%;}
+        .add-dl-box .btn-add:hover { background: #cbd5e1; }
+        [data-theme="dark"] .add-dl-box .btn-add { background: #334155; color: #f8fafc; }
+        [data-theme="dark"] .add-dl-box .btn-add:hover { background: #475569; }
+
+        /* --- Всі інші вкладки --- */
+        .week-toggle-container { display: flex; justify-content: center; margin: 10px 0 20px; }
+        .week-toggle { background: var(--bg-color); border-radius: 30px; padding: 4px; display: flex; position: relative; border: 1px solid var(--border); }
+        .week-btn { padding: 10px 24px; border-radius: 25px; border: none; background: transparent; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); transition: 0.3s; z-index: 2; }
+        .week-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: var(--shadow-sm); }
+
+        .schedule-grid { display: grid; grid-template-columns: repeat(5, 260px); gap: 15px; margin-top: 10px; overflow-x: auto; padding-bottom: 20px; padding-left: 5px; padding-right: 20px; -webkit-overflow-scrolling: touch; }
+        .day-column { display: flex; flex-direction: column; gap: 10px; }
+        .day-header { text-align: center; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: var(--text-secondary); text-transform: uppercase; position: sticky; left: 0; }
+        .pair-slot { display: flex; flex-direction: column; gap: 4px; height: 130px; }
+        .time-slot { font-size: 11px; font-weight: 600; color: var(--text-secondary); padding-left: 5px; }
+        
+        .subject-card { background: var(--card-bg); border-radius: 16px; padding: 15px; height: 100%; cursor: pointer; transition: 0.2s; position: relative; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .subject-card:active { transform: scale(0.97); }
+        .subject-card.current { border: 2px solid var(--success); box-shadow: 0 4px 15px rgba(32,201,151,0.2); }
+        .subject-card.empty { background: transparent; border: 1px dashed var(--border); opacity: 0.5; cursor: default; box-shadow: none; transform:none !important;}
+        
+        .subject-type { font-size: 10px; text-transform: uppercase; font-weight: 700; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 8px; align-self: flex-start; }
+        .type-lecture { background: rgba(32, 201, 151, 0.15); color: var(--success); } 
+        .type-practice { background: #ffe4e6; color: #e11d48; } 
+        .type-lab { background: #fef3c7; color: #d97706; }
+        .subject-name { font-size: 13px; font-weight: 600; line-height: 1.4; display: block; color: var(--text-main); }
+        .teacher-name { font-size: 11px; color: var(--text-secondary); margin-top: 4px; display: block; }
+
+        .hw-day-card { border-radius: 16px; padding: 20px; margin-bottom: 20px; background: var(--card-bg); border: 1px solid var(--border); box-shadow: var(--shadow-sm);}
+        .hw-day-header { font-weight: 700; color: var(--primary); margin-bottom: 15px; font-size: 14px; text-transform: uppercase; display:flex; justify-content: space-between; border-bottom: 1px solid var(--bg-color); padding-bottom:10px;}
+        .hw-subject-row { padding: 12px 0; border-bottom: 1px solid var(--bg-color); }
+        .hw-subject-row:last-child { border-bottom: none; padding-bottom: 0;}
+        .hw-sub-name { font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; color: var(--text-main); }
+        .hw-text { font-size: 14px; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.5; padding: 12px; background: var(--bg-color); border-radius: 12px;}
+
+        .queue-item { background: var(--card-bg); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+
+        .attendance-day-header { font-weight: 700; color: var(--text-main); font-size: 16px; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; text-transform: uppercase;}
+        
+        .poll-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-soft); border: 1px solid var(--border);}
+        .poll-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--bg-color); }
+        .poll-header span:first-child { font-weight: 600; font-size: 15px; color: var(--text-main);}
+        .poll-type-badge { font-weight:600; font-size:11px; color:var(--text-secondary); background: var(--bg-color); padding:4px 10px; border-radius:8px;}
+        
+        .poll-option { position: relative; min-height: 48px; background: var(--bg-color); border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: 0.2s; display:flex; flex-direction: column; border: 1px solid transparent;}
+        .poll-option.voted { background: var(--card-bg); border: 1px solid var(--success); box-shadow: 0 4px 12px rgba(32,201,151,0.1);}
+        
+        .poll-row-main { position: relative; height: 48px; width: 100%; cursor: pointer; }
+        .poll-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--success); opacity: 0.1; width: 0%; transition: width 0.6s; z-index: 1; border-radius: inherit; }
+        .poll-option.voted .poll-bar-fill { opacity: 0.2; }
+        
+        .poll-text { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; z-index: 2; font-size: 14px; font-weight: 600; pointer-events: none;}
+        
+        .poll-reveal-btn { pointer-events: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; font-size: 12px; cursor: pointer; padding: 6px 12px; color: var(--text-secondary); transition: 0.2s; font-weight: 600;}
+        .poll-voters-collapse { display: none; padding: 15px; background: var(--bg-color); flex-wrap: wrap; gap: 8px; border-radius: 0 0 12px 12px; border-top: 1px solid var(--border);}
+        .poll-voters-collapse.open { display: flex; }
+        .voter-chip { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; background: var(--card-bg); padding: 6px 12px 6px 6px; border-radius: 20px; border: 1px solid var(--border);}
+        .voter-ava { width: 24px; height: 24px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        .table-container { background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow-sm); overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border);}
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { padding: 15px; text-align: left; font-size: 12px; color: var(--text-secondary); font-weight: 600; border-bottom: 1px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--bg-color); font-size: 14px;}
+        tr:last-child td { border-bottom: none; }
+
+        #archive-content h3, #hw-archive-content h3 { color: var(--text-main); font-weight: 700; font-size: 16px; margin-bottom: 15px;}
+        .archive-item { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 16px; margin-bottom: 12px; text-align: left; box-shadow: 0 2px 10px rgba(0,0,0,0.02);}
+
+        .folder-item { background: var(--card-bg); border-radius: 16px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .folder-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; font-size: 15px;}
+        .folder-content { display: none; padding: 20px; border-top: 1px solid var(--border); background: var(--bg-color);}
+        .folder-item.open .folder-content { display: block; }
+        .material-link { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--card-bg); border-radius: 12px; margin-bottom: 10px; text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 500; border: 1px solid var(--border);}
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 6000; padding: 20px; }
+        .modal.active { display: flex; }
+        /* Оновлено max-height та overflow */
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; max-height: 85vh; overflow-y: auto; overflow-x: hidden; }
+        
+        .player-container iframe, .player-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 12px; }
+
+        .drawer { position: fixed; right: -100%; top: 0; width: 85%; max-width: 380px; height: 100%; background: var(--card-bg); transition: 0.3s; z-index: 5000; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        .drawer.active { right: 0; }
+        
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 4500; cursor: pointer;}
+        .overlay.active { display: block; }
+        
+        .admin-list-item { background: var(--bg-color); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 10px; padding: 15px;}
+        
+        .resources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
+        .resource-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; text-decoration: none; color: var(--text-main); transition: 0.2s;}
+        .resource-card:active { transform: scale(0.96); }
+        .res-icon { font-size: 32px; margin-bottom: 5px; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div id="alertIcon" class="alert-floating" title="Увага! Тривога">
+    <i class="ph ph-warning-circle"></i>
+</div>
+
+<div id="toast-container"></div>
+<div class="overlay" id="overlay" onclick="window.toggleDrawer()"></div>
+
+<header class="mobile-only-header">
+    <div class="logo-box"><div class="logo-square"><i class="ph ph-app-window"></i></div><span>Projects Hub</span></div>
+    
+    <div class="action-pill">
+        <button class="action-btn" onclick="window.toggleTheme()"><i class="ph ph-moon theme-icon"></i></button>
+        <button class="action-btn admin-edit-only hidden-animate edit-btn-action" onclick="window.toggleGlobalEdit()"><i class="ph ph-pencil-simple"></i></button>
+    </div>
+</header>
+
+<div class="live-timer" id="liveTimer"></div>
+
+<div class="floating-ui-container">
+    <div class="desktop-logo-pill pc-only">
+        <div class="logo-square"><i class="ph ph-app-window"></i></div>
+        <span>Projects Hub</span>
+    </div>
+
+    <div class="nav-scroll-wrapper">
+        <nav class="nav-bar" id="main-nav-bar">
+            <div class="nav-indicator" id="nav-indicator"></div>
+            
+            <div class="nav-item active" id="btn-home" onclick="window.switchTab('home')">
+                <i class="ph ph-house"></i><span class="text">Дошка</span>
+            </div>
+            <div class="nav-item" id="btn-homework" onclick="window.switchTab('homework')">
+                <i class="ph ph-book-open"></i><span class="text">ДЗ</span>
+            </div>
+            <div class="nav-item" id="btn-schedule" onclick="window.switchTab('schedule')">
+                <i class="ph ph-calendar-blank"></i><span class="text">Розклад</span>
+            </div>
+            <div class="nav-item" id="btn-attendance" onclick="window.switchTab('attendance')">
+                <i class="ph ph-users"></i><span class="text">Явка</span>
+            </div>
+            <div class="nav-item" id="btn-topics" onclick="window.switchTab('topics')">
+                <i class="ph ph-rocket"></i><span class="text">Теми</span>
+            </div>
+            <div class="nav-item" id="btn-materials" onclick="window.switchTab('materials')">
+                <i class="ph ph-folder"></i><span class="text">Файли</span>
+            </div>
+            <div class="nav-item" id="btn-queue" onclick="window.switchTab('queue')">
+                <i class="ph ph-list-numbers"></i><span class="text">Черга</span>
+            </div>
+            <div class="nav-item" id="btn-resources" onclick="window.switchTab('resources')">
+                <i class="ph ph-link"></i><span class="text">Лінки</span>
+            </div>
+        </nav>
+    </div>
+
+    <div class="action-pill">
+        <button class="action-btn pc-only" onclick="window.toggleTheme()"><i class="ph ph-moon theme-icon"></i></button>
+        <button class="action-btn admin-edit-only hidden-animate pc-only edit-btn-action" onclick="window.toggleGlobalEdit()"><i class="ph ph-pencil-simple"></i></button>
+        <button class="action-btn" onclick="window.toggleDrawer()"><i class="ph ph-user"></i></button>
+    </div>
+</div>
+
+<div class="modal" id="playerModal" onclick="window.closePlayer()">
+    <button class="btn-main secondary" onclick="window.closePlayer()" style="position:fixed; top:20px; right:20px; width:45px; height:45px; border-radius:50%; padding:0; z-index:7001;"><i class="ph ph-x" style="font-size:20px;"></i></button>
+    <div class="modal-content" onclick="event.stopPropagation()" style="padding:0; background:black; max-width: 800px; width: 95%; border:none;">
+        <div id="playerContent" class="player-container" style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;"></div>
+    </div>
+</div>
+
+<div class="modal" id="dobModal">
+    <div class="modal-content">
+        <h3 style="margin-top:10px; font-size:22px;">🎉 Привіт!</h3>
+        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:25px; line-height:1.5;">Вкажіть дату народження один раз, щоб ми могли вас привітати.</p>
+        <input type="date" id="dobInput">
+        <button class="btn-main" onclick="window.saveDob()">Зберегти та продовжити</button>
+    </div>
+</div>
+
+<div class="drawer" id="drawer">
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="margin:0; font-size: 24px; font-weight:700;">Кабінет</h2>
+        <button class="theme-btn-mobile" onclick="window.toggleDrawer()" style="background:transparent;"><i class="ph ph-x"></i></button>
+    </div>
+
+    <div id="auth-view">
+        <h3 id="authTitle" style="margin-top:0; margin-bottom:20px; font-size:18px;">Авторизація</h3>
+        <input type="text" id="login" placeholder="Ваш логін">
+        <input type="password" id="pass" placeholder="Ваш пароль">
+        <button class="btn-main" id="btnAction" style="margin-top:10px;">Увійти</button>
+        <div style="text-align:center; margin-top:20px; font-size:14px; font-weight:500;">
+            <span id="authToggleText" style="color:var(--text-secondary);">Ще не з нами?</span> 
+            <a href="#" onclick="window.toggleAuthMode()" style="color:var(--primary); text-decoration:none; padding:10px;">Створити акаунт</a>
+        </div>
+    </div>
+
+    <div id="user-view" class="hidden">
+        <div class="clean-card" style="text-align:center;">
+            <div class="avatar-small" style="width:80px; height:80px; font-size:36px; margin:0 auto 15px;"><i class="ph ph-user"></i></div>
+            <h3 id="profName" style="margin:0; font-size:20px;"></h3>
+            <span id="roleLabel" style="font-size:11px; font-weight:700; padding:6px 12px; background:rgba(0,123,255,0.1); color:var(--primary); border-radius:12px; display:inline-block; margin-top:12px;"></span>
+        </div>
+        
+        <div id="starosta-tools" class="hidden">
+            <button class="btn-main danger" id="btnAlertToggle" onclick="window.toggleAlertState()" style="margin-bottom:20px;">🔴 Ввімкнути Тривогу</button>
+        </div>
+
+        <div id="admin-tools" class="hidden">
+            <div class="clean-card">
+                <span style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:15px; text-transform:uppercase;">Статистика:</span>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <div style="flex:1; text-align:center; padding:15px; background:var(--bg-color); border-radius:16px;">
+                        <div style="font-size:24px; font-weight:700; color:var(--success);" id="online-count">0</div>
+                        <div style="font-size:10px; font-weight:600; color:var(--text-secondary); margin-top:5px; text-transform:uppercase;">Онлайн</div>
+                    </div>
+                    <div style="flex:1; text-align:center; padding:15px; background:var(--bg-color); border-radius:16px;">
+                        <div style="font-size:24px; font-weight:700; color:var(--primary);" id="visit-count">0</div>
+                        <div style="font-size:10px; font-weight:600; color:var(--text-secondary); margin-top:5px; text-transform:uppercase;">Візити/тиж</div>
+                    </div>
+                </div>
+
+                <span style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:10px; text-transform:uppercase;">Користувачі:</span>
+                <div id="admin-users-list" style="max-height: 300px; overflow-y: auto; display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+        </div>
+
+        <button class="btn-main secondary" id="btnLogout" style="color:var(--danger); font-size:16px;">Вийти з акаунту</button>
+    </div>
+</div>
+
+<main id="view-home">
+    <div class="home-wrapper">
+        <div class="board-panel">
+            <div class="panel-header">
+                <h3 class="panel-title"><i class="ph ph-notepad"></i> Інфо Дошка</h3>
+                <div style="display:flex; gap:10px;">
+                    <button id="btnSelectDelete" class="icon-btn admin-edit-only" onclick="window.toggleSelectDelete()" title="Виділити зону"><i class="ph ph-scissors"></i></button>
+                    <button id="btnClearBoard" class="icon-btn admin-edit-only" onclick="window.clearBoard()" style="color:var(--danger); display:none;" title="Очистити все"><i class="ph ph-trash"></i></button>
+                    <button class="icon-btn"><i class="ph ph-dots-three"></i></button>
+                </div>
+            </div>
+            
+            <div class="info-board-container" id="board-container">
+                
+                <div id="board-blur-overlay" class="board-blur-overlay">
+                    <i class="ph ph-eye-slash" style="font-size: 48px; margin-bottom: 15px; color: var(--text-main);"></i>
+                    <h3 style="margin: 0 0 15px 0; font-size: 18px;">Вміст приховано</h3>
+                    <button class="btn-main" style="width: auto; padding: 12px 28px; border-radius: 50px;" onclick="window.unlockBoard()">Відобразити вміст</button>
+                </div>
+
+                <div id="selection-box"></div>
+                <div class="board-canvas" id="stickies-wrapper">
+                    <svg id="draw-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:visible; pointer-events:none; z-index:0;"></svg>
+                </div>
+                
+                <div class="board-main-toolbar">
+                    <button class="board-tool-btn" onclick="window.addBoardItem('note')">
+                        <i class="ph ph-text-t"></i><span>Text</span>
+                    </button>
+                    <button class="board-tool-btn" onclick="window.addBoardItem('photo')">
+                        <i class="ph ph-image"></i><span>Photo</span>
+                    </button>
+                    <button class="board-tool-btn" onclick="window.addBoardItem('pin')">
+                        <i class="ph ph-push-pin"></i><span>Pin</span>
+                    </button>
+                    <button id="btnDraw" class="board-tool-btn" onclick="window.toggleDrawMode()">
+                        <i class="ph ph-pencil-simple-line"></i><span>Draw</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="deadlines-panel" id="deadlines-section">
+            <div class="panel-header">
+                <h3 class="panel-title"><i class="ph ph-push-pin" style="color:var(--danger);"></i> Дедлайни</h3>
+                <button class="icon-btn"><i class="ph ph-dots-three"></i></button>
+            </div>
+            
+            <div class="deadlines-grid" id="deadlinesList">
+                </div>
+            
+            <div id="add-deadline-form" class="add-dl-box admin-edit-only-block">
+                <span>Завдання</span>
+                <input type="text" id="dlTask" placeholder="Назва завдання">
+                <span>Дата</span>
+                <input type="date" id="dlDate">
+                <button class="btn-main btn-add" onclick="window.addDeadline()">Додати дедлайн</button>
+            </div>
+        </div>
+    </div>
+</main>
+<main id="view-homework" class="hidden">
+    <div class="attendance-container">
+        <div class="clean-card" style="display:flex; justify-content:space-between; align-items:center; padding:20px;">
+            <div>
+                <h3 style="margin:0 0 5px 0; font-size:18px;">Домашнє Завдання</h3>
+                <span style="font-size:13px; color:var(--text-secondary);" id="hwWeekDisplay"></span>
+            </div>
+            <button onclick="window.openHomeworkArchive()" class="btn-main secondary" style="width:50px; height:50px; padding:0; border-radius:16px; font-size:24px;"><i class="ph ph-folder-open"></i></button>
+        </div>
+        <div id="homework-list"></div>
+    </div>
+</main>
+
+<main id="view-schedule" class="hidden">
+    <div class="week-toggle-container">
+        <div class="week-toggle">
+            <button class="week-btn active" id="btn-w1" onclick="window.setWeek(1)">1-й тиждень</button>
+            <button class="week-btn" id="btn-w2" onclick="window.setWeek(2)">2-й тиждень</button>
+        </div>
+    </div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+</main>
+
+<main id="view-attendance" class="hidden">
+    <div class="attendance-container">
+        <div class="clean-card" style="display:flex; justify-content:space-between; align-items:center; padding:20px;">
+            <div>
+                <h3 style="margin:0 0 5px 0; font-size:18px;">Явка на пари</h3>
+                <span style="font-size:13px; color:var(--text-secondary);" id="currentWeekDisplay"></span>
+            </div>
+            <button onclick="window.openArchive()" class="btn-main secondary" style="width:50px; height:50px; padding:0; border-radius:16px; font-size:24px;"><i class="ph ph-folder-open"></i></button>
+        </div>
+        
+        <button id="btnShowPollCreator" class="btn-main secondary admin-edit-only-block" onclick="window.togglePollCreator()" style="margin-bottom:20px; border-style:dashed;">➕ Створити опитування</button>
+        <div id="poll-creator-box" class="clean-card custom-poll-creator hidden" style="border: 1px dashed var(--primary); background: rgba(0,123,255,0.02);">
+            <span style="font-size:12px; font-weight:700; color:var(--primary); display:block; margin-bottom:15px;">Нове опитування:</span>
+            <input type="text" id="newPollQuestion" placeholder="Питання (напр. Який день краще?)">
+            <input type="text" id="newPollOptions" placeholder="Варіанти через кому (Пн, Вт, Ср)">
+            <button class="btn-main" onclick="window.createCustomPoll()">Створити</button>
+        </div>
+
+        <div id="polls-wrapper" style="display:flex; flex-direction:column;"></div>
+    </div>
+</main>
+
+<main id="view-topics" class="hidden">
+    <div class="clean-card" id="topics-form-container">
+        <h3 style="margin-top:0; font-size:18px; text-align:left;">Бронювання теми</h3>
+        <form id="topicForm" style="display:flex; flex-direction:column;">
+            <select id="subjectSelect" required></select>
+            <input type="text" id="topic" placeholder="Введіть вашу тему..." required>
+            <button type="submit" class="btn-main">Забронювати</button>
+        </form>
+    </div>
+    
+    <div id="admin-subjects-panel" class="clean-card admin-edit-only-block" style="border: 1px dashed var(--primary); background: rgba(0,123,255,0.02); margin-top: 0px; margin-bottom: 20px;">
+        <span style="font-size:12px; font-weight:700; color:var(--primary); display:block; margin-bottom:15px; text-transform:uppercase;">Управління предметами (Проектами):</span>
+        <input type="text" id="newSubName" placeholder="Назва предмету">
+        <label class="glass-toggle-wrapper">
+            <input type="checkbox" id="newSubDuplicate" class="glass-toggle">
+            <span style="font-size:13px; color:var(--text-main); font-weight:500;">Дозволити повтор тем</span>
+        </label>
+        <button class="btn-main secondary" id="btnAddSub">Створити проект</button>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+            <div id="admin-subjects-list" style="max-height: 180px; overflow-y: auto; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin: 5px 0 15px;">
+        <h3 style="margin:0; font-size:16px;">Зайняті теми</h3>
+        <select id="tableFilter" style="margin:0; padding:10px 16px; width:auto; border-radius:12px; border:none; background:var(--card-bg); box-shadow:var(--shadow-soft); font-size:13px;"><option value="all">Всі предмети</option></select>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Студент</th><th>Предмет</th><th>Тема</th><th></th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</main>
+
+<main id="view-materials" class="hidden">
+    <div class="clean-card" style="margin-bottom:20px;">
+        <h3 style="margin-top:0; font-size:18px; text-align:left;">Навчальні матеріали</h3>
+        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">Оберіть предмет для перегляду файлів.</p>
+        <select id="materialSubjectSelect" onchange="window.loadMaterials()"></select>
+        
+        <div id="material-admin-panel" class="admin-edit-only-block" style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border);">
+            <span style="font-size:12px; font-weight:700; color:var(--primary); display:block; margin-bottom:15px;">Додати папку:</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="text" id="newMaterialFolder" placeholder="Назва нової папки" style="margin-bottom:0;">
+                <button class="btn-main" onclick="window.addMaterialFolder()" style="width:auto; padding:16px 20px;"><i class="ph ph-plus"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="materials-container" style="display:flex; flex-direction:column; gap:10px;"></div>
+</main>
+
+<main id="view-queue" class="hidden">
+    <div class="clean-card">
+        <h3 style="margin-top:0; font-size:18px; text-align:left;">Електронна Черга</h3>
+        <select id="queueSubjectSelect" onchange="window.loadQueue()" style="margin-bottom:15px;"></select>
+        <button class="btn-main" onclick="window.joinQueue()">Встати в чергу</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;" id="queue-list-container"></div>
+</main>
+
+<main id="view-resources" class="hidden">
+    <h3 class="section-title" style="text-align:left;">Корисні лінки</h3>
+    <div class="resources-grid">
+        <a href="https://campus.kpi.ua/" target="_blank" class="clean-card resource-card"><div class="res-icon">🎓</div><div><h3 style="margin:0 0 5px 0; font-size:15px;">Кампус</h3><p style="margin:0; font-size:12px; color:var(--text-secondary);">Особистий кабінет</p></div></a>
+        <a href="https://moodle.kpi.ua/" target="_blank" class="clean-card resource-card"><div class="res-icon">📚</div><div><h3 style="margin:0 0 5px 0; font-size:15px;">Moodle</h3><p style="margin:0; font-size:12px; color:var(--text-secondary);">Дистанційне навчання</p></div></a>
+        <a href="https://schedule.kpi.ua/" target="_blank" class="clean-card resource-card"><div class="res-icon">🗓️</div><div><h3 style="margin:0 0 5px 0; font-size:15px;">Розклад</h3><p style="margin:0; font-size:12px; color:var(--text-secondary);">Офіційний сайт</p></div></a>
+        <a href="https://t.me/dnvr_kpi" target="_blank" class="clean-card resource-card"><div class="res-icon">📢</div><div><h3 style="margin:0 0 5px 0; font-size:15px;">ДНВР</h3><p style="margin:0; font-size:12px; color:var(--text-secondary);">Новини деканату</p></div></a>
+        <a href="https://ukr.net/" target="_blank" class="clean-card resource-card"><div class="res-icon">📧</div><div><h3 style="margin:0 0 5px 0; font-size:15px;">Ukr.net</h3><p style="margin:0; font-size:12px; color:var(--text-secondary);">Пошта</p></div></a>
+    </div>
+</main>
+
+<div class="modal" id="subjectModal" onclick="window.closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()" style="padding: 30px; overflow: hidden; border-radius: 24px;">
+        <div id="modalType" class="subject-type" style="margin:0 auto 15px;"></div>
+        <h2 id="modalName" style="margin:0 0 10px 0; font-size:20px;"></h2>
+        <p id="modalTeacher" style="font-size:14px; color:var(--text-secondary); margin-bottom:25px;"></p>
+        <div id="modalLinkContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
+    </div>
+</div>
+
+<div class="modal" id="archiveModal" onclick="window.closeArchive()">
+    <div class="modal-content" onclick="event.stopPropagation()" style="text-align:left; width:95%; max-width:550px;">
+        <h2 style="text-align:center; margin:0 0 20px 0; font-size:20px;">Архів Явки</h2>
+        <div id="archive-content" style="font-size:14px; min-height: 150px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">Завантаження...</div>
+        <button class="btn-main secondary" onclick="window.closeArchive()" style="margin-top:25px;">Закрити</button>
+    </div>
+</div>
+
+<div class="modal" id="hwArchiveModal" onclick="window.closeHwArchive()">
+    <div class="modal-content" onclick="event.stopPropagation()" style="text-align:left; width:95%; max-width:550px;">
+        <h2 style="text-align:center; margin:0 0 20px 0; font-size:20px;">Архів ДЗ</h2>
+        <div id="hw-archive-content" style="font-size:14px; min-height: 150px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">Завантаження...</div>
+        <button class="btn-main secondary" onclick="window.closeHwArchive()" style="margin-top:25px;">Закрити</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, remove, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyD9wr54Aq2m3wwbQjrJ8U8MFHjort3qCTk", authDomain: "ka51projects.firebaseapp.com", databaseURL: "https://ka51projects-default-rtdb.europe-west1.firebasedatabase.app", projectId: "ka51projects", storageBucket: "ka51projects.firebasestorage.app", messagingSenderId: "1047825174957", appId: "1:1047825174957:web:9980f8c74071deaac4d124" };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    
+    let sessionUser = JSON.parse(localStorage.getItem('user_session')) || null;
+    let allTopics = []; let currentFilter = 'all'; let currentWeek = 1; let alertState = false; let usersMap = {}; let onlineUsers = {}; let isLoginMode = true; let subjectsConfig = {}; 
+    let currentTab = 'home';
+    let isGlobalEdit = false; let currentDeadlinesCount = 0;
+    
+    let currentDeadlinesData = {};
+    let upcomingBirthdaysData = [];
+
+    window.toggleTheme = () => {
+        const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        document.querySelectorAll('.theme-icon').forEach(el => {
+            el.className = newTheme === 'dark' ? 'ph ph-sun theme-icon' : 'ph ph-moon theme-icon';
+        });
+        localStorage.setItem('theme', newTheme);
+    };
+
+    window.toggleDrawer = () => { 
+        document.getElementById('drawer').classList.toggle('active'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    };
+
+    window.showToast = (m) => { 
+        const c = document.getElementById('toast-container'); 
+        const t = document.createElement('div'); 
+        t.className='toast'; t.innerText=m; 
+        c.appendChild(t); setTimeout(()=>t.remove(), 3000); 
+    };
+
+    // ФУНКЦІЯ РОЗБЛОКУВАННЯ ДОШКИ
+    window.unlockBoard = () => {
+        const overlay = document.getElementById('board-blur-overlay');
+        if(overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 400);
+        }
+    };
+
+    window.toggleGlobalEdit = () => {
+        isGlobalEdit = !isGlobalEdit;
+        if (isGlobalEdit) { document.body.classList.add('edit-mode-active'); } 
+        else { document.body.classList.remove('edit-mode-active'); if(window.isSelectMode) window.toggleSelectDelete(); }
+        window.updateGlobalEditUI();
+    };
+
+    window.updateGlobalEditUI = () => {
+        const isAdmin = sessionUser && (sessionUser.role === 'admin' || sessionUser.role === 'starosta' || sessionUser.role === 'dz');
+        
+        const editableTabs = ['home', 'attendance', 'materials', 'homework', 'topics'];
+        const isEditableTab = editableTabs.includes(currentTab);
+        
+        document.querySelectorAll('.edit-btn-action').forEach(editBtn => {
+            if (isAdmin && isEditableTab) {
+                editBtn.classList.remove('hidden-animate');
+                if(isGlobalEdit) {
+                    editBtn.classList.add('active-edit');
+                    editBtn.innerHTML = '<i class="ph ph-x"></i>';
+                } else {
+                    editBtn.classList.remove('active-edit');
+                    editBtn.innerHTML = '<i class="ph ph-pencil-simple"></i>';
+                }
+            } else {
+                editBtn.classList.add('hidden-animate');
+            }
+        });
+
+        if (isGlobalEdit && !isEditableTab) {
+            isGlobalEdit = false;
+            document.body.classList.remove('edit-mode-active');
+            if(window.isSelectMode) window.toggleSelectDelete();
+        }
+
+        const btnClearBoard = document.getElementById('btnClearBoard');
+        if (btnClearBoard) btnClearBoard.style.display = (sessionUser && sessionUser.role === 'admin') ? 'flex' : 'none';
+
+        const dlSection = document.getElementById('deadlines-section');
+        if (dlSection) {
+            if (currentDeadlinesCount > 0 || (isAdmin && isGlobalEdit && currentTab === 'home') || upcomingBirthdaysData.length > 0) dlSection.style.display = 'flex';
+            else dlSection.style.display = 'none';
+        }
+    };
+
+    let indicatorFrame;
+    function updateIndicator() {
+        const activeBtn = document.querySelector('.nav-item.active');
+        const indicator = document.getElementById('nav-indicator');
+        if(activeBtn && indicator) {
+            // Передаємо контроль JS для плавного руху, щоб не було смикань через CSS-конфлікти
+            indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+            indicator.style.width = `${activeBtn.offsetWidth}px`;
+        }
+    }
+
+    window.switchTab = (t) => {
+        currentTab = t; 
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
+        const activeBtn = document.getElementById(`btn-${t}`);
+        if(activeBtn) activeBtn.classList.add('active'); 
+        
+        document.querySelectorAll('main').forEach(m => m.classList.add('hidden')); 
+        const targetView = document.getElementById(`view-${t}`);
+        if(targetView) targetView.classList.remove('hidden');
+        
+        if(t === 'attendance' && window.renderAttendance) window.renderAttendance(); 
+        if(t === 'queue' && window.loadQueue) window.loadQueue(); 
+        if(t === 'materials' && window.loadMaterials) window.loadMaterials(); 
+        if(t === 'homework' && window.renderHomework) window.renderHomework();
+        if(t === 'schedule' && window.renderSchedule) window.renderSchedule();
+        
+        window.updateGlobalEditUI();
+        
+        cancelAnimationFrame(indicatorFrame);
+        const start = performance.now();
+        function track(time) {
+            updateIndicator();
+            if (time - start < 450) { indicatorFrame = requestAnimationFrame(track); }
+        }
+        indicatorFrame = requestAnimationFrame(track);
+        
+        const nav = document.querySelector('.nav-scroll-wrapper');
+        if(activeBtn && nav && window.innerWidth < 950) { 
+            const scrollLeft = activeBtn.offsetLeft - (nav.clientWidth / 2) + (activeBtn.clientWidth / 2); 
+            nav.scrollTo({left: scrollLeft, behavior: 'smooth'}); 
+        }
+    };
+    window.addEventListener('resize', updateIndicator);
+
+    function getDateOfISOWeek(w, y) { var simple = new Date(y, 0, 1 + (w - 1) * 7); var dow = simple.getDay(); var ISOweekStart = simple; if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1); else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay()); return ISOweekStart; }
+    function getWeekDateRangeStr(weekStr) { const w = parseInt(weekStr.replace('week_', '')); if (isNaN(w)) return weekStr; const year = new Date().getFullYear(); const start = getDateOfISOWeek(w, year); const end = new Date(start); end.setDate(start.getDate() + 6); const fmt = (d) => `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth()+1).toString().padStart(2, '0')}`; return `${fmt(start)} - ${fmt(end)}`; }
+
+    const links = { "Алгебра і геометрія": "https://meet.google.com/shf-fkib-zcd", "Програмування": "https://us02web.zoom.us/j/89711810460?pwd=M1hWZVJ5VnltRHRsLytqVFhtdjNxQT09", "Фізика": "https://us02web.zoom.us/j/5844383808?pwd=KzVyQUZNVUQxVURET0NmWmtEU1lDZz09", "Математична логіка": "https://us02web.zoom.us/j/8085368517?pwd=d0ZFV2RwQytVUnJhaU51Y0F0SEYzQT09", "Математичний аналіз": "https://www.ukr.net/", "Теорія графів": "https://us02web.zoom.us/j/8085368517?pwd=d0ZFV2RwQytVUnJhaU51Y0F0SEYzQT09", "Історія науки і техніки": "https://us02web.zoom.us/my/i.perga?pwd=osE6WapG7WpClE3Ita98v8RRjESlCA.1", "Основи здоровя": "https://us05web.zoom.us/j/85601819609?pwd=YXpEQ3BRUko2WHlsR1ZvRUlWcXloQT09", "Англійська мова": "https://meet.google.com/tns-wsvq-znn" };
+    const PAIR_TIMES = ["08:30", "10:25", "12:20", "14:15"];
+    const scheduleWeek1 = [{ day: "Понеділок", slots: [{t:"08:30",n:"Теорія графів",s:"lecture",th:"Спекторський І.Я."}, {t:"10:25",n:"Алгебра і геометрія",s:"lecture",th:"Подколзін Г.Б."}, {t:"12:20",n:"Математичний аналіз",s:"lecture",th:"Чаповський Ю.А."}, {t:"14:15",n:"Математичний аналіз",s:"lecture",th:"Чаповський Ю.А."}] }, { day: "Вівторок", slots: [{t:"08:30",n:"Алгебра і геометрія",s:"practice",th:"Подколзін Г.Б."}, {t:"10:25",n:"Математичний аналіз",s:"practice",th:"Чаповський Ю.А."}, {t:"12:20",n:"Теорія графів",s:"practice",th:"Спекторський І.Я."}] }, { day: "Середа", slots: [{t:"10:25",n:"Математичний аналіз",s:"practice",th:"Чаповський Ю.А."}, {t:"12:20",n:"Програмування",s:"lab",th:"Назарчук І.В."}] }, { day: "Четвер", slots: [{t:"08:30",n:"Математична логіка",s:"lecture",th:"Спекторський І.Я."}, {t:"10:25",n:"Фізика",s:"lecture",th:"Сидоренко А.О."}, {t:"12:20",n:"Програмування",s:"lecture",th:"Назарчук І.В."}, {t:"14:15",n:"Історія науки і техніки",s:"lecture",th:"Перга Ю.М."}] }, { day: "П'ятниця", slots: [{t:"08:30",n:"Математична логіка",s:"practice",th:"Спекторський І.Я."}, {t:"10:25",n:"Англійська мова",s:"practice",th:"Левіщенко М.С."}, {t:"12:20",n:"Англійська мова",s:"practice",th:"Левіщенко М.С."}, {t:"14:15",n:"Основи здоровя",s:"practice",th:"Анісенко Л.В."}] }];
+    const scheduleWeek2 = [{ day: "Понеділок", slots: [{t:"08:30",n:"Теорія графів",s:"lecture",th:"Спекторський І.Я."}, {t:"10:25",n:"Алгебра і геометрія",s:"lecture",th:"Подколзін Г.Б."}, {t:"12:20",n:"Математичний аналіз",s:"lecture",th:"Чаповський Ю.А."}] }, { day: "Вівторок", slots: [{t:"08:30",n:"Алгебра і геометрія",s:"practice",th:"Подколзін Г.Б."}, {t:"10:25",n:"Програмування",s:"practice",th:"Назарчук І.В."}, {t:"12:20",n:"Теорія графів",s:"practice",th:"Спекторський І.Я."}] }, { day: "Середа", slots: [{t:"10:25",n:"Математичний аналіз",s:"practice",th:"Чаповський Ю.А."}] }, { day: "Четвер", slots: [{t:"08:30",n:"Математична логіка",s:"lecture",th:"Спекторський І.Я."}, {t:"10:25",n:"Фізика",s:"lecture",th:"Снарський А.О."}, {t:"12:20",n:"Програмування",s:"lecture",th:"Назарчук І.В."}] }, { day: "П'ятниця", slots: [{t:"08:30",n:"Історія науки і техніки",s:"practice",th:"Перга Ю.М."}, {t:"10:25",n:"Фізика",s:"practice",th:"Снарський А.О."}, {t:"12:20",n:"Англійська мова",s:"practice",th:"Левіщенко М.С."}, {t:"14:15",n:"Основи здоровя",s:"practice",th:"Анісенко Л.В."}] }];
+
+    const getAvatarHTML = (user) => `<div class="avatar-small"><i class="ph ph-user"></i></div>`;
+    const getVoterAvatarHTML = (user) => `<div class="voter-ava"><i class="ph ph-user"></i></div>`;
+
+    function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
+    const weekNum = getWeekNumber(new Date()); const isEvenWeek = weekNum % 2 === 0; const realAcademicWeek = isEvenWeek ? 1 : 2; const currentYearWeek = `week_${weekNum}`;
+
+    window.saveDob = async () => { const d = document.getElementById('dobInput').value; if(d) { await update(ref(db, `users/${sessionUser.user}`), {birthDate:d}); document.getElementById('dobModal').classList.remove('active'); }};
+    window.closeDobModal = () => document.getElementById('dobModal').classList.remove('active');
+
+    // ФУНКЦІЯ ОБРОБКИ ДНІВ НАРОДЖЕННЯ (ТІЛЬКИ В ДЕДЛАЙНИ)
+    window.checkBirthdays = () => {
+        const today = new Date(); today.setHours(0,0,0,0); const upcoming = [];
+        Object.entries(usersMap).forEach(([name, data]) => {
+            if(!data.birthDate) return;
+            const dob = new Date(data.birthDate); const thisYear = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+            if(thisYear < today) thisYear.setFullYear(today.getFullYear()+1);
+            const diff = Math.ceil((thisYear - today)/(1000*60*60*24));
+            if(diff >= 0 && diff <= 3) upcoming.push({name, diff, date: thisYear});
+        });
+        upcoming.sort((a,b)=>a.diff-b.diff);
+        
+        upcomingBirthdaysData = upcoming;
+        if (window.renderDeadlines) window.renderDeadlines();
+    };
+
+    window.toggleAlertState = async () => { await set(ref(db, 'system/alert'), !alertState); window.showToast("Змінено статус тривоги"); };
+    
+    window.setWeek = (w) => { currentWeek = w; document.getElementById('btn-w1').className = w === 1 ? 'week-btn active' : 'week-btn'; document.getElementById('btn-w2').className = w === 2 ? 'week-btn active' : 'week-btn'; window.renderSchedule(); };
+
+    window.renderSchedule = () => {
+        const grid = document.getElementById('scheduleGrid'); grid.innerHTML = '';
+        const now = new Date(); const curMin = now.getHours() * 60 + now.getMinutes(); const dayIdx = now.getDay(); const days = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"];
+        const data = currentWeek === 1 ? scheduleWeek1 : scheduleWeek2;
+
+        data.forEach(d => {
+            let col = `<div class="day-column"><div class="day-header">${d.day}</div>`;
+            PAIR_TIMES.forEach(time => {
+                const s = d.slots.find(slot => slot.t === time); const [h, m] = time.split(':').map(Number); const start = h*60+m; const active = s && d.day === days[dayIdx] && curMin >= start && curMin < start + 95;
+                col += `<div class="pair-slot"><div class="time-slot">${time}</div>`;
+                if (s) { const tClass = s.s==='lecture'?'type-lecture':(s.s==='practice'?'type-practice':'type-lab'); col += `<div class="subject-card ${active?'current':''}" onclick="window.openSub('${s.n.replace(/'/g, "\\'")}','${s.s}','${s.th.replace(/'/g, "\\'")}')"><span class="subject-type ${tClass}">${s.s==='lecture'?'Лекція':s.s==='practice'?'Практика':'Лаб'}</span><span class="subject-name">${s.n}</span><span class="teacher-name">${s.th}</span></div>`; } else col += `<div class="subject-card empty"></div>`;
+                col += `</div>`;
+            });
+            grid.insertAdjacentHTML('beforeend', col + '</div>');
+        });
+    };
+
+    window.openSub = (name, type, teacher) => {
+        document.getElementById('modalName').innerText = name;
+        document.getElementById('modalTeacher').innerText = teacher;
+        const typeEl = document.getElementById('modalType');
+        typeEl.innerText = type === 'lecture' ? 'Лекція' : (type === 'practice' ? 'Практика' : 'Лаб');
+        typeEl.className = 'subject-type ' + (type === 'lecture' ? 'type-lecture' : (type === 'practice' ? 'type-practice' : 'type-lab'));
+
+        const link = links[name] || "#";
+        document.getElementById('modalLinkContainer').innerHTML = `
+            <a href="${link}" target="_blank" class="btn-main" style="display:flex; align-items:center; justify-content:center; text-decoration:none; margin:0; box-sizing:border-box;">Увійти в конференцію</a>
+            <button class="btn-main secondary" onclick="window.closeModal()" style="margin:0; box-sizing:border-box;">Закрити</button>
+        `;
+        document.getElementById('subjectModal').classList.add('active');
+    };
+    window.closeModal = () => document.getElementById('subjectModal').classList.remove('active');
+
+    // --- BOARD LOGIC ---
+    let boardScale = 1; let boardX = 0, boardY = 0; let isPanning = false; let startPanX = 0, startPanY = 0; 
+    window.isSelectMode = false; window.isDrawingMode = false;
+    let isSelecting = false; let selStartX = 0, selStartY = 0;
+    let isDrawing = false; let currentDrawPath = []; let tempPathEl = null;
+    
+    const boardContainer = document.getElementById('board-container'); 
+    const boardCanvas = document.getElementById('stickies-wrapper'); 
+    const selectionBox = document.getElementById('selection-box');
+
+    window.zoomBoard = (factor) => { boardScale *= factor; if(boardScale < 0.2) boardScale = 0.2; if(boardScale > 3) boardScale = 3; updateBoardTransform(); };
+    window.resetBoard = () => { boardScale = 1; boardX = 0; boardY = 0; updateBoardTransform(); };
+    function updateBoardTransform() { boardCanvas.style.transform = `translate(${boardX}px, ${boardY}px) scale(${boardScale})`; }
+    if(boardContainer) boardContainer.addEventListener('wheel', (e) => { if(e.ctrlKey || e.metaKey) { e.preventDefault(); window.zoomBoard(e.deltaY > 0 ? 0.9 : 1.1); } });
+
+    window.toggleSelectDelete = () => {
+        window.isSelectMode = !window.isSelectMode; const btn = document.getElementById('btnSelectDelete');
+        if (window.isDrawingMode && window.isSelectMode) window.toggleDrawMode();
+        if(window.isSelectMode) { btn.style.color = 'var(--danger)'; boardCanvas.classList.add('selecting'); } 
+        else { btn.style.color = 'var(--text-secondary)'; boardCanvas.classList.remove('selecting'); selectionBox.style.display = 'none'; isSelecting = false; }
+    };
+
+    window.toggleDrawMode = () => {
+        if(!sessionUser) return window.showToast("Увійдіть щоб малювати!");
+        window.isDrawingMode = !window.isDrawingMode; const btn = document.getElementById('btnDraw');
+        if (window.isDrawingMode && window.isSelectMode) window.toggleSelectDelete();
+        if (window.isDrawingMode) {
+            btn.classList.add('active'); 
+            boardCanvas.classList.add('drawing');
+        } else {
+            btn.classList.remove('active'); 
+            boardCanvas.classList.remove('drawing');
+        }
+    };
+
+    const getClientXY = (e) => ({ x: e.touches ? e.touches[0].clientX : e.clientX, y: e.touches ? e.touches[0].clientY : e.clientY });
+
+    const handleDown = (e) => {
+        if (e.target.closest('.sticky-note') || e.target.closest('.board-pin') || e.target.closest('.board-draw') || e.target.closest('.board-blur-overlay')) return; 
+        const pos = getClientXY(e);
+        
+        if (window.isDrawingMode) {
+            isDrawing = true;
+            const rect = boardContainer.getBoundingClientRect();
+            const x = (pos.x - rect.left - boardX) / boardScale;
+            const y = (pos.y - rect.top - boardY) / boardScale;
+            currentDrawPath = [{x, y}];
+            
+            tempPathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            tempPathEl.setAttribute('class', 'board-draw');
+            tempPathEl.setAttribute('d', `M ${x} ${y}`);
+            const layer = document.getElementById('draw-layer');
+            if(layer) layer.appendChild(tempPathEl);
+            
+            if(!e.touches) e.preventDefault();
+            return;
+        }
+        
+        if (window.isSelectMode) { isSelecting = true; const rect = boardContainer.getBoundingClientRect(); selStartX = pos.x - rect.left; selStartY = pos.y - rect.top; selectionBox.style.left = selStartX + 'px'; selectionBox.style.top = selStartY + 'px'; selectionBox.style.width = '0px'; selectionBox.style.height = '0px'; selectionBox.style.display = 'block'; if(!e.touches) e.preventDefault(); return; }
+        
+        if (e.target === boardContainer || e.target === boardCanvas || e.target.closest('#draw-layer')) { isPanning = true; startPanX = pos.x - boardX; startPanY = pos.y - boardY; boardCanvas.classList.add('panning'); }
+    };
+    if(boardContainer) { boardContainer.addEventListener('mousedown', handleDown); boardContainer.addEventListener('touchstart', handleDown, {passive: false}); }
+
+    const handleMove = (e) => {
+        if (isDrawing) {
+            const pos = getClientXY(e);
+            const rect = boardContainer.getBoundingClientRect();
+            const x = (pos.x - rect.left - boardX) / boardScale;
+            const y = (pos.y - rect.top - boardY) / boardScale;
+            currentDrawPath.push({x, y});
+            
+            if (tempPathEl) {
+                const d = currentDrawPath.map((p, i) => (i === 0 ? 'M' : 'L') + ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+                tempPathEl.setAttribute('d', d);
+            }
+            if(e.cancelable) e.preventDefault();
+            return;
+        }
+
+        if (isSelecting) { const pos = getClientXY(e); const rect = boardContainer.getBoundingClientRect(); const curX = pos.x - rect.left; const curY = pos.y - rect.top; const minX = Math.min(curX, selStartX); const maxX = Math.max(curX, selStartX); const minY = Math.min(curY, selStartY); const maxY = Math.max(curY, selStartY); selectionBox.style.left = minX + 'px'; selectionBox.style.top = minY + 'px'; selectionBox.style.width = (maxX - minX) + 'px'; selectionBox.style.height = (maxY - minY) + 'px'; if(e.cancelable) e.preventDefault(); return; }
+        
+        if (isPanning) { const pos = getClientXY(e); if(e.cancelable) e.preventDefault(); boardX = pos.x - startPanX; boardY = pos.y - startPanY; updateBoardTransform(); }
+    };
+    window.addEventListener('mousemove', handleMove, {passive: false}); window.addEventListener('touchmove', handleMove, {passive: false});
+
+    const handleUp = () => {
+        if (isDrawing) {
+            isDrawing = false;
+            if (tempPathEl) { tempPathEl.remove(); tempPathEl = null; }
+            if (currentDrawPath.length > 2) {
+                const simplified = [currentDrawPath[0]];
+                for(let i=1; i<currentDrawPath.length; i++) {
+                    const prev = simplified[simplified.length-1];
+                    const curr = currentDrawPath[i];
+                    if(Math.hypot(curr.x-prev.x, curr.y-prev.y) > 2) simplified.push(curr);
+                }
+                const d = simplified.map((p, i) => (i === 0 ? 'M' : 'L') + ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+                push(ref(db, 'board'), { type: 'draw', path: d, author: sessionUser.user, zIndex: 1 });
+            }
+            currentDrawPath = [];
+            return;
+        }
+
+        if (isSelecting) {
+            isSelecting = false; const selRect = selectionBox.getBoundingClientRect(); selectionBox.style.display = 'none';
+            if (selRect.width > 10 && selRect.height > 10) {
+                const itemsToDelete = []; 
+                document.querySelectorAll('.sticky-note, .board-pin, .board-draw').forEach(el => { 
+                    const elRect = el.getBoundingClientRect(); 
+                    if (!(elRect.right < selRect.left || elRect.left > selRect.right || elRect.bottom < selRect.top || elRect.top > selRect.bottom)) { itemsToDelete.push(el.id); } 
+                });
+                if (itemsToDelete.length > 0) { if (confirm(`Видалити ${itemsToDelete.length} елементів?`)) { itemsToDelete.forEach(id => remove(ref(db, `board/${id}`))); window.showToast(`Видалено!`); } }
+            } window.toggleSelectDelete(); return;
+        }
+        if (isPanning) { isPanning = false; boardCanvas.classList.remove('panning'); }
+    };
+    window.addEventListener('mouseup', handleUp); window.addEventListener('touchend', handleUp);
+
+    let activeItem = null; let activeKey = null; let itemStartX, itemStartY, itemStartLeft, itemStartTop;
+    let holdTimer = null; let isDraggingItem = false;
+
+    window.dragStart = (e, key, isDraw = false) => { 
+        if(!sessionUser || window.isSelectMode || window.isDrawingMode) return; 
+        e.preventDefault(); e.stopPropagation(); 
+        
+        activeKey = key; activeItem = document.getElementById(key); 
+        if (!isDraw && activeItem) activeItem.style.zIndex = 100; 
+        
+        const c = e.touches ? e.touches[0] : e; 
+        itemStartX = c.clientX; itemStartY = c.clientY; 
+        
+        if (!isDraw) {
+            itemStartLeft = parseFloat(activeItem.style.left) || 0; 
+            itemStartTop = parseFloat(activeItem.style.top) || 0; 
+        }
+        
+        isDraggingItem = false;
+
+        if (holdTimer) clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+            if (!isDraggingItem && activeKey === key) {
+                if (confirm("Видалити цей елемент?")) { remove(ref(db, `board/${key}`)); window.showToast("Видалено!"); }
+                activeItem = null; activeKey = null;
+            }
+        }, 2000);
+
+        document.addEventListener('mousemove', dragNote); document.addEventListener('mouseup', dragEndNote); 
+        document.addEventListener('touchmove', dragNote, {passive:false}); document.addEventListener('touchend', dragEndNote); 
+    };
+
+    function dragNote(e) { 
+        if (!activeItem || !activeKey) return; 
+        const c = e.touches ? e.touches[0] : e; 
+        const dx = (c.clientX - itemStartX) / boardScale; const dy = (c.clientY - itemStartY) / boardScale; 
+        
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) { isDraggingItem = true; if(holdTimer) { clearTimeout(holdTimer); holdTimer = null; } }
+
+        if (activeItem.tagName.toLowerCase() !== 'path') {
+            activeItem.style.left = `${itemStartLeft + dx}px`; activeItem.style.top = `${itemStartTop + dy}px`; 
+        }
+    }
+    function dragEndNote() { 
+        if(holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+        if (activeItem && activeKey && activeItem.tagName.toLowerCase() !== 'path') { 
+            update(ref(db, `board/${activeKey}`), { left: activeItem.style.left, top: activeItem.style.top, zIndex: 1 }); 
+        } 
+        activeItem = null; activeKey = null; 
+        document.removeEventListener('mousemove', dragNote); document.removeEventListener('mouseup', dragEndNote); 
+        document.removeEventListener('touchmove', dragNote); document.removeEventListener('touchend', dragEndNote); 
+    }
+
+    window.addBoardItem = async (type) => { 
+        if(!sessionUser) return window.showToast("Увійдіть!"); 
+        let content = ''; 
+        if (type !== 'pin') { 
+            content = prompt(type === 'photo' ? "Посилання:" : "Текст:"); 
+            if(!content) return; 
+        } 
+        const colors = ['yellow', 'pink', 'blue', 'green', 'purple']; 
+        const color = colors[Math.floor(Math.random() * colors.length)]; 
+        const centerX = (-boardX + 150) / boardScale; const centerY = (-boardY + 150) / boardScale; 
+        await push(ref(db, 'board'), { type, content, color, author: sessionUser.user, rotation: (Math.random() * 10 - 5).toFixed(1), top: centerY + 'px', left: centerX + 'px' }); 
+    };
+    
+    window.delBoardItem = async (key) => { if(confirm("Прибрати?")) await remove(ref(db, `board/${key}`)); };
+    window.clearBoard = async () => { if (!sessionUser || sessionUser.role !== 'admin') return; if (confirm("Видалити ВСІ нотатки з дошки?")) { await remove(ref(db, 'board')); window.showToast("Очищено!"); } };
+
+    // --- СИСТЕМА ДЕДЛАЙНІВ ---
+    window.addDeadline = async () => {
+        const task = document.getElementById('dlTask').value.trim();
+        const date = document.getElementById('dlDate').value;
+        if(!task || !date) return window.showToast("Заповніть поля");
+        await push(ref(db, 'deadlines'), { task, date, author: sessionUser.user });
+        document.getElementById('dlTask').value = ''; document.getElementById('dlDate').value = ''; window.showToast("Дедлайн додано!");
+    };
+    window.delDeadline = async (k) => { if(confirm("Видалити дедлайн?")) await remove(ref(db, `deadlines/${k}`)); };
+
+    // Універсальний рендер карток дедлайнів (ДН + Звичайні)
+    window.renderDeadlines = () => {
+        const c = document.getElementById('deadlinesList');
+        if(!c) return;
+        c.innerHTML = ''; 
+        const isAdmin = sessionUser && (sessionUser.role === 'admin' || sessionUser.role === 'starosta');
+        
+        // 1. Спочатку дні народження
+        upcomingBirthdaysData.forEach(u => {
+            const statusText = u.diff === 0 ? 'Сьогодні!' : (u.diff === 1 ? 'Завтра' : `через ${u.diff} дн.`);
+            const fDate = `${String(u.date.getDate()).padStart(2,'0')}.${String(u.date.getMonth()+1).padStart(2,'0')}.${u.date.getFullYear()}`;
+            
+            c.insertAdjacentHTML('beforeend', `
+                <div class="dl-card bday">
+                    <div class="dl-top">
+                        <div class="dl-title">🎉 День народження: ${u.name}</div>
+                        <div class="dl-avatar" title="${u.name}">${getVoterAvatarHTML(u.name)}</div>
+                    </div>
+                    <div class="dl-bot">
+                        <div class="dl-date">${fDate}</div>
+                        <div class="dl-badge bday">${statusText}</div>
+                    </div>
+                </div>
+            `);
+        });
+
+        // 2. Потім звичайні дедлайни
+        const sortedKeys = Object.keys(currentDeadlinesData).sort((a,b) => new Date(currentDeadlinesData[a].date) - new Date(currentDeadlinesData[b].date));
+
+        sortedKeys.forEach(k => { 
+            const d = currentDeadlinesData[k]; 
+            const left = Math.ceil((new Date(d.date) - new Date())/(1000*60*60*24)); 
+            const urgent = left <= 3 && left >= 0; 
+            const statusClass = urgent ? 'urgent' : 'normal';
+            const statusText = left < 0 ? 'Пройшов' : (urgent ? 'Терміново' : 'Нормально');
+            
+            const dObj = new Date(d.date);
+            const fDate = `${String(dObj.getDate()).padStart(2,'0')}.${String(dObj.getMonth()+1).padStart(2,'0')}.${dObj.getFullYear()}`;
+
+            c.insertAdjacentHTML('beforeend', `
+                <div class="dl-card ${statusClass}">
+                    ${(isAdmin && isGlobalEdit)?`<button onclick="window.delDeadline('${k}')" class="admin-edit-only" style="position:absolute; top:8px; right:8px; background:var(--bg-color); border:none; font-size:14px; cursor:pointer; color:var(--text-secondary); width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:10;"><i class="ph ph-x"></i></button>` : ''}
+                    <div class="dl-top">
+                        <div class="dl-title">${d.task}</div>
+                        <div class="dl-avatar" title="${d.author || 'Невідомо'}"><i class="ph ph-user" style="font-size:13px; color:var(--text-secondary);"></i></div>
+                    </div>
+                    <div class="dl-bot">
+                        <div class="dl-date">${fDate}</div>
+                        <div class="dl-badge ${statusClass}">${statusText}</div>
+                    </div>
+                </div>
+            `); 
+        }); 
+    };
+
+    let hwListenerAttached = false;
+    window.renderHomework = () => {
+        const container = document.getElementById('homework-list'); document.getElementById('hwWeekDisplay').innerText = `Тиждень ${realAcademicWeek}`; const schedule = realAcademicWeek === 1 ? scheduleWeek1 : scheduleWeek2;
+        
+        if (!container.hasAttribute('data-initialized')) {
+            container.innerHTML = ''; let html = '';
+            schedule.forEach(day => {
+                if (day.slots.length === 0) return; 
+                let dayHtml = `<div class="hw-day-card"><div class="hw-day-header"><span>${day.day}</span></div>`;
+                const uniqueSubjects = [...new Set(day.slots.map(s => s.n))];
+                uniqueSubjects.forEach(subject => {
+                    const safeDay = day.day.replace(/'/g, "\\'"); const safeSubj = subject.replace(/'/g, "\\'");
+                    const idStr = `hw-${btoa(encodeURIComponent(day.day + subject)).replace(/=/g, '')}`; 
+                    dayHtml += `<div class="hw-subject-row"><span class="hw-sub-name">${subject}</span><textarea id="edit-${idStr}" class="hw-input admin-edit-only-block" placeholder="Введіть завдання..." onchange="window.saveHomework('${safeDay}', '${safeSubj}', this.value)"></textarea><div id="view-${idStr}" class="hw-text hw-view-only"></div></div>`;
+                }); 
+                html += dayHtml + `</div>`; 
+            }); 
+            if (html === '') html = '<div style="text-align:center;padding:20px;">Розклад пустий</div>';
+            container.innerHTML = html; container.setAttribute('data-initialized', 'true');
+        }
+
+        if (!hwListenerAttached) {
+            onValue(ref(db, `homework/${currentYearWeek}`), (snap) => {
+                const hwData = snap.val() || {}; 
+                schedule.forEach(day => {
+                    if (day.slots.length === 0) return;
+                    const uniqueSubjects = [...new Set(day.slots.map(s => s.n))];
+                    uniqueSubjects.forEach(subject => {
+                        const idStr = `hw-${btoa(encodeURIComponent(day.day + subject)).replace(/=/g, '')}`; 
+                        const savedText = (hwData[day.day] && hwData[day.day][subject]) ? hwData[day.day][subject] : '';
+                        const ta = document.getElementById(`edit-${idStr}`); const vw = document.getElementById(`view-${idStr}`);
+                        if (ta && document.activeElement !== ta) ta.value = savedText;
+                        if (vw) vw.innerHTML = savedText || '<span class="hw-empty" style="opacity:0.5;">Немає завдання</span>';
+                    });
+                });
+            });
+            hwListenerAttached = true;
+        }
+    };
+    
+    window.saveHomework = async (day, subject, text) => { if (!text.trim()) { await remove(ref(db, `homework/${currentYearWeek}/${day}/${subject}`)); } else { await set(ref(db, `homework/${currentYearWeek}/${day}/${subject}`), text); } };
+    
+    window.openHomeworkArchive = async () => { document.getElementById('hwArchiveModal').classList.add('active'); const container = document.getElementById('hw-archive-content'); container.innerHTML = 'Завантаження...'; const snap = await get(ref(db, 'homework')); const data = snap.val(); if(!data) { container.innerHTML = '<div style="text-align:center;padding:20px;">Архів пустий</div>'; return; } window.tempHomeworkData = data; const weeks = Object.keys(data).sort((a,b) => parseInt(b.replace('week_','')) - parseInt(a.replace('week_',''))); let selectHtml = `<select id="hwArchiveSelect" onchange="window.renderHwArchiveWeek(this.value)">`; weeks.forEach(w => { selectHtml += `<option value="${w}">Тиждень ${w.replace('week_','')} (${getWeekDateRangeStr(w)})</option>`; }); selectHtml += `</select><div id="hw-archive-inner"></div>`; container.innerHTML = selectHtml; window.renderHwArchiveWeek(weeks[0]); };
+    window.renderHwArchiveWeek = (weekKey) => { const inner = document.getElementById('hw-archive-inner'); const data = window.tempHomeworkData[weekKey]; if(!data) { inner.innerHTML = '<div style="text-align:center;color:#888;">Пусто</div>'; return; } let html = ''; ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"].forEach(day => { if(data[day]) { html += `<div><h3>${day}</h3>`; Object.entries(data[day]).forEach(([sub, text]) => { html += `<div class="archive-item"><div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--primary);">${sub}</div><div style="font-size:13px; white-space:pre-wrap; line-height:1.5;">${text}</div></div>`; }); html += `</div>`; } }); inner.innerHTML = html || '<div style="text-align:center;">Немає записів</div>'; };
+    window.closeHwArchive = () => document.getElementById('hwArchiveModal').classList.remove('active');
+
+    window.getMediaType = (url) => {
+        if(url.includes('youtube.com/watch') || url.includes('youtu.be/')) return 'youtube';
+        if(url.includes('drive.google.com/file/d/')) return 'drive';
+        if(url.endsWith('.mp4')) return 'mp4';
+        return 'link';
+    };
+
+    window.openPlayer = (url, type) => { const modal = document.getElementById('playerModal'); const container = document.getElementById('playerContent'); if (type === 'youtube') { const id = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/)[1]; container.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`; } else if (type === 'drive') { const embedUrl = url.replace('/view', '/preview').replace('?usp=sharing', ''); container.innerHTML = `<iframe src="${embedUrl}" allow="autoplay"></iframe>`; } else if (type === 'mp4') { container.innerHTML = `<video controls autoplay src="${url}"></video>`; } modal.classList.add('active'); };
+    window.closePlayer = () => { document.getElementById('playerModal').classList.remove('active'); document.getElementById('playerContent').innerHTML = ''; };
+    window.loadMaterials = () => { const s = document.getElementById('materialSubjectSelect').value; const c = document.getElementById('materials-container'); if(!s) { c.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">Оберіть предмет</div>'; return; } c.innerHTML = 'Завантаження...'; onValue(ref(db, `materials/${s}`), snap => { c.innerHTML = ''; const folders = snap.val() || {}; if(Object.keys(folders).length === 0) { c.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">Поки що пусто 📁</div>'; return; } Object.entries(folders).forEach(([key, data]) => { let contentHtml = ''; if(data.links) { contentHtml = Object.entries(data.links).map(([k, l]) => { const type = window.getMediaType(l.url); if (type !== 'link') { return `<div class="material-link" onclick="window.openPlayer('${l.url}', '${type}')"><i class="ph ph-play-circle" style="font-size:24px; color:var(--primary);"></i><div style="display:flex; flex-direction:column; align-items:flex-start;"><span>${l.title}</span><span style="font-size:10px;color:var(--text-secondary);">Відео</span></div></div>`; } return `<a href="${l.url}" target="_blank" class="material-link"><i class="ph ph-link" style="font-size:24px; color:var(--primary);"></i><span>${l.title}</span></a>`; }).join(''); } else { contentHtml = '<div style="font-size:13px;color:var(--text-secondary);padding:10px;">Немає файлів</div>'; } const adminControls = `<div class="admin-edit-only" style="gap:10px; margin-top:15px;"><button class="btn-main secondary" onclick="window.addLinkToFolder('${s}','${key}')" style="font-size:13px; padding:10px; flex:1;">+ Посилання</button><button class="btn-main danger" onclick="window.deleteFolder('${s}','${key}')" style="font-size:13px; padding:10px; flex:1;">Видалити</button></div>`; c.insertAdjacentHTML('beforeend', `<div class="folder-item"><div class="folder-header" onclick="this.parentElement.classList.toggle('open')"><span class="folder-title">📁 ${key}</span><i class="ph ph-caret-down"></i></div><div class="folder-content">${contentHtml}${adminControls}</div></div>`); }); }); };
+    window.addMaterialFolder = async () => { const s = document.getElementById('materialSubjectSelect').value; const name = document.getElementById('newMaterialFolder').value.trim(); if(!s || !name) return window.showToast("Оберіть предмет і назву"); await update(ref(db, `materials/${s}/${name}`), { created: true }); document.getElementById('newMaterialFolder').value = ''; window.showToast("Папка створена!"); };
+    window.addLinkToFolder = async (subject, folder) => { const url = prompt("Вставте посилання (URL):"); if(!url) return; const title = prompt("Назва файлу/посилання:") || "Матеріал"; await push(ref(db, `materials/${subject}/${folder}/links`), { url, title }); window.showToast("Додано!"); };
+    window.deleteFolder = async (subject, folder) => { if(confirm(`Видалити папку "${folder}"?`)) { await remove(ref(db, `materials/${subject}/${folder}`)); window.showToast("Видалено"); } };
+
+    window.renderAttendance = () => { 
+        const container = document.getElementById('polls-wrapper'); container.innerHTML = ''; const days = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"]; const todayIndex = new Date().getDay(); const todayName = days[todayIndex]; document.getElementById('currentWeekDisplay').innerText = `Тиждень ${realAcademicWeek}`; 
+        onValue(ref(db, `custom_polls`), snap => {
+            const customs = snap.val() || {}; container.innerHTML = ''; 
+            Object.entries(customs).forEach(([k, v]) => { container.insertAdjacentHTML('beforeend', `<div class="poll-card" style="border:2px solid var(--primary);"><div class="poll-header" style="color:var(--primary); border-bottom-color:rgba(0,123,255,0.1);"><span>${v.question}</span><button onclick="window.deleteCustomPoll('${k}')" class="admin-edit-only" style="color:var(--danger); border:none; background:var(--bg-color); border-radius:50%; width:30px; height:30px; cursor:pointer; align-items:center; justify-content:center;"><i class="ph ph-x"></i></button></div><div id="custom-poll-opts-${k}"></div></div>`); window.renderCustomPollOptions(k, v.options); });
+            const sched = realAcademicWeek === 1 ? scheduleWeek1 : scheduleWeek2; 
+            sched.forEach(dayObj => {
+                if (dayObj.slots.length > 0) {
+                    const isToday = dayObj.day === todayName; container.insertAdjacentHTML('beforeend', `<div class="attendance-day-header ${isToday ? 'today' : ''}">${dayObj.day}</div>`);
+                    dayObj.slots.forEach(s => { 
+                        const k = s.n.replace(/[.#$/[\]]/g, ""); const safeDayId = dayObj.day.replace(/['\s]/g, ""); const uniqueId = `poll-${safeDayId}-${k}`;
+                        container.insertAdjacentHTML('beforeend', `<div class="poll-card"><div class="poll-header"><span>${s.n}</span><span class="poll-type-badge">${s.t}</span></div><div id="poll-opts-${uniqueId}"></div></div>`); 
+                        onValue(ref(db, `attendance/${currentYearWeek}/${dayObj.day}/${k}`), snap => { window.renderPollOptions(dayObj.day, k, uniqueId, snap.val()||{}); });
+                    }); 
+                }
+            });
+            if (Object.keys(customs).length === 0 && sched.every(d => d.slots.length === 0)) { container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary);">Пар немає</div>`; }
+        });
+    };
+
+    window.togglePollCreator = () => { const box = document.getElementById('poll-creator-box'); const btn = document.getElementById('btnShowPollCreator'); box.classList.toggle('active'); btn.innerHTML = box.classList.contains('active') ? "<i class='ph ph-x'></i> Сховати" : "<i class='ph ph-plus'></i> Створити опитування"; };
+    window.createCustomPoll = async () => { const q = document.getElementById('newPollQuestion').value.trim(); const o = document.getElementById('newPollOptions').value.trim(); if(!q || !o) return window.showToast("Заповніть поля!"); const optionsArray = o.split(',').map(s => s.trim()).filter(s => s); await push(ref(db, 'custom_polls'), { question: q, options: optionsArray }); document.getElementById('newPollQuestion').value = ''; document.getElementById('newPollOptions').value = ''; window.togglePollCreator(); window.showToast("Опитування створено!"); };
+    window.deleteCustomPoll = async (key) => { if(confirm("Видалити опитування?")) { await remove(ref(db, `custom_polls/${key}`)); await remove(ref(db, `custom_votes/${key}`)); } };
+
+    window.renderCustomPollOptions = (k, optionsArray) => {
+        onValue(ref(db, `custom_votes/${k}`), snap => {
+            const votes = snap.val() || {}; const optsContainer = document.getElementById(`custom-poll-opts-${k}`); if(!optsContainer) return; optsContainer.innerHTML = ''; const total = Object.keys(votes).length; const counts = {}; optionsArray.forEach(opt => counts[opt] = 0); Object.values(votes).forEach(v => { if(counts[v] !== undefined) counts[v]++; });
+            optionsArray.forEach(opt => {
+                const count = counts[opt] || 0; const p = total ? Math.round((count/total)*100) : 0; const voted = sessionUser && votes[sessionUser.user] === opt; let votersHtml = ''; Object.entries(votes).forEach(([u, choice]) => { if(choice === opt) votersHtml += `<div class="voter-chip">${getVoterAvatarHTML(u)} ${u}</div>`; }); const safeOpt = opt.replace(/'/g, "\\'");
+                optsContainer.insertAdjacentHTML('beforeend', `<div class="poll-option ${voted?'voted':''}"><div class="poll-row-main" onclick="window.voteCustom('${k}','${safeOpt}')"><div class="poll-bar-fill" style="width:${p}%"></div><div class="poll-text"><span>${opt}</span><div style="display:flex;align-items:center;gap:12px;"><span>${p}%</span><button class="poll-reveal-btn" onclick="event.stopPropagation(); window.toggleVoters('custom-${k}-${opt}')"><i class="ph ph-eye"></i> ${count}</button></div></div></div><div id="custom-${k}-${opt}" class="poll-voters-collapse">${votersHtml || '<span style="font-size:12px;color:var(--text-secondary);">Нікого</span>'}</div></div>`);
+            });
+        });
+    };
+
+    window.voteCustom = async (k, opt) => { if(!sessionUser) return window.showToast("Увійдіть!"); await set(ref(db, `custom_votes/${k}/${sessionUser.user}`), opt); };
+
+    window.renderPollOptions = (dayName, subjectKey, uniqueId, votes) => { 
+        const opts = document.getElementById(`poll-opts-${uniqueId}`); if(!opts) return; const total = Object.keys(votes).length; opts.innerHTML = ''; const variants = [{id:'online',l:'Я онлайн'},{id:'offline',l:'Я оффлайн'},{id:'absent',l:'Мене немає'}];
+        variants.forEach(o => { 
+            const votersForThis = Object.entries(votes).filter(([u, t]) => t === o.id).map(x => x[0]); const count = votersForThis.length; const p = total ? Math.round((count/total)*100) : 0; const voted = sessionUser && votes[sessionUser.user] === o.id; let votersHtml = ''; votersForThis.forEach(u => votersHtml += `<div class="voter-chip">${getVoterAvatarHTML(u)} ${u}</div>`); const safeDay = dayName.replace(/'/g, "\\'"); const safeSubj = subjectKey.replace(/'/g, "\\'");
+            opts.insertAdjacentHTML('beforeend', `<div class="poll-option ${voted?'voted':''}"><div class="poll-row-main" onclick="window.vote('${safeDay}', '${safeSubj}', '${o.id}')"><div class="poll-bar-fill" style="width:${p}%"></div><div class="poll-text"><span>${o.l}</span><div style="display:flex;align-items:center;gap:12px;"><span>${p}%</span><button class="poll-reveal-btn" onclick="event.stopPropagation(); window.toggleVoters('${uniqueId}-${o.id}')"><i class="ph ph-eye"></i> ${count}</button></div></div></div><div id="${uniqueId}-${o.id}" class="poll-voters-collapse">${votersHtml || '<span style="font-size:12px;color:var(--text-secondary);">Нікого</span>'}</div></div>`); 
+        }); 
+    };
+    
+    window.toggleVoters = (id) => { const el = document.getElementById(id); if(el) el.classList.toggle('open'); };
+    window.vote = async (day, k, t) => { if(sessionUser) { await set(ref(db, `attendance/${currentYearWeek}/${day}/${k}/${sessionUser.user}`), t); } else { window.showToast("Увійдіть!"); } };
+    
+    window.openArchive = async () => { document.getElementById('archiveModal').classList.add('active'); const container = document.getElementById('archive-content'); container.innerHTML = 'Завантаження...'; const snap = await get(ref(db, `attendance`)); const data = snap.val(); if(!data) { container.innerHTML = '<div style="text-align:center;padding:20px;">Пусто</div>'; return; } window.tempAttendanceData = data; const weeks = Object.keys(data).sort((a,b) => parseInt(b.replace('week_','')) - parseInt(a.replace('week_',''))); let selectHtml = `<select id="attArchiveSelect" onchange="window.renderAttArchiveWeek(this.value)">`; weeks.forEach(w => { selectHtml += `<option value="${w}">Тиждень ${w.replace('week_','')} (${getWeekDateRangeStr(w)})</option>`; }); selectHtml += `</select><div id="att-archive-inner"></div>`; container.innerHTML = selectHtml; window.renderAttArchiveWeek(weeks[0]); };
+    window.renderAttArchiveWeek = (weekKey) => { const inner = document.getElementById('att-archive-inner'); const data = window.tempAttendanceData[weekKey]; if(!data) { inner.innerHTML = '<div style="text-align:center;color:var(--text-secondary);">Пусто</div>'; return; } let html = ''; ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"].forEach(day => { if(data[day]) { html += `<div><h3>${day}</h3>`; Object.entries(data[day]).forEach(([subj, votes]) => { const online = [], offline = [], absent = []; Object.entries(votes).forEach(([u, t]) => { if(t === 'online') online.push(u); else if(t === 'offline') offline.push(u); else if(t === 'absent') absent.push(u); }); html += `<div class="archive-item"><div style="font-weight:700; font-size:14px; margin-bottom:8px;">${subj}</div>`; if(online.length) html += `<div style="font-size:13px; margin-bottom:4px;"><span style="color:var(--success);">Онлайн:</span> <span style="color:var(--success); font-weight:600;">${online.join(', ')}</span></div>`; if(offline.length) html += `<div style="font-size:13px; margin-bottom:4px;"><span style="color:var(--text-secondary);">Оффлайн:</span> <span style="color:var(--text-secondary); font-weight:600;">${offline.join(', ')}</span></div>`; if(absent.length) html += `<div style="font-size:13px;"><span style="color:var(--danger);">Відсутні:</span> <span style="color:var(--danger); font-weight:600;">${absent.join(', ')}</span></div>`; html += `</div>`; }); html += `</div>`; } }); inner.innerHTML = html || '<div style="text-align:center;">Немає записів</div>'; };
+    window.closeArchive = () => document.getElementById('archiveModal').classList.remove('active');
+
+    window.loadQueue = () => {
+        const s = document.getElementById('queueSubjectSelect').value;
+        const c = document.getElementById('queue-list-container');
+        if(!s) { c.innerHTML = '<div style="text-align:center;color:var(--text-secondary);">Оберіть предмет</div>'; return; }
+        c.innerHTML = 'Завантаження...';
+        onValue(ref(db, `queue/${s}`), snap => {
+            c.innerHTML = '';
+            const q = snap.val() || {};
+            const arr = Object.keys(q).map(k => ({id: k, ...q[k]})).sort((a,b) => a.time - b.time);
+            if(arr.length === 0) { c.innerHTML = '<div style="text-align:center;color:var(--text-secondary);">Черга порожня</div>'; return; }
+            arr.forEach((item, index) => {
+                const isMe = sessionUser && sessionUser.user === item.user;
+                const isAdmin = sessionUser && (sessionUser.role === 'admin' || sessionUser.role === 'starosta');
+                let btns = '';
+                if(isMe) btns += `<button onclick="window.leaveQueue('${s}', '${item.id}')" style="background:var(--bg-color); border:1px solid var(--border); border-radius:12px; padding:8px 12px; cursor:pointer;">🚪 Вийти</button>`;
+                if(isAdmin) btns += `<button onclick="window.doneQueue('${s}', '${item.id}')" style="background:var(--success); color:white; border:none; border-radius:12px; padding:8px 12px; cursor:pointer; margin-left:8px;">✅ Здав</button>`;
+
+                c.insertAdjacentHTML('beforeend', `<div class="queue-item"><div style="display:flex; align-items:center; gap:12px;"><div style="font-weight:800; font-size:18px; color:var(--primary); width:25px;">${index+1}</div>${getAvatarHTML(item.user)}<span style="font-weight:600; font-size:15px;">${item.user}</span></div><div>${btns}</div></div>`);
+            });
+        });
+    };
+    window.joinQueue = async () => {
+        if(!sessionUser) return window.showToast("Увійдіть!");
+        const s = document.getElementById('queueSubjectSelect').value;
+        if(!s) return window.showToast("Оберіть предмет");
+        const snap = await get(ref(db, `queue/${s}`));
+        const q = snap.val() || {};
+        const already = Object.values(q).find(item => item.user === sessionUser.user);
+        if(already) return window.showToast("Ви вже у черзі!");
+        await push(ref(db, `queue/${s}`), { user: sessionUser.user, time: Date.now() });
+    };
+    window.leaveQueue = async (s, id) => { await remove(ref(db, `queue/${s}/${id}`)); };
+    window.doneQueue = async (s, id) => { await remove(ref(db, `queue/${s}/${id}`)); };
+
+    window.delTopic = async (id) => {
+        if(confirm("Видалити тему?")) {
+            await remove(ref(db, `topics/${id}`));
+            window.showToast("Видалено!");
+        }
+    };
+    
+    window.delSubject = async (s) => {
+        if(confirm(`Видалити проєкт/предмет ${s}?`)) {
+            await remove(ref(db, `subjects/${s}`));
+            window.showToast("Видалено!");
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        window.switchTab('home', 0); 
+        
+        onValue(ref(db, 'system/alert'), (snap) => {
+            alertState = snap.val() || false;
+            const icon = document.getElementById('alertIcon');
+            const btn = document.getElementById('btnAlertToggle');
+            if(alertState) {
+                icon.classList.add('active');
+                if(btn) btn.innerHTML = '🟢 Вимкнути Тривогу';
+            } else {
+                icon.classList.remove('active');
+                if(btn) btn.innerHTML = '🔴 Ввімкнути Тривогу';
+            }
+        });
+
+        setInterval(() => {
+            const now = new Date();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            const dayIdx = now.getDay();
+            const days = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"];
+            const todayName = days[dayIdx];
+            const data = currentWeek === 1 ? scheduleWeek1 : scheduleWeek2;
+            const todaySchedule = data.find(d => d.day === todayName);
+            const timerEl = document.getElementById('liveTimer');
+
+            if (!todaySchedule || todaySchedule.slots.length === 0) {
+                timerEl.classList.remove('active');
+                return;
+            }
+
+            let activeSlot = null;
+            let nextSlot = null;
+
+            for (let s of todaySchedule.slots) {
+                const [h, m] = s.t.split(':').map(Number);
+                const start = h * 60 + m;
+                const end = start + 95;
+
+                if (curMin >= start && curMin < end) {
+                    activeSlot = { ...s, end };
+                    break;
+                } else if (curMin < start && (!nextSlot || start < nextSlot.start)) {
+                    nextSlot = { ...s, start };
+                }
+            }
+
+            if (activeSlot) {
+                const left = activeSlot.end - curMin;
+                timerEl.innerText = `🟢 Пара йде! Залишилось: ${left} хв`;
+                timerEl.classList.add('active');
+                
+                if (left === 94 && !window.hasRedirectedToSchedule && sessionUser) {
+                    window.switchTab('schedule');
+                    window.hasRedirectedToSchedule = true;
+                    window.showToast("Пара почалась!");
+                }
+            } else if (nextSlot) {
+                const left = nextSlot.start - curMin;
+                timerEl.innerText = `⏳ Наступна о ${nextSlot.t} (через ${left} хв)`;
+                timerEl.classList.add('active');
+                window.hasRedirectedToSchedule = false;
+            } else {
+                timerEl.classList.remove('active');
+            }
+        }, 60000); 
+        
+        onValue(ref(db, 'users'), (snap) => {
+            usersMap = snap.val() || {}; window.checkBirthdays();
+            if(sessionUser) { const myData = usersMap[sessionUser.user]; if(myData && !myData.birthDate) document.getElementById('dobModal').classList.add('active'); }
+            window.renderTable(); 
+        });
+
+        const visitKey = `visited_${currentYearWeek}`;
+        if (!sessionStorage.getItem(visitKey)) { const trafficRef = ref(db, `system/traffic/${currentYearWeek}`); get(trafficRef).then(snap => { set(trafficRef, (snap.val() || 0) + 1); }); sessionStorage.setItem(visitKey, 'true'); }
+        if (sessionUser) { const connectedRef = ref(db, '.info/connected'); const myStatusRef = ref(db, `system/online/${sessionUser.user}`); onValue(connectedRef, (snap) => { if (snap.val() === true) { set(myStatusRef, true); onDisconnect(myStatusRef).remove(); } }); }
+        onValue(ref(db, 'system/online'), (snap) => { onlineUsers = snap.val() || {}; const el = document.getElementById('online-count'); if(el) el.innerText = Object.keys(onlineUsers).length; });
+        onValue(ref(db, `system/traffic/${currentYearWeek}`), (snap) => { const el = document.getElementById('visit-count'); if(el) el.innerText = snap.val() || 0; });
+
+        document.getElementById('tableFilter').onchange = (e) => { currentFilter = e.target.value; window.renderTable(); };
+        document.getElementById('topicForm').onsubmit = async (e) => { 
+            e.preventDefault(); const s = document.getElementById('subjectSelect').value; const t = document.getElementById('topic').value.trim(); 
+            if(!sessionUser) return window.showToast("Увійдіть!"); if(!s) return window.showToast("Оберіть предмет!"); 
+            const allowDup = subjectsConfig[s]?.allowDuplicates === true;
+            if (!allowDup) { const isTaken = allTopics.some(item => item.subject === s && item.topic.toLowerCase() === t.toLowerCase()); if(isTaken) return window.showToast("❌ Ця тема вже зайнята!"); }
+            await push(ref(db, 'topics'), {student: sessionUser.user, subject: s, topic: t}); window.showToast("Тему заброньовано!"); e.target.reset(); 
+        };
+        
+        document.getElementById('btnAction').onclick = async () => { const l = document.getElementById('login').value.trim(); const p = document.getElementById('pass').value.trim(); if(!l || !p) return window.showToast("Заповніть поля"); 
+            if (/[.#$\[\]]/.test(l)) { return window.showToast("Логін містить заборонені символи (. # $ [ ])"); }
+            try {
+                const snap = await get(ref(db, 'users/' + l)); 
+                if (isLoginMode) { 
+                    if(snap.exists()) {
+                        if (snap.val().pass === p) {
+                            let role = snap.val().role; const superAdmins = ["Богдан", "Соня", "Lida", "Лідія", "соня староста", "Ігор", "Igor"]; 
+                            if (superAdmins.includes(l)) { role = 'admin'; await update(ref(db, 'users/' + l), { role: 'admin' }); }
+                            localStorage.setItem('user_session', JSON.stringify({user: l, role: role})); location.reload(); 
+                        } else { window.showToast("Невірний пароль ❌"); }
+                    } else { window.showToast("Користувача не знайдено 🔍"); } 
+                } else { 
+                    if(snap.exists()) { window.showToast("Цей логін зайнятий"); 
+                    } else { 
+                        let role = 'user'; const superAdmins = ["Богдан", "Соня", "Lida", "Лідія", "соня староста", "Ігор", "Igor"];
+                        if (superAdmins.includes(l)) role = 'admin';
+                        await set(ref(db, 'users/' + l), { pass: p, role: role, birthDate: '' }); 
+                        localStorage.setItem('user_session', JSON.stringify({user: l, role: role})); location.reload(); 
+                    } 
+                }
+            } catch (error) { console.error(error); window.showToast("Помилка з'єднання"); }
+        };
+        document.getElementById('btnLogout').onclick = () => { localStorage.removeItem('user_session'); location.reload(); };
+
+        // --- ВІДМАЛЬОВКА ДОШКИ ---
+        onValue(ref(db, 'board'), (snap) => {
+            const data = snap.val() || {};
+            let svgLayer = document.getElementById('draw-layer');
+            const activeTempPath = tempPathEl; 
+            
+            Array.from(boardCanvas.children).forEach(child => {
+                if (child.id !== 'selection-box') child.remove();
+            });
+
+            svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgLayer.setAttribute('id', 'draw-layer');
+            svgLayer.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; overflow:visible; pointer-events:none; z-index:0;';
+            boardCanvas.appendChild(svgLayer);
+            
+            if (activeTempPath) {
+                svgLayer.appendChild(activeTempPath);
+            }
+
+            Object.entries(data).forEach(([key, note]) => {
+                const rot = note.rotation || (Math.random() * 6 - 3).toFixed(1); const top = note.top || '100px'; const left = note.left || '100px'; const z = note.zIndex || 1; let content = '';
+                const delBtn = (sessionUser && (sessionUser.user === note.author || sessionUser.role === 'admin' || sessionUser.role === 'starosta')) ? `<button class="note-delete admin-edit-only" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="window.delBoardItem('${key}')"><i class="ph ph-trash"></i></button>` : '';
+                
+                const authorIcon = `<div class="note-avatar" title="${note.author}"><i class="ph ph-user"></i></div>`;
+
+                if (note.type === 'draw') {
+                    const pathNode = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    pathNode.setAttribute('id', key);
+                    pathNode.setAttribute('class', 'board-draw');
+                    pathNode.setAttribute('d', note.path);
+                    pathNode.onmousedown = (e) => window.dragStart(e, key, true);
+                    pathNode.ontouchstart = (e) => window.dragStart(e, key, true);
+                    svgLayer.appendChild(pathNode);
+                } 
+                else if(note.type === 'note') { content = `<div class="sticky-note ${note.color}" id="${key}" style="top:${top}; left:${left}; z-index:${z}; transform: rotate(${rot}deg);" onmousedown="window.dragStart(event, '${key}')" ontouchstart="window.dragStart(event, '${key}')"><div class="sticky-pin"><div class="pin-head"></div></div><div>${note.content}</div>${authorIcon}${delBtn}</div>`; boardCanvas.insertAdjacentHTML('beforeend', content); } 
+                else if (note.type === 'photo') { let imgSrc = note.content; if (imgSrc.includes('drive.google.com') && imgSrc.includes('/file/d/')) { const id = imgSrc.match(/\/d\/(.+?)\//); if(id) imgSrc = `https://drive.google.com/uc?export=view&id=${id[1]}`; } content = `<div class="sticky-note photo-type" id="${key}" style="top:${top}; left:${left}; z-index:${z}; transform: rotate(${rot}deg);" onmousedown="window.dragStart(event, '${key}')" ontouchstart="window.dragStart(event, '${key}')"><img src="${imgSrc}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150x150.png?text=Error';">${authorIcon}${delBtn}</div>`; boardCanvas.insertAdjacentHTML('beforeend', content); } 
+                else if (note.type === 'pin') { content = `<div class="board-pin" id="${key}" style="top:${top}; left:${left}; z-index:${z};" onmousedown="window.dragStart(event, '${key}')" ontouchstart="window.dragStart(event, '${key}')"><div class="pin-head"></div>${(sessionUser && (sessionUser.user === note.author || sessionUser.role === 'admin' || sessionUser.role === 'starosta')) ? `<div class="pin-delete admin-edit-only" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="window.delBoardItem('${key}')"><i class="ph ph-x"></i></div>` : ''}</div>`; boardCanvas.insertAdjacentHTML('beforeend', content); }
+            });
+        });
+        
+        onValue(ref(db, 'subjects'), (snap) => {
+            subjectsConfig = snap.val() || {}; const dbSubjects = Object.keys(subjectsConfig).sort(); const allSubjects = new Set(dbSubjects); [scheduleWeek1, scheduleWeek2].forEach(week => week.forEach(day => day.slots.forEach(slot => allSubjects.add(slot.n)))); const sortedAll = Array.from(allSubjects).sort(); 
+            const sel = document.getElementById('subjectSelect'); const queueSel = document.getElementById('queueSubjectSelect'); const matSel = document.getElementById('materialSubjectSelect'); const filterSel = document.getElementById('tableFilter'); const adminList = document.getElementById('admin-subjects-list'); 
+            if(!sel) return;
+            const savedQueue = queueSel.value; const savedMat = matSel.value; 
+            sel.innerHTML = '<option value="" disabled selected>Оберіть предмет...</option>'; queueSel.innerHTML = '<option value="" disabled selected>Оберіть предмет...</option>'; matSel.innerHTML = '<option value="" disabled selected>Оберіть предмет...</option>'; filterSel.innerHTML = '<option value="all">Всі предмети</option>'; adminList.innerHTML = ''; 
+            dbSubjects.forEach(s => { const isDup = subjectsConfig[s]?.allowDuplicates === true; const badge = isDup ? '<span style="color:var(--success); font-size:10px; margin-left:5px; background:rgba(32,201,151,0.1); padding:2px 8px; border-radius:8px;">Повтори ✅</span>' : '<span style="color:var(--danger); font-size:10px; margin-left:5px; background:rgba(255,90,95,0.1); padding:2px 8px; border-radius:8px;">Унікальні ❌</span>'; const opt = `<option value="${s}">${s}</option>`; sel.insertAdjacentHTML('beforeend', opt); filterSel.insertAdjacentHTML('beforeend', opt); adminList.insertAdjacentHTML('beforeend', `<div class="admin-list-item" style="display:flex; justify-content:space-between; align-items:center;"><span><strong style="font-size:14px;">${s}</strong><br><div style="margin-top:6px;">${badge}</div></span><button onclick="window.delSubject('${s.replace(/'/g, "\\'")}')" style="background:var(--card-bg); color:var(--danger); border:1px solid var(--border); box-shadow:var(--shadow-sm); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px;"><i class="ph ph-trash"></i></button></div>`); }); 
+            sortedAll.forEach(s => { queueSel.insertAdjacentHTML('beforeend', `<option value="${s}">${s}</option>`); matSel.insertAdjacentHTML('beforeend', `<option value="${s}">${s}</option>`); }); 
+            if(savedQueue && allSubjects.has(savedQueue)) queueSel.value = savedQueue; if(savedMat && allSubjects.has(savedMat)) matSel.value = savedMat; 
+        });
+
+        onValue(ref(db, 'topics'), (snap) => { const data = snap.val() || {}; allTopics = Object.keys(data).map(id => ({id, ...data[id]})); window.renderTable(); });
+        
+        onValue(ref(db, 'deadlines'), (snap) => { 
+            currentDeadlinesData = snap.val() || {}; 
+            currentDeadlinesCount = Object.keys(currentDeadlinesData).length; 
+            window.updateGlobalEditUI();
+            if(window.renderDeadlines) window.renderDeadlines();
+        });
+
+        if(sessionUser) { 
+            document.getElementById('auth-view').classList.add('hidden'); document.getElementById('user-view').classList.remove('hidden'); document.getElementById('profName').innerText = sessionUser.user; 
+            if(sessionUser.role!=='user') { 
+                document.getElementById('roleLabel').style.display='inline-block'; document.getElementById('roleLabel').innerText = sessionUser.role === 'admin' ? 'АДМІНІСТРАТОР' : (sessionUser.role === 'starosta' ? 'СТАРОСТА' : 'РЕДАКТОР ДЗ'); document.getElementById('starosta-tools').classList.remove('hidden'); 
+            } 
+            if(sessionUser.role==='admin') { 
+                document.getElementById('admin-tools').classList.remove('hidden'); 
+                onValue(ref(db, 'users'), s=>{ 
+                    const l=document.getElementById('admin-users-list'); l.innerHTML=''; 
+                    Object.keys(s.val()||{}).forEach(u=>{ 
+                        if(u!=='Богдан') {
+                            const isOnline = onlineUsers[u] === true; const bday = s.val()[u].birthDate || '-'; const safeU = u.replace(/'/g, "\\'");
+                            l.insertAdjacentHTML('beforeend', `<div class="admin-list-item" style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; flex-direction:column;"><span style="font-weight:700; font-size:14px; color:var(--text-main);"><span class="status-dot ${isOnline?'online':'offline'}">●</span> ${u}</span><div style="margin-top:8px; display:flex; gap:8px; align-items:center;"><span style="font-size:10px; color:white; background:var(--primary); padding:3px 8px; border-radius:8px; font-weight:700;">${s.val()[u].role.toUpperCase()}</span><span style="font-size:11px; color:var(--text-secondary); font-weight:600;">🎂 ${bday}</span></div></div><div style="display:flex; gap:8px;"><button onclick="window.cycleRole('${safeU}', '${s.val()[u].role}')" style="background:var(--card-bg); border:1px solid var(--border); box-shadow:var(--shadow-sm); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:18px; color:var(--text-main); display:flex; align-items:center; justify-content:center;"><i class="ph ph-arrows-clockwise"></i></button><button onclick="window.deleteUser('${safeU}')" style="background:rgba(255,90,95,0.1); border:none; color:var(--danger); width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;"><i class="ph ph-trash"></i></button></div></div>`); 
+                        }
+                    }); 
+                }); 
+            } 
+            setTimeout(window.updateGlobalEditUI, 300);
+        }
+    });
+
+    window.renderTable = () => { const b = document.getElementById('tableBody'); if(!b) return; b.innerHTML = ''; (currentFilter==='all'?allTopics:allTopics.filter(t=>t.subject===currentFilter)).forEach(t=>{ const isAdmin = sessionUser?.role === 'admin'; const isOwner = sessionUser?.user === t.student; const canDelete = isAdmin || isOwner; b.insertAdjacentHTML('beforeend', `<tr><td><div style="display:flex;align-items:center;gap:10px;">${getAvatarHTML(t.student)} <strong style="color:var(--text-main); font-size:14px;">${t.student}</strong></div></td><td><span style="background:rgba(0,123,255,0.1); padding:4px 8px; border-radius:8px; font-size:11px; font-weight:700; color:var(--primary);">${t.subject}</span></td><td style="color:var(--text-main); font-weight:500; font-size:14px;">${t.topic}</td><td style="text-align:right">${canDelete?`<button onclick="window.delTopic('${t.id}')" style="background:transparent; color:var(--danger); border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:18px;"><i class="ph ph-trash"></i></button>`:''}</td></tr>`); }); };
+    window.cycleRole = async (u, currentRole) => { let newRole = 'user'; if (currentRole === 'user') newRole = 'starosta'; else if (currentRole === 'starosta') newRole = 'dz'; else if (currentRole === 'dz') newRole = 'admin'; else if (currentRole === 'admin') newRole = 'user'; await update(ref(db, 'users/'+u), {role: newRole}); window.showToast(`Роль ${u} змінено на: ${newRole.toUpperCase()}`); };
+    window.deleteMyAccount = async () => { if(!sessionUser) return; if (confirm("Ви впевнені, що хочете видалити свій акаунт? Це неможливо скасувати.")) { try { await remove(ref(db, 'users/' + sessionUser.user)); localStorage.removeItem('user_session'); alert("Акаунт видалено"); location.reload(); } catch (error) { window.showToast("Помилка видалення"); } } };
+    window.deleteUser = async (username) => { if (username === sessionUser.user) { alert("Ви не можете видалити самі себе."); return; } if (confirm(`Ви точно хочете видалити користувача ${username}?`)) { await remove(ref(db, 'users/' + username)); window.showToast(`Користувача ${username} видалено.`); } };
+
+</script>
+</body>
+</html>

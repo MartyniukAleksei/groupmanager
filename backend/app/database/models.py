@@ -198,3 +198,33 @@ class TopicEntry(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     project: Mapped["TopicProject"] = relationship(back_populates="entries")
     __table_args__ = (UniqueConstraint("group_id", "project_id", "user_id"),)
+
+
+class DeadlineItem(Base):
+    __tablename__ = "deadline_items"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(20))   # 'urgent' | 'planned' | 'reminder'
+    deadline_date: Mapped[date_type] = mapped_column(Date)
+    created_by_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class BoardItem(Base):
+    __tablename__ = "board_items"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), index=True)
+    item_type: Mapped[str] = mapped_column(String(20))   # 'note' | 'photo' | 'pin' | 'draw'
+    content: Mapped[Optional[str]] = mapped_column(String)
+    color: Mapped[Optional[str]] = mapped_column(String(20))
+    pos_x: Mapped[float] = mapped_column(default=100.0)
+    pos_y: Mapped[float] = mapped_column(default=100.0)
+    z_index: Mapped[int] = mapped_column(Integer, default=1)
+    rotation: Mapped[float] = mapped_column(default=0.0)
+    created_by_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

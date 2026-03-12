@@ -255,3 +255,68 @@ class TopicEntryOut(BaseModel):
     created_at: datetime
     user: TopicUserOut
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---- DEADLINES ----
+
+class DeadlineItemCreate(BaseModel):
+    title: str
+    status: str   # 'urgent' | 'planned' | 'reminder'
+    deadline_date: str  # ISO date "YYYY-MM-DD"
+
+
+class DeadlineItemUpdate(BaseModel):
+    title: str | None = None
+    status: str | None = None
+    deadline_date: str | None = None
+
+
+class DeadlineItemOut(BaseModel):
+    id: int | None
+    title: str
+    status: str   # 'urgent' | 'planned' | 'reminder' | 'expired' | 'birthday'
+    deadline_date: str
+    author_name: str | None
+    author_avatar: str | None
+
+
+class DeadlinesResponse(BaseModel):
+    items: list[DeadlineItemOut]
+    is_admin: bool
+
+
+# ---- BOARD ITEMS ----
+
+class BoardItemCreate(BaseModel):
+    item_type: str   # 'note' | 'photo' | 'pin' | 'draw'
+    content: str | None = None
+    color: str | None = None
+    pos_x: float = 100.0
+    pos_y: float = 100.0
+    z_index: int = 1
+    rotation: float = 0.0
+
+
+class BoardItemUpdatePosition(BaseModel):
+    pos_x: float
+    pos_y: float
+    z_index: int | None = None
+
+
+class BoardItemOut(BaseModel):
+    id: int
+    item_type: str
+    content: str | None
+    color: str | None
+    pos_x: float
+    pos_y: float
+    z_index: int
+    rotation: float
+    author_id: int | None
+    author_name: str | None
+    author_avatar: str | None
+
+
+class BoardStateResponse(BaseModel):
+    items: list[BoardItemOut]
+    is_admin: bool
