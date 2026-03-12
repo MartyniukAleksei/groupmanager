@@ -56,6 +56,9 @@ const AppLayout = () => {
         <NavLink to={`/g/${groupId}/students`} className="tab-btn">
           👥 Студенти
         </NavLink>
+        <NavLink to={`/g/${groupId}/topics`} className="tab-btn">
+          📌 Теми
+        </NavLink>
       </nav>
 
       <main>

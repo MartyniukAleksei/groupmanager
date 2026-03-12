@@ -220,3 +220,38 @@ class MemberOut(BaseModel):
 
 class UpdateRoleRequest(BaseModel):
     role: str
+
+
+class TopicProjectCreate(BaseModel):
+    subject_name: str
+    name: str
+
+
+class TopicProjectOut(BaseModel):
+    id: int
+    group_id: int
+    subject_name: str
+    name: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TopicUserOut(BaseModel):
+    id: int
+    name: str
+    avatar_url: str | None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TopicEntryCreate(BaseModel):
+    project_id: int
+    topic_text: str
+
+
+class TopicEntryOut(BaseModel):
+    id: int
+    project_id: int
+    topic_text: str
+    created_at: datetime
+    user: TopicUserOut
+    model_config = ConfigDict(from_attributes=True)
