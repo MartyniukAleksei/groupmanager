@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database.database import engine
 from app.database.models import Base
 from app.routers import auth, groups, schedule, attendance, homework, materials, queue, links
-from app.routers import profile, members, topics
+from app.routers import profile, members, topics, board, deadlines
 
 # Цей контекстний менеджер виконається один раз при старті сервера
 @asynccontextmanager
@@ -51,6 +51,8 @@ app.include_router(links.router)
 app.include_router(profile.router)
 app.include_router(members.router)
 app.include_router(topics.router)
+app.include_router(board.router)
+app.include_router(deadlines.router)
 
 @app.get("/")
 async def root():
