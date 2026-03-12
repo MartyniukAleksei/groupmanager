@@ -3,6 +3,8 @@ import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import JoinGroupPage from "./pages/JoinGroupPage";
+import ErrorPage from "./pages/ErrorPage";
+import ErrorBoundary from "./components/ErrorBoundary";
 import AppLayout from "./components/layout/AppLayout";
 import Board from "./features/board/Board";
 import Schedule from "./features/schedule/Schedule";
@@ -23,6 +25,7 @@ function App() {
   const { token } = useAuth();
 
   return (
+    <ErrorBoundary>
     <Routes>
       <Route
         path="/"
@@ -63,8 +66,9 @@ function App() {
         <Route path="students" element={<Students />} />
         <Route path="topics" element={<Topics />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<ErrorPage code={404} />} />
     </Routes>
+    </ErrorBoundary>
   );
 }
 
