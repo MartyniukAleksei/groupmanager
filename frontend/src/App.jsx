@@ -12,6 +12,7 @@ import Attendance from "./features/attendance/Attendance";
 import Queue from "./features/queue/Queue";
 import Links from "./features/links/Links";
 import Students from "./features/students/Students";
+import Topics from "./features/topics/Topics";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -60,6 +61,7 @@ function App() {
         <Route path="queue" element={<Queue />} />
         <Route path="links" element={<Links />} />
         <Route path="students" element={<Students />} />
+        <Route path="topics" element={<Topics />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

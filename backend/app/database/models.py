@@ -173,3 +173,28 @@ class UsefulLink(Base):
     emoji: Mapped[str] = mapped_column(String(10))
     created_by_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class TopicProject(Base):
+    __tablename__ = "topic_projects"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), index=True)
+    subject_name: Mapped[str] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String)
+    created_by_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    entries: Mapped[List["TopicEntry"]] = relationship(
+        back_populates="project", cascade="all, delete-orphan"
+    )
+
+
+class TopicEntry(Base):
+    __tablename__ = "topic_entries"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("topic_projects.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    topic_text: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    project: Mapped["TopicProject"] = relationship(back_populates="entries")
+    __table_args__ = (UniqueConstraint("group_id", "project_id", "user_id"),)
