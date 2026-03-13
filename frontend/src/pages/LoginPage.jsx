@@ -24,14 +24,21 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ padding: "50px", textAlign: "center", fontFamily: "sans-serif" }}>
-      <h1>Group Manager</h1>
-      <p>Увійдіть, щоб керувати групами</p>
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => console.log("Помилка при вході через Google")}
-        />
+    <div className="login-page">
+      <div className="login-card">
+        <div className="logo-box" style={{ justifyContent: "center", marginBottom: "12px" }}>
+          <div className="logo-square"></div>
+          <span style={{ fontSize: 22, fontWeight: 700 }}>GroupManager</span>
+        </div>
+        <p style={{ color: "var(--text-secondary)", marginBottom: "28px", marginTop: 4 }}>
+          Увійдіть, щоб керувати групами
+        </p>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => console.log("Помилка при вході через Google")}
+          />
+        </div>
       </div>
     </div>
   );
