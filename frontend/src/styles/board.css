@@ -62,7 +62,7 @@
 
 @media (min-width: 820px) {
   .home-wrapper {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 3fr 2fr;
     gap: 22px;
     align-items: start;
   }
@@ -115,6 +115,28 @@
 @media (max-width: 600px) {
   .deadlines-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 819px) {
+  .board-panel {
+    height: 50vh;
+    min-height: 300px;
+  }
+  .deadlines-panel {
+    min-height: unset;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .canvas-toolbar {
+    overflow-x: unset;
+  }
+  .tool-btn {
+    flex: 1;
+    min-width: unset;
+  }
+  .canvas-toolbar .tool-btn:nth-child(n+5) {
+    display: none;
   }
 }
 
@@ -362,6 +384,12 @@
   margin: 0;
   font-size: 17px;
   color: var(--text-main);
+}
+
+.board-blur-overlay .btn-main {
+  width: auto;
+  padding: 10px 24px;
+  font-size: 13px;
 }
 
 /* Canvas transform host */
