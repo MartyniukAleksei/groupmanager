@@ -26,48 +26,48 @@ function App() {
 
   return (
     <ErrorBoundary>
-    <Routes>
-      <Route
-        path="/"
-        element={token ? <Navigate to="/dashboard" replace /> : <LoginPage />}
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/join/:joinCode"
-        element={
-          <ProtectedRoute>
-            <JoinGroupPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/g/:groupId"
-        element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="board" replace />} />
-        <Route path="board" element={<Board />} />
-        <Route path="schedule" element={<Schedule />} />
-        <Route path="homework" element={<Homework />} />
-        <Route path="materials" element={<Materials />} />
-        <Route path="attendance" element={<Attendance />} />
-        <Route path="queue" element={<Queue />} />
-        <Route path="links" element={<Links />} />
-        <Route path="students" element={<Students />} />
-        <Route path="topics" element={<Topics />} />
-      </Route>
-      <Route path="*" element={<ErrorPage code={404} />} />
-    </Routes>
+      <Routes>
+        <Route
+          path="/"
+          element={token ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/join/:joinCode"
+          element={
+            <ProtectedRoute>
+              <JoinGroupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/g/:groupId"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="board" replace />} />
+          <Route path="board" element={<Board />} />
+          <Route path="schedule" element={<Schedule />} />
+          <Route path="homework" element={<Homework />} />
+          <Route path="materials" element={<Materials />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="queue" element={<Queue />} />
+          <Route path="links" element={<Links />} />
+          <Route path="students" element={<Students />} />
+          <Route path="topics" element={<Topics />} />
+        </Route>
+        <Route path="*" element={<ErrorPage code={404} />} />
+      </Routes>
     </ErrorBoundary>
   );
 }
