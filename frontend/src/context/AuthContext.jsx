@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import axios from "axios";
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,19 @@ export const AuthProvider = ({ children }) => {
       return saved ? JSON.parse(saved).token : null;
     } catch { return null; }
   });
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
 
   const login = (userData, accessToken) => {
     setUser(userData);
