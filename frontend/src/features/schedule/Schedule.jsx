@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchSchedule, createScheduleEntry, updateScheduleEntry, deleteScheduleEntry, setCurrentWeek } from '../../api/schedule';
 import { fetchMyGroups } from '../../api/groups';
+import Spinner from '../../components/ui/Spinner';
+import PageHint from '../../components/ui/PageHint';
 import '../../styles/schedule.css';
 
 const DAYS = [
@@ -162,10 +164,11 @@ const Schedule = () => {
     }
   };
 
-  if (loading) return <div className="sch-wrapper" style={{ padding: '40px', textAlign: 'center' }}>Завантаження...</div>;
+  if (loading) return <div className="sch-wrapper"><Spinner /></div>;
 
   return (
     <div className="sch-wrapper">
+      <PageHint page="schedule" />
 
       {/* ВЕРХНЯ ПАНЕЛЬ */}
       <div className="sch-top-header">

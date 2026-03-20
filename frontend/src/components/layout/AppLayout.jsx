@@ -1,19 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Outlet, NavLink, Link, useParams, useLocation } from "react-router-dom";
+import {
+  Outlet,
+  NavLink,
+  Link,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import UserDrawer from "../UserDrawer";
 
 const navItems = [
-  { path: "board",      icon: "ph-notepad",        label: "Дошка" },
-  { path: "schedule",   icon: "ph-calendar-blank",  label: "Розклад" },
-  { path: "homework",   icon: "ph-book-open",       label: "ДЗ" },
-  { path: "materials",  icon: "ph-folder",          label: "Файли" },
-  { path: "attendance", icon: "ph-users",           label: "Явка" },
-  { path: "queue",      icon: "ph-list-numbers",    label: "Черга" },
-  { path: "links",      icon: "ph-link",            label: "Лінки" },
-  { path: "students",   icon: "ph-student",         label: "Студенти" },
-  { path: "topics",     icon: "ph-rocket",          label: "Теми" },
+  { path: "board", icon: "ph-notepad", label: "Дошка" },
+  { path: "schedule", icon: "ph-calendar-blank", label: "Розклад" },
+  { path: "attendance", icon: "ph-users", label: "Явка" },
+  { path: "homework", icon: "ph-book-open", label: "ДЗ" },
+  { path: "materials", icon: "ph-folder", label: "Файли" },
+  { path: "topics", icon: "ph-rocket", label: "Теми" },
+  { path: "queue", icon: "ph-list-numbers", label: "Черга" },
+  { path: "students", icon: "ph-student", label: "Студенти" },
+  { path: "links", icon: "ph-link", label: "Лінки" },
 ];
 
 const AppLayout = () => {
@@ -38,7 +44,7 @@ const AppLayout = () => {
 
     requestAnimationFrame(() => {
       indicator.style.width = `${itemRect.width}px`;
-      indicator.style.transform = `translateX(${itemRect.left - navRect.left}px)`;
+      indicator.style.transform = `translateX(${itemRect.left - navRect.left + nav.scrollLeft}px)`;
     });
   }, [location.pathname]);
 
@@ -47,7 +53,16 @@ const AppLayout = () => {
       {/* Mobile-only header */}
       <header className="mobile-only-header">
         <div className="logo-box">
-          <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
+          <Link
+            to="/dashboard"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
             <div className="logo-square"></div>
             <span>GroupManager</span>
           </Link>
@@ -62,9 +77,20 @@ const AppLayout = () => {
       {/* Floating nav — bottom on mobile, top on desktop */}
       <div className="floating-ui-container">
         <div className="desktop-logo-pill pc-only">
-          <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "8px" }}>
+          <Link
+            to="/dashboard"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
             <div className="logo-square"></div>
-            <span style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap" }}>
+            <span
+              style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap" }}
+            >
               {groupId?.toUpperCase()}
             </span>
           </Link>
@@ -77,7 +103,9 @@ const AppLayout = () => {
               <NavLink
                 key={item.path}
                 to={`/g/${groupId}/${item.path}`}
-                className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+                className={({ isActive }) =>
+                  `nav-item${isActive ? " active" : ""}`
+                }
               >
                 <i className={`ph ${item.icon}`}></i>
                 <span className="text">{item.label}</span>
@@ -91,9 +119,21 @@ const AppLayout = () => {
             <i className={`ph ${theme === "dark" ? "ph-sun" : "ph-moon"}`}></i>
           </button>
           <button className="action-btn" onClick={() => setDrawerOpen(true)}>
-            {user?.avatar_url
-              ? <img src={user.avatar_url} alt="avatar" referrerPolicy="no-referrer" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-              : <i className="ph ph-user-circle"></i>}
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt="avatar"
+                referrerPolicy="no-referrer"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                }}
+              />
+            ) : (
+              <i className="ph ph-user-circle"></i>
+            )}
           </button>
         </div>
       </div>

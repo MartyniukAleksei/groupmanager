@@ -37,10 +37,10 @@
 }
 
 .hw-nav-arrow {
-  background: white;
-  border: 1px solid #cbd5e1;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  width: 30px; 
+  width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
@@ -48,28 +48,28 @@
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
-  color: #475569;
+  color: var(--text-secondary);
   transition: 0.2s;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .hw-nav-arrow:hover:not(:disabled) {
-  background: #f8fafc;
+  background: var(--hover-bg);
   border-color: #94a3b8;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .hw-nav-arrow:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: #f1f5f9;
+  background: var(--panel-bg);
 }
 
 .hw-week-title {
-  font-size: 14px; 
+  font-size: 14px;
   font-weight: 700;
-  color: #1e293b;
-  min-width: 170px; 
+  color: var(--text-main);
+  min-width: 170px;
   text-align: center;
 }
 
@@ -94,12 +94,12 @@
 ========================================= */
 .hw-day-picker {
   display: flex;
-  background: white;
+  background: var(--card-bg);
   padding: 6px;
   border-radius: 14px;
-  margin-bottom: 12px; 
+  margin-bottom: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
 }
 
 .hw-day-btn {
@@ -109,7 +109,7 @@
   background: transparent;
   border-radius: 10px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: 0.2s;
   font-size: 13px;
@@ -136,11 +136,11 @@
    КАРТКА КОЖНОГО ДНЯ
 ========================================= */
 .hw-day-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border);
 }
 
 .hw-day-title {
@@ -154,7 +154,7 @@
 /* СПИСОК ПРЕДМЕТІВ */
 .hw-subjects-list { display: flex; flex-direction: column; gap: 15px; } 
 .hw-subject-item { display: flex; flex-direction: column; gap: 8px; }
-.hw-subject-name { font-weight: 700; color: #1e293b; font-size: 14px; }
+.hw-subject-name { font-weight: 700; color: var(--text-main); font-size: 14px; }
 
 /* ПОЛЕ ВВОДУ ДЗ */
 .hw-textarea {
@@ -162,8 +162,8 @@
   padding: 12px 15px;
   border-radius: 12px;
   border: 1px solid transparent;
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--panel-bg);
+  color: var(--text-main);
   font-size: 14px;
   font-family: inherit;
   resize: vertical;
@@ -174,7 +174,7 @@
 .hw-textarea:focus {
   outline: none;
   border-color: #cbd5e1;
-  background: #ffffff;
+  background: var(--card-bg);
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
@@ -183,19 +183,19 @@
 /* =========================================
    КНОПКА РЕДАГУВАННЯ ТА СТАН READONLY
 ========================================= */
-.hw-edit-btn { 
-  background: white; 
-  border: 1px solid #e2e8f0; 
-  padding: 6px 12px; 
-  border-radius: 10px; 
-  cursor: pointer; 
-  font-weight: bold; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  color: #475569; 
-  transition: 0.2s; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+.hw-edit-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   font-size: 13px;
 }
 
@@ -229,7 +229,7 @@
   border-color: transparent;
   resize: none;
   padding: 0;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .hw-textarea[readonly]:focus {
@@ -240,3 +240,8 @@
   color: #94a3b8;
   font-style: italic;
 }
+
+/* =========================================
+   DARK MODE OVERRIDES
+========================================= */
+[data-theme="dark"] .hw-return-btn:hover { background: rgba(225, 29, 72, 0.15); }

@@ -11,7 +11,7 @@
   right: 0;
   height: 100%;
   width: 320px;
-  background: var(--bg-secondary, #fff);
+  background: var(--card-bg);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   transform: translateX(100%);
@@ -30,12 +30,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color, #eee);
+  border-bottom: 1px solid var(--border);
 }
 
 .prf-header h2 {
   margin: 0;
   font-size: 18px;
+  color: var(--text-main);
 }
 
 .prf-close-btn {
@@ -43,7 +44,7 @@
   border: none;
   font-size: 22px;
   cursor: pointer;
-  color: var(--text-secondary, #666);
+  color: var(--text-secondary);
   padding: 4px;
   line-height: 1;
 }
@@ -86,7 +87,7 @@
 
 .prf-email {
   font-size: 14px;
-  color: var(--text-secondary, #888);
+  color: var(--text-secondary);
   word-break: break-all;
 }
 
@@ -105,24 +106,25 @@
 .prf-field label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary, #666);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .prf-field input {
   padding: 8px 12px;
-  border: 1px solid var(--border-color, #ddd);
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
-  background: var(--bg-primary, #fff);
-  color: var(--text-primary, #000);
+  background: var(--panel-bg);
+  color: var(--text-main);
   outline: none;
   transition: border-color 0.15s;
 }
 
 .prf-field input:focus {
   border-color: #1890ff;
+  background: var(--card-bg);
 }
 
 .prf-actions {

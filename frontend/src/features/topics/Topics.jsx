@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { fetchMyGroups } from "../../api/groups";
+import Spinner from "../../components/ui/Spinner";
+import PageHint from "../../components/ui/PageHint";
 import {
   fetchSubjects,
   fetchProjects,
@@ -167,6 +169,7 @@ export default function Topics() {
 
   return (
     <div className="topics-wrapper" data-theme={theme}>
+      <PageHint page="topics" />
       <div className="topics-card">
         <h2 className="topics-card-title">Теми</h2>
 
@@ -364,9 +367,7 @@ export default function Topics() {
         </div>
       )}
 
-      {loading && (
-        <p style={{ textAlign: "center", color: "#94a3b8" }}>Завантаження...</p>
-      )}
+      {loading && <Spinner />}
     </div>
   );
 }
