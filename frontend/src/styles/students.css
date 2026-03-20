@@ -92,7 +92,7 @@
   padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid var(--border);
-  background: var(--bg-secondary, #fff);
+  background: var(--card-bg);
   color: var(--text);
   font-size: 13px;
   cursor: pointer;
@@ -129,3 +129,10 @@
   color: var(--text-secondary);
   font-size: 15px;
 }
+
+/* =========================================
+   DARK MODE OVERRIDES
+========================================= */
+[data-theme="dark"] .std-role-admin    { background: #7f1d1d; color: #fca5a5; }
+[data-theme="dark"] .std-role-user     { background: #14532d; color: #86efac; }
+[data-theme="dark"] .std-remove-btn:hover { background: rgba(239, 68, 68, 0.15); }

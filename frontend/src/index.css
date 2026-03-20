@@ -369,14 +369,11 @@ body {
   font-size: 18px;
 }
 .nav-item .text {
-  display: none;
+  display: block;
   font-size: 13px;
 }
 .nav-item.active {
   color: #fff;
-}
-.nav-item.active .text {
-  display: block;
 }
 
 .action-pill {
@@ -1449,4 +1446,49 @@ textarea:focus {
   width: 100%;
   max-width: 360px;
   border: 1px solid var(--border);
+}
+
+/* ---- Circular loader ---- */
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+.spinner {
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ---- Page hint ---- */
+.page-hint {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-left: 3px solid #fbbf24;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b45309;
+  margin-bottom: 16px;
+}
+
+[data-theme="dark"] .page-hint {
+  background: rgba(251, 191, 36, 0.06);
+  border-color: rgba(251, 191, 36, 0.3);
+  border-left-color: #fbbf24;
+  color: #fcd34d;
+}
+
+@media (max-width: 600px) {
+  .page-hint {
+    font-size: 12px;
+    padding: 7px 12px;
+    margin-bottom: 12px;
+  }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

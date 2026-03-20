@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { fetchMembers, updateMemberRole, removeMember } from "../../api/members";
+import Spinner from "../../components/ui/Spinner";
+import PageHint from "../../components/ui/PageHint";
 import "../../styles/students.css";
 
 const ROLES = ["admin", "user"];
@@ -66,11 +68,12 @@ export default function Students() {
     }
   }
 
-  if (loading) return <div className="std-loading">Завантаження...</div>;
+  if (loading) return <div className="std-loading"><Spinner /></div>;
 
   return (
     <div className="std-page">
       <h2 className="std-title">Учасники групи</h2>
+      <PageHint page="students" />
       <table className="std-table">
         <thead>
           <tr>

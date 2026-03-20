@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { fetchHomework, saveHomework } from "../../api/homework";
+import Spinner from "../../components/ui/Spinner";
+import PageHint from "../../components/ui/PageHint";
 import "../../styles/homework.css";
 
 const DAYS = [
@@ -120,6 +122,7 @@ const Homework = () => {
 
   return (
     <div className="hw-wrapper">
+      <PageHint page="homework" />
       {/* ВЕРХНЯ ПАНЕЛЬ ДІЙ */}
       <div className="hw-header-actions">
         {weekData?.is_admin && (
@@ -188,11 +191,7 @@ const Homework = () => {
         <h3 className="hw-day-title">{activeDayObj?.label}</h3>
 
         {loading ? (
-          <div
-            style={{ color: "#94a3b8", textAlign: "center", padding: "20px 0" }}
-          >
-            Завантаження...
-          </div>
+          <Spinner size={32} />
         ) : activeSubjects.length === 0 ? (
           <div
             style={{ color: "#94a3b8", textAlign: "center", padding: "20px 0" }}

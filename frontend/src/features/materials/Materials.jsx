@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchMaterials, createFolder, deleteFolder, createLink, deleteLink } from '../../api/materials';
+import Spinner from '../../components/ui/Spinner';
+import PageHint from '../../components/ui/PageHint';
 import '../../styles/materials.css';
 
 const getEmbedUrl = (url) => {
@@ -79,10 +81,11 @@ const Materials = () => {
     setExpandedFolders(prev => ({ ...prev, [folderId]: !prev[folderId] }));
   };
 
-  if (loading) return <div className="mat-wrapper"><div className="mat-placeholder">Завантаження...</div></div>;
+  if (loading) return <div className="mat-wrapper"><Spinner /></div>;
 
   return (
     <div className="mat-wrapper">
+      <PageHint page="materials" />
 
       {/* КАРТКА 1: Вибір предмета та створення папки */}
       <div className="mat-card">

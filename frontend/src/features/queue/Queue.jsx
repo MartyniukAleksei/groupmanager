@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchQueue, joinQueue, leaveQueue, clearQueue } from '../../api/queue';
+import Spinner from '../../components/ui/Spinner';
+import PageHint from '../../components/ui/PageHint';
 import '../../styles/queue.css';
 
 const Queue = () => {
@@ -14,12 +16,15 @@ const Queue = () => {
   const [subjects, setSubjects] = useState([]);
   const [queues, setQueues] = useState({ full: [], group1: [], group2: [] });
   const [inQueue, setInQueue] = useState({ full: false, group1: false, group2: false });
+  const [loading, setLoading] = useState(true);
 
   // Load subjects + admin status on mount
   useEffect(() => {
+    setLoading(true);
     fetchQueue(token, groupId).then(({ data }) => {
       setSubjects(data.subjects);
       setIsAdmin(data.is_admin);
+      setLoading(false);
     });
   }, [token, groupId]);
 
@@ -128,10 +133,12 @@ const Queue = () => {
           </div>
         </div>
       </div>
+      <PageHint page="queue" />
 
       <div className="q-card">
         <h2 className="q-card-title">Електронна Черга</h2>
 
+        {loading ? <Spinner /> : <>
         <select
           className="q-select"
           value={selectedSubjectName}
@@ -169,6 +176,7 @@ const Queue = () => {
             )}
           </div>
         )}
+        </>}
       </div>
 
     </div>

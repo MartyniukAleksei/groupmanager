@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { fetchMyGroups } from "../../api/groups";
 import { fetchLinks, createLink, deleteLink } from "../../api/links";
+import Spinner from "../../components/ui/Spinner";
+import PageHint from "../../components/ui/PageHint";
 import "../../styles/links.css";
 
 export default function Links() {
@@ -62,7 +64,7 @@ export default function Links() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  if (loading) return <div className="lnk-page">Завантаження...</div>;
+  if (loading) return <div className="lnk-page"><Spinner /></div>;
 
   return (
     <div className="lnk-page">
@@ -82,6 +84,7 @@ export default function Links() {
           </>
         )}
       </div>
+      <PageHint page="links" />
 
       {links.length === 0 ? (
         <p className="lnk-empty">Поки що немає посилань.</p>

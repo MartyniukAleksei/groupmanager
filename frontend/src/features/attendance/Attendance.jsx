@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchAttendance, castVote } from '../../api/attendance';
+import Spinner from '../../components/ui/Spinner';
+import PageHint from '../../components/ui/PageHint';
 import '../../styles/attendance.css';
 
 const DAYS = [
@@ -150,6 +152,7 @@ const Attendance = () => {
 
   return (
     <div className="att-wrapper">
+      <PageHint page="attendance" />
 
       <div className="att-top-header">
         <div className="att-week-toggle-container">
@@ -190,7 +193,7 @@ const Attendance = () => {
 
       <div className="att-content">
         {loading ? (
-          <div className="att-empty-state">Завантаження...</div>
+          <Spinner />
         ) : sessions.length === 0 ? (
           <div className="att-empty-state">
             🎉 На цей день пар немає!
