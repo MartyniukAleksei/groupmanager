@@ -47,6 +47,11 @@
   color: var(--text-secondary);
   padding: 4px;
   line-height: 1;
+  transition: 0.15s;
+}
+
+.prf-close-btn:hover {
+  color: var(--text-main);
 }
 
 .prf-body {
@@ -75,7 +80,7 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #1890ff;
+  background: var(--primary);
   color: #fff;
   font-size: 28px;
   font-weight: 700;
@@ -114,16 +119,17 @@
 .prf-field input {
   padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   background: var(--panel-bg);
   color: var(--text-main);
   outline: none;
+  font-family: inherit;
   transition: border-color 0.15s;
 }
 
 .prf-field input:focus {
-  border-color: #1890ff;
+  border-color: var(--primary);
   background: var(--card-bg);
 }
 
@@ -137,18 +143,19 @@
 
 .prf-save-btn {
   padding: 10px;
-  background: #1890ff;
+  background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  font-family: inherit;
+  transition: opacity 0.15s;
 }
 
 .prf-save-btn:hover {
-  background: #1677cc;
+  opacity: 0.9;
 }
 
 .prf-save-btn:disabled {
@@ -159,30 +166,29 @@
 .prf-logout-btn {
   padding: 10px;
   background: none;
-  color: #ff4d4f;
-  border: 1px solid #ff4d4f;
-  border-radius: 6px;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
 }
 
 .prf-logout-btn:hover {
-  background: #ff4d4f;
+  background: var(--danger);
   color: #fff;
 }
 
 .prf-success {
-  color: #52c41a;
+  color: var(--success);
   font-size: 13px;
   text-align: center;
 }
 
 .prf-error {
-  color: #ff4d4f;
+  color: var(--danger);
   font-size: 13px;
   text-align: center;
 }

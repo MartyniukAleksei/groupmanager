@@ -1,41 +1,138 @@
-/* ГОЛОВНИЙ КОНТЕЙНЕР */
-.hw-wrapper {
-  padding: 12px 15px; /* Задаємо рівно 12px зверху (як і знизу під тижнем) */
-  max-width: 900px;
-  margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-/* =========================================
-   ВЕРХНЯ ПАНЕЛЬ ДІЙ (Кнопка Редагувати)
-========================================= */
-.hw-header-actions {
+.hw-wrapper { padding: 0; }
+.hw-top-bar {
   display: flex;
-  justify-content: flex-end;
-  height: 0; 
-  overflow: visible;
-  position: relative;
-  z-index: 10;
-  margin-top: 0; /* Прибрали негативний відступ, щоб олівець не ліз нагору */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
 }
+.hw-top-bar h3 { margin: 0 0 4px 0; font-size: 18px; font-weight: 700; }
+.hw-week-label { font-size: 13px; color: var(--text-secondary); }
+.hw-edit-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  transition: 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  font-size: 14px;
+  font-family: inherit;
+}
+.hw-edit-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
 
-/* =========================================
-   НАВІГАЦІЯ ПО ТИЖНЯХ (Замість архіву)
-========================================= */
+.hw-day-card {
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.hw-day-header {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-size: 14px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bg-color);
+  padding-bottom: 10px;
+}
+.hw-subject-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--bg-color);
+}
+.hw-subject-row:last-child { border-bottom: none; padding-bottom: 0; }
+.hw-sub-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+  color: var(--text-main);
+}
+.hw-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  padding: 12px;
+  background: var(--bg-color);
+  border-radius: 12px;
+}
+.hw-empty { opacity: 0.5; font-style: italic; }
+.hw-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  background: var(--card-bg);
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+.hw-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(45,130,254,0.1); }
+
+.hw-textarea[readonly] {
+  background: transparent;
+  border-color: transparent;
+  resize: none;
+  padding: 0;
+  color: var(--text-secondary);
+  min-height: unset;
+}
+.hw-textarea[readonly]:focus { box-shadow: none; }
+.hw-textarea[readonly]::placeholder { color: #94a3b8; font-style: italic; }
+
+/* Week navigation */
+.hw-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hw-week-nav button {
+  background: var(--bg-color);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: 0.2s;
+}
+.hw-week-nav button:hover { background: var(--border); }
+
+/* Week nav container (old classes kept for compat) */
 .hw-week-nav-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 0; /* Зверху відступ забезпечує padding: 12px у hw-wrapper */
-  margin-bottom: 12px; /* Знизу відступ теж 12px = ідеальна симетрія! */
+  margin-bottom: 12px;
 }
-
 .hw-week-nav-row {
   display: flex;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
 }
-
 .hw-nav-arrow {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -50,21 +147,15 @@
   font-size: 14px;
   color: var(--text-secondary);
   transition: 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-
 .hw-nav-arrow:hover:not(:disabled) {
   background: var(--hover-bg);
-  border-color: #94a3b8;
   color: var(--text-main);
 }
-
 .hw-nav-arrow:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  background: var(--panel-bg);
 }
-
 .hw-week-title {
   font-size: 14px;
   font-weight: 700;
@@ -72,7 +163,6 @@
   min-width: 170px;
   text-align: center;
 }
-
 .hw-return-btn {
   background: transparent;
   border: 1px solid #e11d48;
@@ -84,24 +174,20 @@
   cursor: pointer;
   transition: 0.2s;
 }
+.hw-return-btn:hover { background: #fff1f2; }
+[data-theme="dark"] .hw-return-btn:hover { background: rgba(225, 29, 72, 0.15); }
 
-.hw-return-btn:hover {
-  background: #fff1f2;
-}
-
-/* =========================================
-   ПАНЕЛЬ ВИБОРУ ДНЯ
-========================================= */
+/* Day picker */
 .hw-day-picker {
   display: flex;
   background: var(--card-bg);
   padding: 6px;
   border-radius: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03);
   border: 1px solid var(--border);
+  gap: 4px;
 }
-
 .hw-day-btn {
   flex: 1;
   padding: 10px 0;
@@ -112,136 +198,51 @@
   color: var(--text-secondary);
   cursor: pointer;
   transition: 0.2s;
-  font-size: 13px;
+  font-size: 12px;
+  font-family: inherit;
 }
-
 .hw-day-btn.active {
-  background: #0ea5e9;
+  background: var(--primary);
   color: white;
-  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 2px 6px rgba(45,130,254,0.3);
 }
 
-.hw-day-short {
-  display: none;
-}
-
-/* Адаптив для днів тижня на мобільному */
+.hw-day-short { display: none; }
 @media (max-width: 600px) {
   .hw-day-full { display: none; }
   .hw-day-short { display: inline; }
   .hw-day-btn { font-size: 12px; padding: 12px 0; }
 }
 
-/* =========================================
-   КАРТКА КОЖНОГО ДНЯ
-========================================= */
-.hw-day-card {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  border: 1px solid var(--border);
-}
-
+/* Subjects list (old class compat) */
+.hw-subjects-list { display: flex; flex-direction: column; gap: 15px; }
+.hw-subject-item { display: flex; flex-direction: column; gap: 8px; }
+.hw-subject-name { font-weight: 700; color: var(--text-main); font-size: 14px; }
 .hw-day-title {
   margin: 0 0 15px 0;
-  color: #0ea5e9;
+  color: var(--primary);
   font-size: 14px;
   letter-spacing: 0.5px;
   font-weight: 800;
 }
 
-/* СПИСОК ПРЕДМЕТІВ */
-.hw-subjects-list { display: flex; flex-direction: column; gap: 15px; } 
-.hw-subject-item { display: flex; flex-direction: column; gap: 8px; }
-.hw-subject-name { font-weight: 700; color: var(--text-main); font-size: 14px; }
-
-/* ПОЛЕ ВВОДУ ДЗ */
-.hw-textarea {
-  width: 100%;
-  padding: 12px 15px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  background: var(--panel-bg);
-  color: var(--text-main);
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-  box-sizing: border-box;
-  transition: all 0.2s;
-}
-
-.hw-textarea:focus {
-  outline: none;
-  border-color: #cbd5e1;
-  background: var(--card-bg);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.hw-textarea::placeholder { color: #94a3b8; }
-
-/* =========================================
-   КНОПКА РЕДАГУВАННЯ ТА СТАН READONLY
-========================================= */
-.hw-edit-btn {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
+/* Edit button compat */
+.hw-header-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-  font-size: 13px;
+  justify-content: flex-end;
+  height: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 10;
 }
-
-.hw-edit-btn.active {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
-
-/* Адаптив для олівця на мобільних екранах */
 @media (max-width: 600px) {
-  .hw-header-actions {
-    margin-top: 0; /* Прибрали негативний відступ і тут */
-    margin-right: -10px; 
-  }
-  .hw-edit-btn .btn-text {
-    display: none; 
-  }
-  .hw-edit-btn { 
-    padding: 0; 
-    width: 32px; 
-    height: 32px; 
-    border-radius: 50%; 
+  .hw-header-actions { margin-right: -10px; }
+  .hw-edit-btn .btn-text { display: none; }
+  .hw-edit-btn {
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     font-size: 14px;
   }
 }
-
-/* Стиль тексту, коли редагування вимкнено */
-.hw-textarea[readonly] {
-  background: transparent;
-  border-color: transparent;
-  resize: none;
-  padding: 0;
-  color: var(--text-secondary);
-}
-
-.hw-textarea[readonly]:focus {
-  box-shadow: none;
-}
-
-.hw-textarea[readonly]::placeholder {
-  color: #94a3b8;
-  font-style: italic;
-}
-
-/* =========================================
-   DARK MODE OVERRIDES
-========================================= */
-[data-theme="dark"] .hw-return-btn:hover { background: rgba(225, 29, 72, 0.15); }

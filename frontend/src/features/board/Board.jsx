@@ -24,63 +24,51 @@ function Avatar({ src, name, size = 22 }) {
 
 // ─── Deadlines Panel ────────────────────────────────────────────────────────
 
-function DeadlineCard({ item, isAdmin, onEdit, onDelete }) {
+function DeadlineCard({ item, isAdmin, onDelete }) {
   const today = new Date().toISOString().split("T")[0];
   const isExpired = item.deadline_date && item.deadline_date < today && item.status !== "birthday";
   const displayStatus = isExpired ? "expired" : item.status;
-
+  const statusLabels = { urgent: "Терміново", planned: "Заплановано", reminder: "Нагадування", expired: "Пройшов", birthday: "День народження" };
+  const dObj = new Date(item.deadline_date + "T00:00:00");
+  const fDate = `${String(dObj.getDate()).padStart(2, "0")}.${String(dObj.getMonth() + 1).padStart(2, "0")}.${dObj.getFullYear()}`;
   return (
-    <div className="dl-item">
-      <div className={`dl-stripe ${item.status}`} />
-      <div className="dl-body">
-        <div className="dl-body-head">
-          <div className="dl-title">{item.title}</div>
-          {isAdmin && item.status !== "birthday" && item.id != null && (
-            <div className="dl-card-actions">
-              <button className="icon-btn" style={{ width: 22, height: 22, fontSize: 11 }} title="Редагувати" onClick={() => onEdit(item)}>✏️</button>
-              <button className="icon-btn" style={{ width: 22, height: 22, fontSize: 11, color: "var(--danger)" }} title="Видалити" onClick={() => onDelete(item.id)}>🗑</button>
-            </div>
-          )}
+    <div className={`dl-card ${displayStatus}`}>
+      {isAdmin && item.status !== "birthday" && item.id != null && (
+        <button
+          onClick={() => onDelete(item.id)}
+          style={{ position: "absolute", top: 8, right: 8, background: "var(--bg-color)", border: "none", fontSize: 14, cursor: "pointer", color: "var(--text-secondary)", width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}
+        >✕</button>
+      )}
+      <div className="dl-top">
+        <div className="dl-title">{item.title}</div>
+        <div className="dl-avatar">
+          {item.author_avatar
+            ? <img src={item.author_avatar} alt="" style={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover" }} />
+            : <i className="ph ph-user" style={{ fontSize: 13, color: "var(--text-secondary)" }}></i>
+          }
         </div>
-        <div className="dl-date">{formatDate(item.deadline_date)}</div>
-        <span className={`dl-badge ${displayStatus}`}>{STATUS_LABELS[displayStatus] || item.status}</span>
       </div>
-      <div className="dl-avatar-col">
-        {item.author_avatar
-          ? <img src={item.author_avatar} alt={item.author_name} style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover" }} />
-          : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        }
+      <div className="dl-bot">
+        <div className="dl-date">{fDate}</div>
+        <div className={`dl-badge ${displayStatus}`}>{statusLabels[displayStatus] || displayStatus}</div>
       </div>
     </div>
   );
 }
 
 function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
-  const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState(null);
-  const [form, setForm] = useState({ title: "", status: "planned", deadline_date: "" });
-  const [saving, setSaving] = useState(false);
+  const [dlForm, setDlForm] = useState({ title: "", deadline_date: "", status: "planned" });
 
-  const openAdd = () => { setEditItem(null); setForm({ title: "", status: "planned", deadline_date: "" }); setShowForm(true); };
-  const openEdit = (item) => { setEditItem(item); setForm({ title: item.title, status: ["urgent", "planned", "reminder"].includes(item.status) ? item.status : "planned", deadline_date: item.deadline_date }); setShowForm(true); };
-  const closeForm = () => { setShowForm(false); setEditItem(null); };
-
-  const handleSave = async () => {
-    if (!form.title.trim() || !form.deadline_date) return;
-    setSaving(true);
+  const handleAddDeadline = async () => {
+    if (!dlForm.title.trim() || !dlForm.deadline_date) return;
     try {
-      if (editItem) {
-        await updateDeadline(token, groupId, editItem.id, form);
-      } else {
-        await createDeadline(token, groupId, form);
-      }
+      await createDeadline(token, groupId, dlForm);
       await onRefresh();
-      closeForm();
+      setDlForm({ title: "", deadline_date: "", status: "planned" });
     } catch (e) { /* silent */ }
-    setSaving(false);
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteDeadline = async (id) => {
     if (!window.confirm("Видалити дедлайн?")) return;
     try { await deleteDeadline(token, groupId, id); await onRefresh(); } catch (e) { /* silent */ }
   };
@@ -89,56 +77,24 @@ function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
     <div className="deadlines-panel">
       <div className="panel-header">
         <h3 className="panel-title">
-          <svg width="18" height="18" viewBox="0 0 256 256" fill="none" style={{ color: "#f43f5e", flexShrink: 0 }}>
-            <path d="M192 34H64a6 6 0 0 0-6 6v176a6 6 0 0 0 9.6 4.8L128 183.33l60.4 37.47A6 6 0 0 0 198 216V40a6 6 0 0 0-6-6z" fill="currentColor"/>
-          </svg>
-          Дедлайни
+          <i className="ph ph-push-pin" style={{ color: "var(--danger)" }}></i> Дедлайни
         </h3>
-        <button className="icon-btn panel-menu-btn" title={isAdmin ? "Додати дедлайн" : "Меню"} onClick={isAdmin ? openAdd : undefined}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-        </button>
       </div>
-
       <div className="deadlines-grid">
-        {deadlines.length === 0 && !showForm && (
+        {deadlines.length === 0 && (
           <div className="dl-empty">Немає активних дедлайнів</div>
         )}
         {deadlines.map((item, i) => (
-          <DeadlineCard key={item.id ?? `bday-${i}`} item={item} isAdmin={isAdmin} onEdit={openEdit} onDelete={handleDelete} />
+          <DeadlineCard key={item.id ?? `bday-${i}`} item={item} isAdmin={isAdmin} onDelete={handleDeleteDeadline} />
         ))}
       </div>
-
-      {showForm && isAdmin && (
-        <div className="add-dl-form">
-          <div>
-            <div className="form-lbl">Завдання</div>
-            <input
-              placeholder="Назва завдання"
-              value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            />
-          </div>
-          <div>
-            <div className="form-lbl">Дата</div>
-            <input
-              type="date"
-              value={form.deadline_date}
-              onChange={e => setForm(f => ({ ...f, deadline_date: e.target.value }))}
-            />
-          </div>
-          <div className="add-dl-form-row">
-            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-              <option value="urgent">🔴 Терміново</option>
-              <option value="planned">🔵 Заплановано</option>
-              <option value="reminder">🟢 Нагадування</option>
-            </select>
-          </div>
-          <div className="add-dl-form-actions">
-            <button className="btn-secondary" onClick={closeForm}>Скасувати</button>
-            <button className="btn-main" onClick={handleSave} disabled={saving}>
-              {saving ? "..." : editItem ? "Зберегти" : "Додати дедлайн"}
-            </button>
-          </div>
+      {isAdmin && (
+        <div className="add-dl-box">
+          <span>Завдання</span>
+          <input type="text" placeholder="Назва завдання" value={dlForm.title} onChange={e => setDlForm({ ...dlForm, title: e.target.value })} />
+          <span>Дата</span>
+          <input type="date" value={dlForm.deadline_date} onChange={e => setDlForm({ ...dlForm, deadline_date: e.target.value })} />
+          <button className="btn-add" onClick={handleAddDeadline}>Додати дедлайн</button>
         </div>
       )}
     </div>
@@ -536,11 +492,7 @@ function InfoBoard({ items, isAdmin, token, groupId, currentUser, onRefresh }) {
     <div className="board-panel">
       <div className="panel-header">
         <h3 className="panel-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-secondary)", flexShrink: 0 }}>
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-          </svg>
-          Інформаційна дошка
+          <i className="ph ph-notepad"></i> Інфо Дошка
         </h3>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {isAdmin && (
@@ -554,9 +506,6 @@ function InfoBoard({ items, isAdmin, token, groupId, currentUser, onRefresh }) {
               <button className="icon-btn" style={{ color: "var(--danger)", fontSize: 15 }} title="Очистити дошку" onClick={handleClearAll}>🗑</button>
             </>
           )}
-          <button className="icon-btn panel-menu-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-          </button>
         </div>
       </div>
 
@@ -569,13 +518,11 @@ function InfoBoard({ items, isAdmin, token, groupId, currentUser, onRefresh }) {
       >
         {/* Blur overlay */}
         <div className={`board-blur-overlay ${blurActive ? "" : "hidden"}`}>
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-main)" }}>
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
+          <i className="ph ph-eye-slash" style={{ fontSize: 48, marginBottom: 15, color: "var(--text-main)" }}></i>
           <h3>Вміст приховано</h3>
-          <button className="btn-main" onClick={() => setBlurActive(false)}>Відобразити вміст</button>
+          <button className="btn-main" style={{ width: "auto", padding: "12px 28px", borderRadius: 50 }} onClick={() => setBlurActive(false)}>
+            Відобразити вміст
+          </button>
         </div>
 
         {/* Selection box */}
@@ -603,46 +550,33 @@ function InfoBoard({ items, isAdmin, token, groupId, currentUser, onRefresh }) {
           {items.map(renderItem)}
         </div>
 
-      </div>
-
-      {/* Toolbar — outside canvas */}
-      <div className="canvas-toolbar">
-        <button className="tool-btn" title="Нотатка" onClick={addNote}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-          Text
-        </button>
-        <button className="tool-btn" title="Фото" onClick={addPhoto}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-          Photo
-        </button>
-        <button className="tool-btn" title="Пін" onClick={addPin}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Pin
-        </button>
-        <button className={`tool-btn${activeTool === "draw" ? " active" : ""}`} title="Малювати" onClick={() => setTool("draw")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-          Draw
-        </button>
-        <button className={`tool-btn${activeTool === "erase" ? " erase-active" : ""}`} title="Гумка" onClick={() => setTool("erase")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 20H7L3 16l11-11 7 7-1 8z"/><line x1="6" y1="14" x2="14" y2="6"/></svg>
-          Erase
-        </button>
-        <button className={`tool-btn${activeTool === "select" ? " active" : ""}`} title="Виділити та видалити" onClick={() => setTool("select")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="3.5" x2="20.5" y2="15.5"/><line x1="3.5" y1="8.5" x2="15.5" y2="20.5"/></svg>
-          Select
-        </button>
-        <button className="tool-btn" title="Збільшити" onClick={() => zoom(1.2)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          +
-        </button>
-        <button className="tool-btn" title="Зменшити" onClick={() => zoom(0.8)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-          −
-        </button>
-        <button className="tool-btn" title="Скинути вигляд" onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); scaleRef.current = 1; offsetRef.current = { x: 0, y: 0 }; applyTransform(); }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-          Reset
-        </button>
+        {/* Floating toolbar inside canvas */}
+        <div className="board-main-toolbar">
+          <button className={`board-tool-btn${activeTool === "draw" ? " active" : ""}`} onClick={() => setTool("draw")}>
+            <i className="ph ph-pencil-simple"></i><span>Draw</span>
+          </button>
+          <button className={`board-tool-btn${activeTool === "erase" ? " erase-active" : ""}`} onClick={() => setTool("erase")}>
+            <i className="ph ph-eraser"></i><span>Erase</span>
+          </button>
+          <button className="board-tool-btn" onClick={addNote}>
+            <i className="ph ph-text-t"></i><span>Text</span>
+          </button>
+          <button className="board-tool-btn" onClick={addPhoto}>
+            <i className="ph ph-image"></i><span>Photo</span>
+          </button>
+          <button className="board-tool-btn" onClick={addPin}>
+            <i className="ph ph-push-pin"></i><span>Pin</span>
+          </button>
+          <button className="board-tool-btn" onClick={() => zoom(1.2)}>
+            <i className="ph ph-magnifying-glass-plus"></i><span>+</span>
+          </button>
+          <button className="board-tool-btn" onClick={() => zoom(0.8)}>
+            <i className="ph ph-magnifying-glass-minus"></i><span>−</span>
+          </button>
+          <button className="board-tool-btn" onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); scaleRef.current = 1; offsetRef.current = { x: 0, y: 0 }; applyTransform(); }}>
+            <i className="ph ph-arrows-in"></i><span>Reset</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -679,19 +613,19 @@ const Board = () => {
 
   return (
     <div className="home-wrapper">
-      <DeadlinesPanel
-        deadlines={deadlines}
-        isAdmin={isAdmin}
-        token={token}
-        groupId={groupId}
-        onRefresh={loadAll}
-      />
       <InfoBoard
         items={boardItems}
         isAdmin={isAdmin}
         token={token}
         groupId={groupId}
         currentUser={user}
+        onRefresh={loadAll}
+      />
+      <DeadlinesPanel
+        deadlines={deadlines}
+        isAdmin={isAdmin}
+        token={token}
+        groupId={groupId}
         onRefresh={loadAll}
       />
     </div>

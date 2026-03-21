@@ -74,6 +74,7 @@ export default function Students() {
     <div className="std-page">
       <h2 className="std-title">Учасники групи</h2>
       <PageHint page="students" />
+      <div className="std-card">
       <table className="std-table">
         <thead>
           <tr>
@@ -142,6 +143,7 @@ export default function Students() {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
