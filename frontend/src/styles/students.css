@@ -1,50 +1,140 @@
-.std-page {
+/* ГОЛОВНИЙ КОНТЕЙНЕР */
+.std-wrapper {
+  padding: 12px 15px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* КАРТКА */
+.std-card {
+  background: var(--card-bg);
+  border-radius: 20px;
   padding: 24px;
-  max-width: 1100px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border);
 }
 
-.std-title {
-  margin-bottom: 16px;
-  font-size: 20px;
-  font-weight: 600;
+.std-card-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  text-align: center;
 }
 
-.std-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.std-table th {
-  text-align: left;
-  border-bottom: 2px solid var(--border);
-  padding: 8px 12px;
+.std-count {
+  text-align: center;
+  font-size: 13px;
   color: var(--text-secondary);
+  margin-bottom: 20px;
   font-weight: 500;
-  white-space: nowrap;
 }
 
-.std-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.std-num {
-  color: var(--text-secondary);
-  width: 32px;
-}
-
-.std-name-cell {
+/* =========================================
+   ЗАГОЛОВОК ТАБЛИЦІ
+========================================= */
+.std-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  white-space: nowrap;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
 }
 
-.std-avatar {
+/* =========================================
+   РЯДОК УЧАСНИКА
+========================================= */
+.std-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.std-row:last-child {
+  border-bottom: none;
+}
+
+.std-row:hover {
+  background: var(--hover-bg, #f8fafc);
+}
+
+.std-row.std-current {
+  background: rgba(45, 130, 254, 0.06);
+}
+
+.std-row.std-current:hover {
+  background: rgba(45, 130, 254, 0.1);
+}
+
+/* КОЛОНКИ */
+.std-col-num {
   width: 32px;
-  height: 32px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.std-col-user {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.std-col-email {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.std-col-tg {
+  width: 120px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.std-col-bday {
+  width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.std-col-role {
+  width: 90px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.std-col-actions {
+  width: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* =========================================
+   АВАТАР
+========================================= */
+.std-avatar {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -57,45 +147,74 @@
 }
 
 .std-avatar-fallback {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--accent, #6366f1);
+  background: var(--primary, #2d82fe);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
 }
 
+/* =========================================
+   ІМ'Я ТА ІНФО
+========================================= */
+.std-user-info {
+  min-width: 0;
+}
+
+.std-user-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================
+   БЕЙДЖИК РОЛІ
+========================================= */
 .std-role-badge {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 3px 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
-.std-role-admin { background: #fee2e2; color: #b91c1c; }
-.std-role-user  { background: #dcfce7; color: #15803d; }
-
-.std-actions {
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.std-role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
+.std-role-user {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* =========================================
+   ЕЛЕМЕНТИ УПРАВЛІННЯ
+========================================= */
 .std-role-select {
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text);
+  background: var(--panel-bg, #f1f5f9);
+  color: var(--text-main);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: 0.2s;
+  outline: none;
+}
+
+.std-role-select:focus {
+  border-color: var(--primary);
 }
 
 .std-role-select:disabled {
@@ -104,35 +223,122 @@
 }
 
 .std-remove-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: background 0.15s;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-secondary);
+  transition: all 0.15s;
 }
 
 .std-remove-btn:hover {
   background: #fee2e2;
+  color: #ef4444;
 }
 
-.std-current-row td {
-  background: var(--bg-highlight, rgba(99, 102, 241, 0.06));
-}
-
+/* =========================================
+   LOADING
+========================================= */
 .std-loading {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 60px;
+}
+
+/* =========================================
+   ПУСТИЙ СТАН
+========================================= */
+.std-empty {
+  text-align: center;
+  padding: 40px 20px;
   color: var(--text-secondary);
+  font-weight: 600;
   font-size: 15px;
+}
+
+/* =========================================
+   SCROLLABLE TABLE AREA (mobile)
+========================================= */
+.std-scroll-area {
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .std-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .std-scroll-area {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 65vh;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  /* Ensure rows don't shrink — keep full width */
+  .std-header,
+  .std-row {
+    min-width: 700px;
+  }
+
+  .std-row {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .std-wrapper {
+    padding: 8px 10px;
+  }
+
+  .std-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .std-scroll-area {
+    margin: 0 -12px;
+    padding: 0 12px;
+  }
 }
 
 /* =========================================
    DARK MODE OVERRIDES
 ========================================= */
-[data-theme="dark"] .std-role-admin    { background: #7f1d1d; color: #fca5a5; }
-[data-theme="dark"] .std-role-user     { background: #14532d; color: #86efac; }
-[data-theme="dark"] .std-remove-btn:hover { background: rgba(239, 68, 68, 0.15); }
+[data-theme="dark"] .std-role-admin {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .std-role-user {
+  background: #14532d;
+  color: #86efac;
+}
+
+[data-theme="dark"] .std-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .std-row.std-current {
+  background: rgba(45, 130, 254, 0.1);
+}
+
+[data-theme="dark"] .std-row.std-current:hover {
+  background: rgba(45, 130, 254, 0.15);
+}
+
+[data-theme="dark"] .std-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
