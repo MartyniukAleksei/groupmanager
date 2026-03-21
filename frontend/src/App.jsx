@@ -26,6 +26,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <div className="app-root">
       <Routes>
         <Route
           path="/"
@@ -68,6 +69,13 @@ function App() {
         </Route>
         <Route path="*" element={<ErrorPage code={404} />} />
       </Routes>
+      <footer className="app-footer">
+        Created by{" "}
+        <a href="https://t.me/alekseimartyniuk" target="_blank" rel="noopener noreferrer">Oleksii Martyniuk</a>
+        {" "}and{" "}
+        <a href="https://t.me/bohdanparkulab" target="_blank" rel="noopener noreferrer">Bohdan Parkulab</a>
+      </footer>
+      </div>
     </ErrorBoundary>
   );
 }

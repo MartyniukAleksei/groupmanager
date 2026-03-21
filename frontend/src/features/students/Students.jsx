@@ -71,28 +71,41 @@ export default function Students() {
   if (loading) return <div className="std-loading"><Spinner /></div>;
 
   return (
-    <div className="std-page">
-      <h2 className="std-title">Учасники групи</h2>
+    <div className="std-wrapper">
       <PageHint page="students" />
-      <table className="std-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Ім'я</th>
-            <th>Email</th>
-            <th>Telegram</th>
-            <th>День народження</th>
-            <th>Роль</th>
-            {isAdmin && <th>Дії</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((m, idx) => {
+
+      <div className="std-card">
+        <h2 className="std-card-title">Учасники групи</h2>
+        <div className="std-count">{members.length} учасників</div>
+
+        {/* Скролюваний контейнер таблиці */}
+        <div className="std-scroll-area">
+
+        {/* Заголовок колонок */}
+        <div className="std-header">
+          <div className="std-col-num">#</div>
+          <div className="std-col-user">Ім'я</div>
+          <div className="std-col-email">Email</div>
+          <div className="std-col-tg">Telegram</div>
+          <div className="std-col-bday">Д. народження</div>
+          <div className="std-col-role">Роль</div>
+          {isAdmin && <div className="std-col-actions">Дії</div>}
+        </div>
+
+        {/* Список учасників */}
+        {members.length === 0 ? (
+          <div className="std-empty">Ще немає учасників</div>
+        ) : (
+          members.map((m, idx) => {
             const isSelf = m.user_id === user?.id;
             return (
-              <tr key={m.user_id} className={isSelf ? "std-current-row" : ""}>
-                <td className="std-num">{idx + 1}</td>
-                <td className="std-name-cell">
+              <div
+                key={m.user_id}
+                className={`std-row${isSelf ? " std-current" : ""}`}
+              >
+                <div className="std-col-num">{idx + 1}</div>
+
+                <div className="std-col-user">
                   <div className="std-avatar">
                     {m.avatar_url ? (
                       <img src={m.avatar_url} alt={m.name} referrerPolicy="no-referrer" />
@@ -100,18 +113,23 @@ export default function Students() {
                       <div className="std-avatar-fallback">{m.name?.[0] ?? "?"}</div>
                     )}
                   </div>
-                  <span>{m.name}</span>
-                </td>
-                <td>{m.email}</td>
-                <td>{m.telegram ?? "—"}</td>
-                <td>{formatBirthday(m.birthday)}</td>
-                <td>
+                  <div className="std-user-info">
+                    <div className="std-user-name">{m.name}</div>
+                  </div>
+                </div>
+
+                <div className="std-col-email">{m.email}</div>
+                <div className="std-col-tg">{m.telegram ?? "—"}</div>
+                <div className="std-col-bday">{formatBirthday(m.birthday)}</div>
+
+                <div className="std-col-role">
                   <span className={`std-role-badge std-role-${m.role}`}>
                     {ROLE_LABELS[m.role] ?? m.role}
                   </span>
-                </td>
+                </div>
+
                 {isAdmin && (
-                  <td className="std-actions">
+                  <div className="std-col-actions">
                     {!isSelf && (
                       <>
                         <select
@@ -131,17 +149,18 @@ export default function Students() {
                           onClick={() => handleRemove(m.user_id, m.name)}
                           title="Видалити"
                         >
-                          🗑
+                          &#10005;
                         </button>
                       </>
                     )}
-                  </td>
+                  </div>
                 )}
-              </tr>
+              </div>
             );
-          })}
-        </tbody>
-      </table>
+          })
+        )}
+        </div>{/* /std-scroll-area */}
+      </div>
     </div>
   );
 }

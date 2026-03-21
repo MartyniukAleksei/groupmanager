@@ -5,6 +5,15 @@ import { fetchMyGroups, createGroup, joinGroup } from "../api/groups";
 import UserDrawer from "../components/UserDrawer";
 import "../styles/dashboard.css";
 
+const TIPS = [
+  "Створіть групу та поділіться кодом запрошення з одногрупниками",
+  "Використовуйте розклад для перегляду пар на тиждень",
+  "Відмічайте відвідуваність на сторінці \"Явка\"",
+  "Додавайте домашні завдання та дедлайни на дошку",
+  "Завантажуйте навчальні матеріали для спільного доступу",
+  "Використовуйте електронну чергу для справедливого розподілу",
+];
+
 const ICONS = [
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>,
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
@@ -279,6 +288,15 @@ const DashboardPage = () => {
           )}
 
         </div>
+
+        <section className="dash-tips-section">
+          <p className="dash-section-title">Поради використання</p>
+          <div className="dash-tips-card">
+            <ul className="dash-tips-list">
+              {TIPS.map((tip, i) => <li key={i}>{tip}</li>)}
+            </ul>
+          </div>
+        </section>
       </main>
 
       {/* MODALS */}
