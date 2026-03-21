@@ -1,159 +1,8 @@
+/* PAGE WRAPPER */
 .std-page {
   padding: 12px 15px;
-  max-width: 900px;
+  max-width: 700px;
   margin: 0 auto;
-}
-
-.std-title {
-  margin-bottom: 16px;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-
-.std-card {
-  background: var(--card-bg);
-  border-radius: 20px;
-  padding: 0;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.std-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.std-table th {
-  text-align: left;
-  padding: 14px 16px;
-  color: var(--text-secondary);
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--panel-bg);
-  white-space: nowrap;
-  border-bottom: 1px solid var(--border);
-}
-
-.std-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-  color: var(--text-main);
-}
-
-.std-table tr:last-child td {
-  border-bottom: none;
-}
-
-.std-table tr:hover td {
-  background: var(--hover-bg);
-}
-
-.std-num {
-  color: var(--text-secondary);
-  width: 32px;
-}
-
-.std-name-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-}
-
-.std-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.std-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.std-avatar-fallback {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(45, 130, 254, 0.12);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.std-role-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.std-role-admin    { background: rgba(255,90,95,0.12); color: var(--danger); }
-.std-role-starosta { background: rgba(45,130,254,0.12); color: var(--primary); }
-.std-role-editor   { background: rgba(32,201,151,0.12); color: var(--success); }
-.std-role-user     { background: var(--hover-bg); color: var(--text-secondary); }
-
-.std-actions {
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.std-role-select {
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--text-main);
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  outline: none;
-  transition: 0.15s;
-}
-
-.std-role-select:focus {
-  border-color: var(--primary);
-}
-
-.std-role-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.std-remove-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  color: var(--text-secondary);
-  transition: background 0.15s, color 0.15s;
-}
-
-.std-remove-btn:hover {
-  background: rgba(255, 90, 95, 0.1);
-  color: var(--danger);
-}
-
-.std-current-row td {
-  background: rgba(45, 130, 254, 0.05);
 }
 
 .std-loading {
@@ -161,11 +10,323 @@
   justify-content: center;
   align-items: center;
   padding: 60px;
-  color: var(--text-secondary);
-  font-size: 15px;
 }
 
-/* Dark mode */
-[data-theme="dark"] .std-role-admin    { background: rgba(255,90,95,0.18); }
-[data-theme="dark"] .std-role-user     { background: var(--hover-bg); }
-[data-theme="dark"] .std-current-row td { background: rgba(45, 130, 254, 0.08); }
+/* =========================================
+   MAIN CARD
+========================================= */
+.std-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+/* =========================================
+   HEADER ROW
+========================================= */
+.std-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.std-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.std-members-label {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.std-members-label i { font-size: 18px; }
+
+.std-count {
+  background: var(--hover-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 2px 9px;
+}
+
+/* Search */
+.std-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 12px;
+  flex: 1;
+  max-width: 280px;
+}
+
+.std-search-icon { font-size: 15px; color: var(--text-secondary); flex-shrink: 0; }
+
+.std-search {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-main);
+  font-family: inherit;
+  flex: 1;
+  min-width: 0;
+}
+.std-search::placeholder { color: var(--text-secondary); }
+
+.std-search-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 500px) {
+  .std-search-hint { display: none; }
+  .std-search-wrap { max-width: 100%; }
+  .std-header { flex-direction: column; align-items: stretch; }
+}
+
+/* =========================================
+   MEMBERS LIST
+========================================= */
+.std-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.std-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* =========================================
+   MEMBER ROW
+========================================= */
+.std-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  position: relative;
+}
+.std-row:last-child { border-bottom: none; }
+.std-row:hover { background: var(--hover-bg); }
+.std-row-self { background: rgba(45, 130, 254, 0.04); }
+.std-row-self:hover { background: rgba(45, 130, 254, 0.07); }
+
+/* Avatar */
+.std-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.std-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.std-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(45, 130, 254, 0.1);
+  border: 2px solid rgba(45, 130, 254, 0.2);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.std-online-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid var(--card-bg);
+}
+
+/* Info */
+.std-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.std-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.std-you-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(45, 130, 254, 0.12);
+  color: var(--primary);
+  border-radius: 6px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+.std-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.std-tg {
+  margin-left: 4px;
+  color: var(--text-secondary);
+}
+
+/* =========================================
+   ROLE BADGES
+========================================= */
+.std-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.std-role-badge i { font-size: 13px; }
+
+.std-role-admin    { background: rgba(255, 90, 95, 0.1);  color: #ef4444; }
+.std-role-starosta { background: rgba(45, 130, 254, 0.1); color: var(--primary); }
+.std-role-editor   { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.std-role-user     { background: var(--hover-bg);          color: var(--text-secondary); border: 1px solid var(--border); }
+
+[data-theme="dark"] .std-role-admin    { background: rgba(255, 90, 95, 0.15); }
+[data-theme="dark"] .std-role-starosta { background: rgba(45, 130, 254, 0.15); }
+[data-theme="dark"] .std-role-editor   { background: rgba(139, 92, 246, 0.15); }
+
+/* =========================================
+   ADMIN CONTEXT MENU
+========================================= */
+.std-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.std-menu-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 18px;
+  transition: 0.15s;
+}
+.std-menu-btn:hover { background: var(--hover-bg); color: var(--text-main); }
+.std-menu-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.std-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 6px;
+  min-width: 170px;
+  z-index: 100;
+}
+
+.std-dropdown-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px 6px;
+}
+
+.std-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+  text-align: left;
+}
+.std-dropdown-item i { font-size: 15px; color: var(--text-secondary); }
+.std-dropdown-item:hover { background: var(--hover-bg); }
+.std-dropdown-item.active { color: var(--primary); background: rgba(45,130,254,0.07); }
+.std-dropdown-item.active i { color: var(--primary); }
+
+.std-dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 6px;
+}
+
+.std-dropdown-danger { color: var(--danger); }
+.std-dropdown-danger i { color: var(--danger); }
+.std-dropdown-danger:hover { background: rgba(255,90,95,0.08); }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
