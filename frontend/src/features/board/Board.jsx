@@ -58,6 +58,7 @@ function DeadlineCard({ item, isAdmin, onDelete }) {
 
 function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
   const [dlForm, setDlForm] = useState({ title: "", deadline_date: "", status: "planned" });
+  const [editMode, setEditMode] = useState(false);
 
   const handleAddDeadline = async () => {
     if (!dlForm.title.trim() || !dlForm.deadline_date) return;
@@ -79,6 +80,15 @@ function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
         <h3 className="panel-title">
           <i className="ph ph-push-pin" style={{ color: "var(--danger)" }}></i> Дедлайни
         </h3>
+        {isAdmin && (
+          <button
+            className={`hw-edit-btn${editMode ? " active" : ""}`}
+            onClick={() => setEditMode(v => !v)}
+          >
+            <i className="ph ph-pencil-simple"></i>
+            <span className="btn-text">{editMode ? "Готово" : "Редагувати"}</span>
+          </button>
+        )}
       </div>
       <div className="deadlines-grid">
         {deadlines.length === 0 && (
@@ -88,7 +98,7 @@ function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
           <DeadlineCard key={item.id ?? `bday-${i}`} item={item} isAdmin={isAdmin} onDelete={handleDeleteDeadline} />
         ))}
       </div>
-      {isAdmin && (
+      {isAdmin && editMode && (
         <div className="add-dl-box">
           <span>Завдання</span>
           <input type="text" placeholder="Назва завдання" value={dlForm.title} onChange={e => setDlForm({ ...dlForm, title: e.target.value })} />
@@ -494,19 +504,6 @@ function InfoBoard({ items, isAdmin, token, groupId, currentUser, onRefresh }) {
         <h3 className="panel-title">
           <i className="ph ph-notepad"></i> Інфо Дошка
         </h3>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          {isAdmin && (
-            <>
-              <button
-                className={`icon-btn${activeTool === "select" ? " tool-active" : ""}`}
-                title="Виділити та видалити"
-                onClick={() => setTool("select")}
-                style={{ fontSize: 15 }}
-              >✂️</button>
-              <button className="icon-btn" style={{ color: "var(--danger)", fontSize: 15 }} title="Очистити дошку" onClick={handleClearAll}>🗑</button>
-            </>
-          )}
-        </div>
       </div>
 
       <div
