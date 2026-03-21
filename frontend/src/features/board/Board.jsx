@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { fetchBoard, createBoardItem, moveBoardItem, deleteBoardItem, clearBoard } from "../../api/board";
 import { fetchDeadlines, createDeadline, updateDeadline, deleteDeadline } from "../../api/deadlines";
+import { useBoardEdit } from "../../context/BoardEditContext";
 import "../../styles/board.css";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ function DeadlineCard({ item, isAdmin, onDelete }) {
 
 function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
   const [dlForm, setDlForm] = useState({ title: "", deadline_date: "", status: "planned" });
-  const [editMode, setEditMode] = useState(false);
+  const { editMode } = useBoardEdit();
 
   const handleAddDeadline = async () => {
     if (!dlForm.title.trim() || !dlForm.deadline_date) return;
@@ -80,15 +81,6 @@ function DeadlinesPanel({ deadlines, isAdmin, token, groupId, onRefresh }) {
         <h3 className="panel-title">
           <i className="ph ph-push-pin" style={{ color: "var(--danger)" }}></i> Дедлайни
         </h3>
-        {isAdmin && (
-          <button
-            className={`hw-edit-btn${editMode ? " active" : ""}`}
-            onClick={() => setEditMode(v => !v)}
-          >
-            <i className="ph ph-pencil-simple"></i>
-            <span className="btn-text">{editMode ? "Готово" : "Редагувати"}</span>
-          </button>
-        )}
       </div>
       <div className="deadlines-grid">
         {deadlines.length === 0 && (

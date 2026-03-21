@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import { useBoardEdit } from "../../context/BoardEditContext";
 import UserDrawer from "../UserDrawer";
 
 const navItems = [
@@ -27,6 +28,8 @@ const AppLayout = () => {
   const { user } = useAuth();
   const { groupId } = useParams();
   const location = useLocation();
+  const { editMode, setEditMode } = useBoardEdit();
+  const isBoard = location.pathname.endsWith("/board");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navRef = useRef(null);
   const indicatorRef = useRef(null);
@@ -105,6 +108,16 @@ const AppLayout = () => {
           <button className="action-btn pc-only" onClick={toggleTheme}>
             <i className={`ph ${theme === "dark" ? "ph-sun" : "ph-moon"}`}></i>
           </button>
+          {isBoard && (
+            <button
+              className="action-btn"
+              onClick={() => setEditMode(v => !v)}
+              style={editMode ? { color: "var(--primary)" } : {}}
+              title="Редагувати дедлайни"
+            >
+              <i className="ph ph-pencil-simple"></i>
+            </button>
+          )}
           <button className="action-btn" onClick={() => setDrawerOpen(true)}>
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="avatar" referrerPolicy="no-referrer"

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { BoardEditProvider } from "./context/BoardEditContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import JoinGroupPage from "./pages/JoinGroupPage";
@@ -26,6 +27,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <BoardEditProvider>
       <Routes>
         <Route
           path="/"
@@ -68,6 +70,7 @@ function App() {
         </Route>
         <Route path="*" element={<ErrorPage code={404} />} />
       </Routes>
+      </BoardEditProvider>
     </ErrorBoundary>
   );
 }
