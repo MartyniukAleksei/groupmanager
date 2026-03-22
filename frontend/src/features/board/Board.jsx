@@ -164,6 +164,12 @@ function DeadlineCard({ item, isAdmin, onDelete, onView }) {
           <span>{formatDate(item.deadline_date)}</span>
         </div>
       )}
+      {item.description && (
+        <div className="dl-item-desc">
+          {item.description.split(" ").slice(0, 2).join(" ")}…{" "}
+          <span className="dl-item-desc-more">детальніше</span>
+        </div>
+      )}
       <div className="dl-progress-track">
         <div className="dl-progress-bar" style={{ width: `${barPct}%`, background: color }} />
       </div>
