@@ -263,12 +263,14 @@ class DeadlineItemCreate(BaseModel):
     title: str
     status: str   # 'urgent' | 'planned' | 'reminder'
     deadline_date: str  # ISO date "YYYY-MM-DD"
+    description: str | None = None
 
 
 class DeadlineItemUpdate(BaseModel):
     title: str | None = None
     status: str | None = None
     deadline_date: str | None = None
+    description: str | None = None
 
 
 class DeadlineItemOut(BaseModel):
@@ -276,6 +278,7 @@ class DeadlineItemOut(BaseModel):
     title: str
     status: str   # 'urgent' | 'planned' | 'reminder' | 'expired' | 'birthday'
     deadline_date: str
+    description: str | None
     author_name: str | None
     author_avatar: str | None
 
