@@ -100,6 +100,21 @@
   letter-spacing: -0.01em;
 }
 
+/* Board clear button */
+.board-clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.14s, color 0.14s;
+}
+.board-clear-btn:hover { background: var(--hover-bg); color: var(--danger, #ef4444); }
+
 /* ===== DEADLINES PANEL ===== */
 .deadlines-body {
   padding: 4px 16px 20px;
@@ -195,11 +210,9 @@
   position: absolute;
   bottom: 9px;
   right: 10px;
-  opacity: 0;
-  transition: opacity 0.15s;
+  opacity: 1;
   color: var(--text-secondary);
 }
-.dl-item:hover .dl-del-btn { opacity: 1; }
 
 .dl-badge {
   font-size: 11px;
