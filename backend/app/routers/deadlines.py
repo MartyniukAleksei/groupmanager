@@ -23,7 +23,7 @@ async def get_deadlines(
 ):
     ug = await get_membership(group_id, current_user, db)
     today = date.today()
-    grace_cutoff = today - timedelta(days=2)
+    grace_cutoff = today - timedelta(days=7)
 
     # Fetch deadline rows for this group
     result = await db.execute(
@@ -53,6 +53,7 @@ async def get_deadlines(
             title=row.title,
             status=status,
             deadline_date=row.deadline_date.isoformat(),
+            description=row.description,
             author_name=author.name if author else None,
             author_avatar=author.avatar_url if author else None,
         ))
@@ -89,6 +90,7 @@ async def get_deadlines(
                     title=f"День народження — {member.name}",
                     status="birthday",
                     deadline_date=bday_this_year.isoformat(),
+                    description=None,
                     author_name=member.name,
                     author_avatar=member.avatar_url,
                 ))
@@ -117,6 +119,7 @@ async def create_deadline(
         title=body.title,
         status=body.status,
         deadline_date=dl_date,
+        description=body.description,
         created_by_id=current_user.id,
     )
     db.add(item)
@@ -130,6 +133,7 @@ async def create_deadline(
         title=item.title,
         status=status,
         deadline_date=item.deadline_date.isoformat(),
+        description=item.description,
         author_name=current_user.name,
         author_avatar=current_user.avatar_url,
     )
@@ -162,6 +166,8 @@ async def update_deadline(
             item.deadline_date = date.fromisoformat(body.deadline_date)
         except ValueError:
             raise HTTPException(status_code=422, detail="Невірна дата")
+    if body.description is not None:
+        item.description = body.description
 
     await db.commit()
     await db.refresh(item)
@@ -178,6 +184,7 @@ async def update_deadline(
         title=item.title,
         status=status,
         deadline_date=item.deadline_date.isoformat(),
+        description=item.description,
         author_name=author.name if author else None,
         author_avatar=author.avatar_url if author else None,
     )
