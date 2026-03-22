@@ -73,6 +73,10 @@ class SetWeekRequest(BaseModel):
     current_week: int
 
 
+class ImportKpiRequest(BaseModel):
+    kpi_group_id: str
+
+
 class AttendanceVoterOut(BaseModel):
     id: int
     name: str
