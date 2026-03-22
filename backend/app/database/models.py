@@ -207,6 +207,7 @@ class DeadlineItem(Base):
     title: Mapped[str] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(20))   # 'urgent' | 'planned' | 'reminder'
     deadline_date: Mapped[date_type] = mapped_column(Date)
+    description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_by_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
