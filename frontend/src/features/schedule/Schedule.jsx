@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { fetchSchedule, createScheduleEntry, updateScheduleEntry, deleteScheduleEntry, setCurrentWeek } from '../../api/schedule';
+import { fetchSchedule, createScheduleEntry, updateScheduleEntry, deleteScheduleEntry, setCurrentWeek, importKpiSchedule } from '../../api/schedule';
 import { fetchMyGroups } from '../../api/groups';
 import Spinner from '../../components/ui/Spinner';
 import PageHint from '../../components/ui/PageHint';
@@ -35,6 +35,8 @@ const Schedule = () => {
   const [viewClassModal, setViewClassModal] = useState(null);
   const [addClassModal, setAddClassModal] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [importUrl, setImportUrl] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
 
   const [currentDay, setCurrentDay] = useState(() => {
     const dayIndex = new Date().getDay();
@@ -155,6 +157,27 @@ const Schedule = () => {
     }
   };
 
+  const handleImportKpi = async () => {
+    try {
+      const url = new URL(importUrl);
+      const kpiGroupId = url.searchParams.get('groupId');
+      if (!kpiGroupId) {
+        alert('Невірне посилання. Потрібен параметр groupId.');
+        return;
+      }
+      if (!confirm('Існуючий розклад буде замінено. Продовжити?')) return;
+      setImportLoading(true);
+      await importKpiSchedule(token, groupId, kpiGroupId);
+      await loadSchedule();
+      setImportUrl('');
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.detail || 'Не вдалося імпортувати розклад. Перевірте посилання.');
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   const getTypeStyles = (type) => {
     switch (type) {
       case 'lecture': return { text: '#047857', border: '#047857', label: 'ЛЕКЦІЯ', className: 'lecture' };
@@ -169,6 +192,29 @@ const Schedule = () => {
   return (
     <div className="sch-wrapper">
       <PageHint page="schedule" />
+
+      {isAdmin && isEditMode && (
+        <div className="sch-import-block">
+          <div className="sch-import-title">Імпорт розкладу з КПІ</div>
+          <div className="sch-import-row">
+            <input
+              className="sch-import-input"
+              type="url"
+              placeholder="https://schedule.kpi.ua/?groupId=5339"
+              value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+            />
+            <button
+              className="btn-primary sch-import-btn"
+              onClick={handleImportKpi}
+              disabled={importLoading || !importUrl}
+            >
+              {importLoading ? 'Імпорт...' : 'Імпортувати'}
+            </button>
+          </div>
+          <div className="sch-import-warning">Увага: існуючий розклад буде замінено</div>
+        </div>
+      )}
 
       {/* ВЕРХНЯ ПАНЕЛЬ */}
       <div className="sch-top-header">

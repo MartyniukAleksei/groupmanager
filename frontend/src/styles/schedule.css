@@ -1,3 +1,46 @@
+/* ІМПОРТ КПІ */
+.sch-import-block {
+  background: var(--panel-bg, #f1f5f9);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.sch-import-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+  margin-bottom: 10px;
+}
+.sch-import-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.sch-import-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--input-bg, #fff);
+  color: var(--text-primary, #1e293b);
+  min-width: 0;
+}
+.sch-import-input:focus {
+  outline: none;
+  border-color: #4285f4;
+}
+.sch-import-btn {
+  white-space: nowrap;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+}
+.sch-import-warning {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 8px;
+}
+
 /* ГОЛОВНИЙ КОНТЕЙНЕР */
 .sch-wrapper {
   padding: 12px 15px; 
