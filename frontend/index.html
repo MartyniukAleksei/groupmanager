@@ -12,6 +12,87 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
   </head>
   <body>
+    <!-- In-app browser detection: redirect to external browser -->
+    <div id="inapp-banner" style="display:none">
+      <style>
+        #inapp-banner {
+          position: fixed; inset: 0; z-index: 99999;
+          background: #fff; color: #1a1a1a;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 32px 24px; text-align: center;
+          font-family: 'Inter', sans-serif;
+        }
+        #inapp-banner h2 { font-size: 22px; margin: 0 0 12px; }
+        #inapp-banner p { font-size: 15px; color: #555; margin: 0 0 8px; line-height: 1.5; }
+        #inapp-banner .inapp-btn {
+          display: inline-block; margin-top: 20px; padding: 14px 32px;
+          background: #4285f4; color: #fff; border: none; border-radius: 28px;
+          font-size: 16px; font-weight: 600; cursor: pointer;
+          text-decoration: none;
+        }
+        #inapp-banner .inapp-hint {
+          margin-top: 24px; padding: 16px; background: #f5f5f5;
+          border-radius: 12px; font-size: 14px; color: #333; max-width: 340px;
+        }
+        #inapp-banner .inapp-hint strong { display: block; margin-bottom: 6px; }
+      </style>
+      <h2>Відкрийте у браузері</h2>
+      <p>Google-авторизація не працює у вбудованому браузері.<br>Будь ласка, відкрийте сайт у зовнішньому браузері.</p>
+      <button class="inapp-btn" id="inapp-copy-btn">Копіювати посилання</button>
+      <div class="inapp-hint">
+        <strong>Або натисніть ⋮ / ⋯ вгорі</strong>
+        і оберіть «Відкрити у браузері» / «Open in browser»
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var ua = navigator.userAgent || '';
+        var isInApp = /Telegram|TelegramBot|FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|WhatsApp|MicroMessenger/i.test(ua);
+        if (!isInApp) return;
+
+        var url = location.href;
+        var isAndroid = /Android/i.test(ua);
+
+        // On Android, try to open in Chrome via intent
+        if (isAndroid) {
+          var intentUrl = 'intent://' + location.host + location.pathname + location.search + location.hash +
+            '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+          location.replace(intentUrl);
+        }
+
+        // Show banner (for iOS, or as Android fallback)
+        var banner = document.getElementById('inapp-banner');
+        banner.style.display = 'flex';
+        document.getElementById('root').style.display = 'none';
+
+        document.getElementById('inapp-copy-btn').addEventListener('click', function () {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+              this.textContent = 'Скопійовано ✓';
+            }.bind(this)).catch(function () {
+              fallbackCopy(url);
+            });
+          } else {
+            fallbackCopy(url);
+          }
+        });
+
+        function fallbackCopy(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          document.getElementById('inapp-copy-btn').textContent = 'Скопійовано ✓';
+        }
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
