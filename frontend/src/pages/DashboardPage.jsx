@@ -183,6 +183,25 @@ const DashboardPage = () => {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  const handleInstall = () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then(() => setInstallPrompt(null));
+    } else {
+      setShowInstallModal(true);
+    }
+  };
 
   useEffect(() => {
     fetchMyGroups(token)
@@ -232,6 +251,10 @@ const DashboardPage = () => {
           </div>
           <span className="dash-logo-name">Group Manager</span>
           <div className="dash-header-actions">
+            <button className="dash-btn-outline" onClick={handleInstall}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 18h18v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
+              Встановити додаток
+            </button>
             <button className="dash-btn-outline" onClick={() => setShowCreateModal(true)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Створити групу
@@ -298,6 +321,36 @@ const DashboardPage = () => {
           </div>
         </section>
       </main>
+
+      {/* INSTALL MODAL */}
+      {showInstallModal && (
+        <div className="dash-modal-overlay" onClick={() => setShowInstallModal(false)}>
+          <div className="dash-modal small" onClick={(e) => e.stopPropagation()}>
+            <div className="dash-modal-head">
+              <h3>Встановити додаток</h3>
+              <button className="dash-modal-close" onClick={() => setShowInstallModal(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            {isIOS ? (
+              <p className="dash-modal-hint">
+                Щоб додати на головний екран:<br/><br/>
+                1. Натисни кнопку <strong>«Поділитися»</strong> (□↑) внизу Safari<br/>
+                2. Прокрути вниз і обери <strong>«На головний екран»</strong>
+              </p>
+            ) : (
+              <p className="dash-modal-hint">
+                Щоб встановити додаток:<br/><br/>
+                1. Відкрий меню браузера <strong>(⋮)</strong> у правому верхньому куті<br/>
+                2. Обери <strong>«Додати на головний екран»</strong> або <strong>«Встановити додаток»</strong>
+              </p>
+            )}
+            <div className="dash-modal-actions">
+              <button className="dash-btn-create" onClick={() => setShowInstallModal(false)}>Зрозуміло</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODALS */}
       {showCreateModal && (
